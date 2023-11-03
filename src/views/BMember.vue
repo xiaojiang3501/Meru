@@ -37,10 +37,6 @@ const rule = ref({
     user_name: [
         { required: true, message: '请输入名字', trigger: 'blur' }
     ],
-    account: [
-        { required: true, message: '请输入帳號', trigger: 'blur' },
-        { min: 6, max: 20, message: '請輸入6-20位字符長度', trigger: 'blur' }
-    ],
     address: [
         { required: true, message: '请输入地址', trigger: 'blur' }
     ],
@@ -189,7 +185,7 @@ const handleCurrentChange = (page) => {
 
                 <el-table 
                 :default-sort="{ prop: 'date',order: 'descending' }"
-                :header-cell-style="{textAlign: 'center'}"
+				:header-cell-style="{color:'#596580',textAlign: 'center'}"
                 :cell-style="{ textAlign: 'center' }"
                 :data="filteredTableData.slice((currentPage - 1) * pageSize, currentPage * pageSize)"
                 style="width: 100%">
@@ -254,14 +250,7 @@ const handleCurrentChange = (page) => {
                     v-model="form.user_name" 
                     style="width: 150px;"/>
                 </el-form-item>
-                <el-form-item 
-                label="帳號" 
-                prop="account" 
-                :label-width="formLabelWidth">
-                    <el-input 
-                    v-model="form.account" 
-                    style="width: 300px;"/>
-                </el-form-item>
+
                 <el-form-item 
                 label="地址" 
                 prop="address" 

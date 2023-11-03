@@ -9,18 +9,19 @@ import { storeToRefs } from 'pinia'
 import { useProduct } from '@/store/product.js'
 const getprodata = useProduct();
 const { products } = storeToRefs(getprodata);
-
+import axios from 'axios'
 
 onMounted(() => {
     fetchData()
 })
 
 const fetchData = () => {
-    fetch('api/products')
+    // fetch('api/products')
+	axios.get('http://localhost:3000/products')
     .then(data => data.json())
     .then(data => {
-        // console.log(data.products); 
-        products.value = data.products;
+        // console.log(data); 
+        products.value = data;
 
     })
 }
@@ -92,6 +93,9 @@ const handleEdit = (row) => {
 	FormRef.value.clearValidate();
 };
 
+
+
+
 //確認
 const handleConfirm = () => {
     FormRef.value.validate(valid => {
@@ -102,11 +106,12 @@ const handleConfirm = () => {
 				products.value.push({
 				product_id: (products.value.length +1).toString(),
 				...form
-			});
-			ElMessage({
-				type: 'success',
-				message: '商品已新增',
-			});
+				});
+				ElMessage({
+					type: 'success',
+					message: '商品已新增',
+				});
+
 			} else {
 				let index = products.value.findIndex(item => item.product_id === form.product_id);
 				products.value[index] = form
@@ -185,7 +190,7 @@ const handleCurrentChange = (page) => {
 			</div>
 
 			<el-table 
-			:header-cell-style="{textAlign: 'center'}"
+			:header-cell-style="{color:'#596580',textAlign: 'center'}"
 			:cell-style="{ textAlign: 'center' }"                
             :data="filteredTableData.slice((currentPage - 1) * pageSize, 
             currentPage * pageSize)"

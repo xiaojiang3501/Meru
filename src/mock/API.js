@@ -218,7 +218,7 @@ export default [
                     today_income: '5400',
                     today_member: '5',
                     month_sales: {
-
+                        historymonth:  "20,30,40,10,60,60",
                     },
                     time_mode: 'month',
                     ymd: "2023-07-21",
@@ -242,7 +242,7 @@ export default [
                 order:[
                     {
                         order_id: '1',
-                        order_date: '2023-09-21',
+                        order_date: '2023-09-21 14:00',
                         user_id: '3',
                         user_name: "陸小醬",
                         account: "123@gmail.com",

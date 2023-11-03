@@ -5,7 +5,7 @@ import CommonHeader from '@/components/Back/BHeader.vue';
 </script>
 
 <template>
-    <el-container style="height: 100vh;  background-color: #F2F3F5">
+    <el-container class="main-container" >
 
         <!-- 左邊菜單 -->
         <CommonAside />
@@ -18,7 +18,7 @@ import CommonHeader from '@/components/Back/BHeader.vue';
             </el-header>
 
             <!-- 右邊main -->
-            <el-main style="max-width: 100%;">
+            <el-main>
                 <router-view />
             </el-main>
         </el-container>
@@ -29,9 +29,18 @@ import CommonHeader from '@/components/Back/BHeader.vue';
 
 
 <style lang="scss">
-.el-header{
-    background-color: white;
+.main-container{
+    height: 100vh; 
+    background-image: linear-gradient(to top, #dad4ec 0%, #dad4ec 1%, #f3e7e9 100%);
+    
 }
+.el-header{
+    background: transparent;
+}
+.el-main{
+    max-width: 100%;
+}
+
 .title{
     font-size: 20px;
     font-weight: bold;

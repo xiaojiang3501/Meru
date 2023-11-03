@@ -12,9 +12,9 @@ const router = useRouter()
         class="aside"
         default-active="bhome"
         router='true'
-        text-color="#fff"
-        active-text-color="#ffd04b"
-        background-color="#545c64"
+        text-color="#737272"
+        active-text-color="#e6a23d"
+        background-color="#dad4ec"
         @open="handleOpen"
         @close="handleClose">
 
@@ -44,10 +44,14 @@ const router = useRouter()
 .el-menu{
     border: 0;
 }
+.el-menu-item:hover {
+	color:white;
+}
 .aside{
     height: 100vh;
+    background: rgba(255, 255, 255, .6);
     .aside-title{
-        color: white;
+        color: #737272;
         text-align: center;
         padding: 20px 0;
 
@@ -55,6 +59,7 @@ const router = useRouter()
     span{
         font-size: 18px;
     }
+
 }
 
 </style>

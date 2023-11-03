@@ -36,6 +36,8 @@ import CommonFooter from '@/components/Front/Footer.vue';
 .el-main{
     padding: 0;
 }
+
+
 .el-footer{
     padding: 0;
     width: 100%;

@@ -17,9 +17,10 @@ const { cartData  } = storeToRefs(getcartdata);
 
 
 // 獲取路由參數中的id
-const id = router.currentRoute.value.query.id;
+const id = router.currentRoute.value.query.product_id;
+console.log(id);
 // 使用計算屬性找到匹配的id
-const selectedProduct = computed(() => products.value.find(product => product.id === id))
+const selectedProduct = computed(() => products.value.find(product => product.product_id === id))
 
 const num = ref(1)
 function handleChange(value) {
@@ -27,15 +28,15 @@ function handleChange(value) {
 }
 
 const addCart = () => {
-    const selectedProduct = products.value.find(product => product.id === id);
+    const selectedProduct = products.value.find(product => product.product_id === id);
     const existingItem = cartData.value.find(item => item.id === selectedProduct.id);
     if (existingItem) {
         existingItem.count += num.value;
     } else {
         const newItem = {
-            id: selectedProduct.id,
+            id: selectedProduct.product_id,
             image: selectedProduct.image,
-            name: selectedProduct.name,
+            name: selectedProduct.product_name,
             price: selectedProduct.price,
             inventory: selectedProduct.inventory,
             count: num.value
@@ -44,7 +45,7 @@ const addCart = () => {
     }
     ElNotification({
     title: '成功加入購物車',
-    message: 'This is a success message',
+    // message: 'This is a success message',
     offset: 100,
   })
 };
@@ -59,11 +60,12 @@ const addCart = () => {
         </div>
 
         <div class="detail-contect" >
-            <h4 >馬卡龍-{{ selectedProduct.name }}</h4>
+            <h4 >馬卡龍-{{ selectedProduct.product_name }}</h4>
             <h5>成分</h5>
             <p>{{ selectedProduct.ingredient }}</p>
             <br/>
-            <p>過敏成分:{{ selectedProduct.allergen }}</p>
+            <h5>過敏成分</h5>
+            <p>{{ selectedProduct.allergen }}</p>
             <span class="detail-price">價錢:{{ selectedProduct.price }}
             </span>            
             <el-input-number 
@@ -97,13 +99,13 @@ const addCart = () => {
         display: flex;
         flex-direction: column;
         h5{
-            margin: 2% 0;
+            margin: 1% 0;
         }
         p{
             width: 450px;
         }
         .detail-price{
-            margin: 2% 0;
+            margin: 8% 0 3%;
             font-size: 20px;
             color: red;
         }

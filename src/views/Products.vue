@@ -14,21 +14,24 @@ onMounted(() => {
 })
 
 const fetchData = () => {
-    fetch('api/products')
+    // fetch('api/products')
+    fetch('http://localhost:3000/products')
     .then(data => data.json())
     .then(data => {
-        // console.log(data.products); 
-        products.value = data.products;
+        console.log(data); 
+        products.value = data;
 
     })
 }
 
+const filteredProducts = computed(() => products.value.filter(item => item.product_suspend === true));
+
 //跳轉頁面
-const goDetail = (id) => {
+const goDetail = (product_id) => {
     router.push({
         path: "/productsdetail",
         query:{
-            id
+            product_id
         }
 
     })
@@ -42,9 +45,13 @@ const goDetail = (id) => {
         <div class="products-benner"></div>
         <div class="products-wrapper">
             
-            <div v-for="item in products" :key="item.id" class="item" @click="goDetail((item.id))">
+            <div 
+            v-for="item in filteredProducts" 
+            :key="item.product_id" 
+            class="item" 
+            @click="goDetail((item.product_id))">
                 <img :src="item.image" alt="">
-                <h5>{{ item.name }}</h5>
+                <h5>{{ item.product_name }}</h5>
             </div>
 
         </div>
@@ -64,18 +71,20 @@ const goDetail = (id) => {
     flex-wrap: wrap;
     margin: 5% auto;
     width: 80%;
-    border: 1px solid black;
+    // border: 1px solid black;
     .item{
-    width: 180px;
-    margin: 20px;
-    text-align: center;
-    border: 1px solid red;
-    img{
-        margin: 0 auto;
-        display: block;
-        width: 150px;
+        width: 180px;
+        margin: 20px;
+        text-align: center;
+        cursor: pointer;
+        // border: 1px solid red;
+        img{
+            margin: 0 auto;
+            display: block;
+            width: 150px;
+
+        }
     }
-}
 
 }
 
