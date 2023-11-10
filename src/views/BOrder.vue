@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, reactive } from 'vue'
+import { ref, onMounted, computed, reactive, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { markRaw } from 'vue'
 import { Delete, Search } from '@element-plus/icons-vue'
@@ -7,30 +7,33 @@ import { Delete, Search } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useOrder } from '@/store/order.js'
 const getordata = useOrder();
-const { orderData } = storeToRefs(getordata);
+const { orders } = storeToRefs(getordata);
+
+import axios from 'axios'
+
+const apiUrl = 'http://localhost:3000/orders';
+const search_info = ref(''); // 快速搜尋篩選
+const search_time = ref(''); //查詢時間
+const dialogFormVisible = ref(false);
+const dialogType = ref('add');
+const form = reactive({});
+const FormRef = ref(null); 
 
 
 onMounted(() => {
     fetchData()
 })
 
+
 const fetchData = () => {
     fetch('api/order')
     .then(data => data.json())
     .then(data => {
 		// console.log(data.order); 
-        orderData.value = data.order;
+        orders.value = data.order;
     })
 }
 
-
-const search_info = ref(''); // 快速搜尋篩選
-const search_time = ref(''); //查詢時間
-const dialogFormVisible = ref(false);
-const dialogType = ref('add');
-const form = reactive({});
-const isFormValid = ref(true);
-const FormRef = ref(null); 
 
 //表單驗證規則
 const rule = ref({
@@ -54,7 +57,7 @@ const rule = ref({
 // 快速搜尋篩選
 const filteredTableData = computed(() => {
 	// console.log(orderData.value); 
-	return orderData.value.filter((item) =>
+	return orders.value.filter((item) =>
 		!search_info.value ||
 		item.order_id.toLowerCase().includes(search_info.value.toLowerCase()) ||
 		item.user_name.toLowerCase().includes(search_info.value.toLowerCase()) ||
@@ -84,10 +87,9 @@ const handleCheck = (row) => {
 const handleConfirm = () => {
     FormRef.value.validate(valid => {
         if (valid){
-            isFormValid.value = true;
             dialogFormVisible.value = false;
             if (dialogType.value === 'add') {
-                orderData.value.push({
+                orders.value.push({
                 id: (memData.value.length +1).toString(),
                 ...form
                 });
@@ -97,7 +99,7 @@ const handleConfirm = () => {
                 });
             } else {
                 let index = orderData.value.findIndex(item => item.user_id === form.user_id);
-                orderData.value[index] = form
+                orders.value[index] = form
                 ElMessage({
                     type: 'success',
                     message: '商品已編輯',
@@ -241,7 +243,7 @@ const handleCurrentChange = (page) => {
 				<el-pagination
 				:page-size="pageSize"
 				:current-page="currentPage"
-				:total=orderData.length
+				:total=orders.length
 				layout="total, prev, pager, next, jumper"
 				@current-change="handleCurrentChange"
 				/>

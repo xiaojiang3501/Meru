@@ -2,11 +2,11 @@ import { ref, onMounted, computed, reactive } from 'vue'
 import { defineStore } from "pinia";
 
 export const useMember = defineStore('memData', () => {
-    const memData = ref([]); 
+    const members = ref([]); 
 
 
 
-    return { memData }
+    return { members }
 },
 
     {

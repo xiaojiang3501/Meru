@@ -1,172 +1,231 @@
 {
-  "posts": [
+  "test": [
     {
-      "id": 1,
-      "title": "json-server",
-      "author": "typicode"
+      "name": "11",
+      "email": "2",
+      "suspend": false,
+      "id": 1
+    },
+    {
+      "name": "2222",
+      "email": "21111",
+      "suspend": true,
+      "id": 2
     }
   ],
-  "comments": [
+  "userlogin": [
     {
       "id": 1,
-      "body": "some comment",
-      "postId": 1
+      "account": "123",
+      "password": "123",
+      "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjViMTBjNjhjNmU1MjkzMzM1MzhhMDJhN2FhZDYwOTIyZDMxOTMyOWJhNTM0ODRmZGEwNzJhOWE1MWY2YTNkNDNlMDAwOTExNjA5ZDk0NTI0In0"
     }
   ],
-  "profile": {
-    "name": "typicode"
-  },
-  "products":[
-    {   "product_id": "1",
-        "image": "../public/products/1.png",
-        "product_name": "草莓",
-        "price":"60",
-        "ingredient":"杏仁粉、植物性蛋白、天然食用色素、草莓果泥、白巧克力、法國 AOP奶油、砂糖",
-        "allergen":"堅果、乳製品",
-        "inventory": 20,
-        "product_suspend": true
-    },
+  "messages": [
     {
-        "product_id": "2",
-        "image": "../public/products/1.png",
-        "product_name": "覆盆子",
-        "price":"60",
-        "ingredient":"杏仁粉、植物性蛋白、天然食用色素、覆盆子果泥、白巧克力、法國 AOP奶油、砂糖",
-        "allergen":"堅果、乳製品",
-        "inventory": 20,
-        "product_suspend": true
-    },
-    {
-        "product_id": "3",
-        "image": "../public/products/1.png",
-        "product_name": "藍莓",
-        "price":"60",
-        "ingredient":"杏仁粉、植物性蛋白、天然食用色素、藍莓果泥、白巧克力、法國 AOP奶油、砂糖",
-        "allergen":"堅果、乳製品",
-        "inventory": 10,
-        "product_suspend": true
-    },
-    {
-        "product_id": "4",
-        "image": "../public/products/1.png",
-        "product_name": "檸檬",
-        "price":"60",
-        "ingredient":"杏仁粉、植物性蛋白、天然食用色素、檸檬、白巧克力、法國 AOP奶油、砂糖",
-        "allergen":"堅果、乳製品",
-        "inventory": 10,
-        "product_suspend": true
-    },
-    {
-        "product_id": "5",
-        "image": "../public/products/1.png",
-        "product_name": "香蕉",
-        "price":"60",
-        "ingredient":"杏仁粉、植物性蛋白、天然食用色素、香蕉果泥、白巧克力、法國 AOP奶油、砂糖",
-        "allergen":"堅果、乳製品",
-        "inventory": 10,
-        "product_suspend": true
-    },
-    {
-        "product_id": "6",
-        "image": "../public/products/1.png",
-        "product_name": "橘子",
-        "price":"60",
-        "ingredient":"杏仁粉、植物性蛋白、天然食用色素、橘子泥、橘子皮、白巧克力、法國 AOP奶油、砂糖",
-        "allergen":"堅果、乳製品",
-        "inventory": 10,
-        "product_suspend": true
-    },
-    {
-        "product_id": "7",
-        "image": "../public/products/1.png",
-        "product_name": "香草",
-        "price":"60",
-        "ingredient":"杏仁粉、植物性蛋白、香草、白巧克力、鮮奶油、法國 AOP奶油",
-        "allergen":"堅果、乳製品",
-        "inventory": 10,
-        "product_suspend": true
-    },
-    {
-        "product_id": "8",
-        "image": "../public/products/1.png",
-        "product_name": "玫瑰",
-        "price":"60",
-        "ingredient":"杏仁粉、植物性蛋白、天然食用色素、天然玫瑰水、白巧克力、鮮奶油、法國 AOP奶油、砂糖",
-        "allergen":"堅果、乳製品",
-        "inventory": 10,
-        "product_suspend": true
-    },
-    {
-        "product_id": "9",
-        "image": "../public/products/1.png",
-        "product_name": "薰衣草",
-        "price":"60",
-        "ingredient":"杏仁粉、植物性蛋白、天然食用色素、薰衣草、白巧克力、法國 AOP奶油、砂糖",
-        "allergen":"堅果、乳製品",
-        "inventory": 10,
-        "product_suspend": true
-    },
-    {
-        "product_id": "10",
-        "image": "../public/products/1.png",
-        "product_name": "芝麻",
-        "price":"60",
-        "ingredient":"杏仁粉、植物性蛋白、天然食用色素、手工芝麻酱（白芝麻、黑芝麻、焦糖）,鮮奶油、AOP奶油、白巧克力、砂糖",
-        "allergen":"堅果、乳製品",
-        "inventory": 10,
-        "product_suspend": true
-    },
-    {
-        "product_id": "11",
-        "image": "../public/products/1.png",
-        "product_name": "抹茶",
-        "price":"60",
-        "ingredient":"杏仁粉、植物性蛋白、日本宇治抹茶粉、白巧克力、鮮奶油、法國 AOP奶油、砂糖",
-        "allergen":"堅果、乳製品",
-        "inventory": 10,
-        "product_suspend": true
-    },
-    {
-        "product_id": "12",
-        "image": "../public/products/1.png",
-        "product_name": "伯爵茶",
-        "price":"60",
-        "ingredient":"杏仁粉、植物性蛋白、竹炭粉、67%巧克力、椰子醬、伯爵茶葉、砂糖",
-        "allergen":"堅果、乳製品",
-        "inventory": 10,
-        "product_suspend": true
-    },
-    {
-        "product_id": "13",
-        "image": "../public/products/1.png",
-        "product_name": "巧克力",
-        "price":"60",
-        "ingredient":"可可粉、杏仁粉、植物性蛋白、天然食用色素、72%巧克力、鮮奶油、法國 AOP奶油、砂糖",
-        "allergen":"堅果、乳製品",
-        "inventory": 10,
-        "product_suspend": true
-    },
-    {
-        "product_id": "14",
-        "image": "../public/products/1.png",
-        "product_name": "咖啡",
-        "price":"60",
-        "ingredient":"杏仁粉、植物性蛋白、天然食用色素、咖啡粉、白巧克力、法國 AOP奶油、砂糖",
-        "allergen":"堅果、乳製品",
-        "inventory": 10,
-        "product_suspend": true
-    },
-    {
-        "product_id": "15",
-        "image": "../public/products/1.png",
-        "product_name": "棉花糖",
-        "price":"60",
-        "ingredient":"杏仁粉、植物性蛋白、天然食用色素、玉米糖漿、砂糖",
-        "allergen":"堅果、乳製品",
-        "inventory": 10,
-        "product_suspend": true
+      "id": 1,
+      "user_id": 1,
+      "FAQ_date": "2023-05-03",
+      "user_name": "小醬",
+      "account": "123",
+      "question_type": "訂單問題",
+      "question_title": "有什麼口味？",
+      "question": "AAAAAA",
+      "answer": ""
     }
-
-]
-
+  ],
+  "members": [
+    {
+      "register_date": "2023-05-03",
+      "user_name": "義大利麵",
+      "account": "333@gmail.com",
+      "password": "1",
+      "address": "1",
+      "phone": "1",
+      "user_suspend": false,
+      "id": 1
+    },
+    {
+      "id": 2,
+      "register_date": "2023-10-25",
+      "user_name": "小醬",
+      "account": "123@gmail.com",
+      "password": "123123",
+      "address": "桃園市龜山區文化一路537號8樓之10",
+      "phone": "0958354069",
+      "user_suspend": true
+    },
+    {
+      "id": 3,
+      "register_date": "2023-10-25",
+      "user_name": "白白",
+      "account": "111@gmail.com",
+      "password": "123123",
+      "address": "台北市",
+      "phone": "0912345678",
+      "user_suspend": true
+    },
+    {
+      "register_date": "2023-11-07",
+      "user_name": "迪倫",
+      "account": "1029",
+      "password": "111",
+      "address": "111",
+      "phone": "111",
+      "user_suspend": true,
+      "id": 4
+    }
+  ],
+  "products": [
+    {
+      "id": "1",
+      "image": "../public/products/1.png",
+      "product_name": "草莓",
+      "price": "60",
+      "ingredient": "杏仁粉、植物性蛋白、天然食用色素、草莓果泥、白巧克力、法國 AOP奶油、砂糖",
+      "allergen": "堅果、乳製品",
+      "inventory": 20,
+      "product_suspend": true
+    },
+    {
+      "id": "2",
+      "image": "../public/products/1.png",
+      "product_name": "覆盆子",
+      "price": "60",
+      "ingredient": "杏仁粉、植物性蛋白、天然食用色素、覆盆子果泥、白巧克力、法國 AOP奶油、砂糖",
+      "allergen": "堅果、乳製品",
+      "inventory": 20,
+      "product_suspend": true
+    },
+    {
+      "id": "3",
+      "image": "../public/products/1.png",
+      "product_name": "藍莓",
+      "price": "60",
+      "ingredient": "杏仁粉、植物性蛋白、天然食用色素、藍莓果泥、白巧克力、法國 AOP奶油、砂糖",
+      "allergen": "堅果、乳製品",
+      "inventory": 10,
+      "product_suspend": true
+    },
+    {
+      "id": "4",
+      "image": "../public/products/1.png",
+      "product_name": "檸檬",
+      "price": "60",
+      "ingredient": "杏仁粉、植物性蛋白、天然食用色素、檸檬、白巧克力、法國 AOP奶油、砂糖",
+      "allergen": "堅果、乳製品",
+      "inventory": 10,
+      "product_suspend": true
+    },
+    {
+      "image": "../public/products/1.png",
+      "product_name": "香蕉",
+      "ingredient": "杏仁粉、植物性蛋白、天然食用色素、香蕉果泥、白巧克力、法國 AOP奶油、砂糖",
+      "allergen": "堅果、乳製品",
+      "price": "60",
+      "inventory": 10,
+      "product_suspend": true,
+      "id": "5"
+    },
+    {
+      "id": "6",
+      "image": "../public/products/1.png",
+      "product_name": "橘子",
+      "price": "60",
+      "ingredient": "杏仁粉、植物性蛋白、天然食用色素、橘子泥、橘子皮、白巧克力、法國 AOP奶油、砂糖",
+      "allergen": "堅果、乳製品",
+      "inventory": 10,
+      "product_suspend": true
+    },
+    {
+      "id": "7",
+      "image": "../public/products/1.png",
+      "product_name": "香草",
+      "price": "60",
+      "ingredient": "杏仁粉、植物性蛋白、香草、白巧克力、鮮奶油、法國 AOP奶油",
+      "allergen": "堅果、乳製品",
+      "inventory": 10,
+      "product_suspend": true
+    },
+    {
+      "id": "8",
+      "image": "../public/products/1.png",
+      "product_name": "玫瑰",
+      "price": "60",
+      "ingredient": "杏仁粉、植物性蛋白、天然食用色素、天然玫瑰水、白巧克力、鮮奶油、法國 AOP奶油、砂糖",
+      "allergen": "堅果、乳製品",
+      "inventory": 10,
+      "product_suspend": true
+    },
+    {
+      "id": "9",
+      "image": "../public/products/1.png",
+      "product_name": "薰衣草",
+      "price": "60",
+      "ingredient": "杏仁粉、植物性蛋白、天然食用色素、薰衣草、白巧克力、法國 AOP奶油、砂糖",
+      "allergen": "堅果、乳製品",
+      "inventory": 10,
+      "product_suspend": true
+    },
+    {
+      "id": "10",
+      "image": "../public/products/1.png",
+      "product_name": "芝麻",
+      "price": "60",
+      "ingredient": "杏仁粉、植物性蛋白、天然食用色素、手工芝麻酱（白芝麻、黑芝麻、焦糖）,鮮奶油、AOP奶油、白巧克力、砂糖",
+      "allergen": "堅果、乳製品",
+      "inventory": 10,
+      "product_suspend": true
+    },
+    {
+      "id": "11",
+      "image": "../public/products/1.png",
+      "product_name": "抹茶",
+      "price": "60",
+      "ingredient": "杏仁粉、植物性蛋白、日本宇治抹茶粉、白巧克力、鮮奶油、法國 AOP奶油、砂糖",
+      "allergen": "堅果、乳製品",
+      "inventory": 10,
+      "product_suspend": true
+    },
+    {
+      "id": "12",
+      "image": "../public/products/1.png",
+      "product_name": "伯爵茶",
+      "price": "60",
+      "ingredient": "杏仁粉、植物性蛋白、竹炭粉、67%巧克力、椰子醬、伯爵茶葉、砂糖",
+      "allergen": "堅果、乳製品",
+      "inventory": 10,
+      "product_suspend": true
+    },
+    {
+      "id": "13",
+      "image": "../public/products/1.png",
+      "product_name": "巧克力",
+      "price": "60",
+      "ingredient": "可可粉、杏仁粉、植物性蛋白、天然食用色素、72%巧克力、鮮奶油、法國 AOP奶油、砂糖",
+      "allergen": "堅果、乳製品",
+      "inventory": 10,
+      "product_suspend": true
+    },
+    {
+      "id": "14",
+      "image": "../public/products/1.png",
+      "product_name": "咖啡",
+      "price": "60",
+      "ingredient": "杏仁粉、植物性蛋白、天然食用色素、咖啡粉、白巧克力、法國 AOP奶油、砂糖",
+      "allergen": "堅果、乳製品",
+      "inventory": 10,
+      "product_suspend": true
+    },
+    {
+      "image": "../public/products/1.png",
+      "product_name": "棉花糖",
+      "ingredient": "杏仁粉、植物性蛋白、天然食用色素、玉米糖漿、砂糖",
+      "allergen": "堅果、乳製品",
+      "price": "60",
+      "inventory": "20",
+      "product_suspend": true,
+      "id": "15"
+    }
+  ]
 }

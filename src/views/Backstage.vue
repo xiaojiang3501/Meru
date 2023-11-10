@@ -39,9 +39,7 @@ const Login = () => {
     .then(data => {
         sessionStorage.setItem("token", "xj");
         login_text.value = false
-        router.push({
-            name: 'home'
-        })
+        router.push({ name: 'home' })
     })
 
 
@@ -53,7 +51,6 @@ const Login = () => {
         <div class="backstage-circle2"></div>
         <el-form 
         class="backstage-container" 
-        ref="form" 
         label-position="left" 
         :inline="true" 
         label-width="100px"

@@ -1,37 +1,43 @@
 <script setup>
-import { ref, onMounted, computed, reactive } from 'vue'
+import { ref, onMounted, computed, reactive, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { markRaw } from 'vue'
 import { Delete, Search } from '@element-plus/icons-vue'
-
 // ===============Pinia===================================
 import { storeToRefs } from 'pinia'
 import { useProduct } from '@/store/product.js'
 const getprodata = useProduct();
 const { products } = storeToRefs(getprodata);
+
 import axios from 'axios'
+
+const apiUrl = 'http://localhost:3000/products';
+const search_info = ref('');
+const showAdd = ref(false);
+const showEdit = ref(false);
+const FormRef = ref();
+const newProduct = reactive({
+    image:'',
+    product_name: '', 
+    ingredient: '',
+    allergen: '',
+    price: '',
+    inventory: '',
+    product_suspend: ''
+
+});
+const editedProduct = ref(null);  
+
 
 onMounted(() => {
     fetchData()
 })
 
-const fetchData = () => {
-    // fetch('api/products')
-	axios.get('http://localhost:3000/products')
-    .then(data => data.json())
-    .then(data => {
-        // console.log(data); 
-        products.value = data;
-
-    })
+//抓資料
+const fetchData = async () => {
+	const response = await axios.get(apiUrl);
+    products.value = response.data;
 }
-
-const dialogFormVisible = ref(false);
-const dialogType = ref('add');
-const search_info = ref('');
-const form = reactive({});
-const isFormValid = ref(true);
-const FormRef = ref();
 
 //表單驗證規則
 const rule = ref({
@@ -66,87 +72,104 @@ const filteredTableData = computed(() => {
 
 
 //新增
-const handleAdd = () => {
-	dialogFormVisible.value = true;
-    dialogType.value = 'add';
-    form.image = '';
-    form.product_name = '';
-    form.ingredient = '';
-    form.allergen = '';
-    form.price = '';
-    form.inventory = '';
-    form.product_suspend = true;
-};
-
-//編輯
-const handleEdit = (row) => {
-    dialogFormVisible.value = true;
-    dialogType.value = 'edit';
-	form.product_id = row.product_id;
-    form.image = row.image;
-    form.product_name = row.product_name;
-    form.ingredient = row.ingredient;
-    form.allergen = row.allergen;
-    form.price = row.price;
-    form.inventory = row.inventory;
-    form.product_suspend = row.product_suspend;
-	FormRef.value.clearValidate();
-};
-
-
-
-
-//確認
-const handleConfirm = () => {
-    FormRef.value.validate(valid => {
-        if (valid){
-            isFormValid.value = true;
-            dialogFormVisible.value = false;
-			if (dialogType.value === 'add') {
-				products.value.push({
-				product_id: (products.value.length +1).toString(),
-				...form
-				});
-				ElMessage({
-					type: 'success',
-					message: '商品已新增',
-				});
-
-			} else {
-				let index = products.value.findIndex(item => item.product_id === form.product_id);
-				products.value[index] = form
-				ElMessage({
-					type: 'success',
-					message: '商品已編輯',
-				});
-			};
-        }
+const showAddForm = () => {
+	// 清空用+開窗口
+	showAdd.value = true;
+	nextTick(() => {
+        FormRef.value.clearValidate();
     });
-
+    newProduct.image = '';
+    newProduct.product_name = '';
+    newProduct.ingredient = '';
+    newProduct.allergen = '';
+    newProduct.price = '';
+    newProduct.inventory = '';
+    newProduct.product_suspend = true;
 };
 
-//刪除
-const handleDelete = ({product_id}) => {
-	ElMessageBox.confirm('確定要刪除？', '刪除', { //內容,標題
-    confirmButtonText: '確定', //按鈕
-    icon: markRaw(Delete),
-    callback: function(action) { //按鈕完出現的訊息
-		if (action === 'confirm') {
-        let index = products.value.findIndex(item => item.product_id == product_id);
-        products.value.splice(index, 1);
+const addCommodity = async () => {
+	FormRef.value.validate(async (valid) => {
+    if (valid) {
+        const response = await axios.post(apiUrl, newProduct);
+        products.value.push(response.data);
         ElMessage({
-          type: 'success',
-          message: '已刪除',
+            type: 'success',
+            message: '商品已新增',
         });
-      }
-    },
+        // 關窗口
+        showAdd.value = false;
+    }
   });
 }
 
-//關閉視窗
-const handleClose = () => {
-	dialogFormVisible.value = false;
+//編輯
+const showEditForm = (product) => {
+    showEdit.value = true;
+    nextTick(() => {
+        FormRef.value.clearValidate();
+    });
+	editedProduct.value = product;
+    newProduct.image = product.image;
+    newProduct.product_name = product.product_name;
+    newProduct.ingredient = product.ingredient;
+    newProduct.allergen = product.allergen;
+    newProduct.price = product.price;
+    newProduct.inventory = product.inventory;
+    newProduct.product_suspend = product.product_suspend;
 };
+
+const editCommodity = () => {
+  FormRef.value.validate(async (valid) => {
+    if (valid) {
+        const productId = editedProduct.value.id;
+        const response = await axios.put(`${apiUrl}/${productId}`, newProduct );
+        const index = products.value.findIndex((product) => product.id === productId);
+        if (index !== -1) {
+			products.value[index] = response.data;
+        }
+
+        //關窗口
+        showEdit.value = false;
+    }
+  });
+};
+
+//停權
+const toggleSuspendStatus = async (product) => {
+    const productId = product.id;
+
+    const newStatus = product.user_suspend;
+	await axios.put(`${apiUrl}/${productId}`, {
+		image: product.image,
+		product_name: product.product_name,
+		ingredient: product.ingredient,
+		allergen: product.allergen,
+		price: product.price,
+		inventory: product.inventory,
+		product_suspend: product.product_suspend,
+	});
+
+    // 只在成功更新后，將新的狀態赋值给 suspend 属性
+    product.suspend = newStatus;
+};
+
+
+
+//刪除
+const handleDelete = async (productId) => {
+
+	await ElMessageBox.confirm('確定要刪除？', '提示', { //內容,標題
+        confirmButtonText: '確定', //按鈕
+        cancelButtonText: '取消',
+        icon: markRaw(Delete)
+    });
+
+    await axios.delete(`${apiUrl}/${productId}`);
+    products.value = products.value.filter((product) => product.id !== productId);
+    ElMessage.success('删除成功');
+
+}
+
 
 //圖片
 function beforeAvatarUpload(rawFile) {
@@ -185,7 +208,7 @@ const handleCurrentChange = (page) => {
 				size="small"
 				type="primary"
 				class="add"
-				@click="handleAdd()">新增商品</el-button>
+				@click="showAddForm()">新增商品</el-button>
 
 			</div>
 
@@ -207,9 +230,10 @@ const handleCurrentChange = (page) => {
 				<el-table-column prop="allergen" label="過敏原" width="150"/>
 				<el-table-column prop="price" label="價格"  width="100" />
 				<el-table-column prop="inventory" label="庫存" width="100" />
+
 				<el-table-column prop="product_suspend" label="商品上架" width="80">
 					<template #default="{ row }" >
-						<el-switch  v-model="row.product_suspend" /> <!-- 使用 row.suspend 绑定每行的停權狀態 -->
+						<el-switch  v-model="row.product_suspend" @change="toggleSuspendStatus(row)" /> <!-- 使用 row.suspend 绑定每行的停權狀態 -->
 					</template>
 				</el-table-column>
 
@@ -219,12 +243,12 @@ const handleCurrentChange = (page) => {
 					link
 					size="small"
 					type="primary"
-					@click="handleEdit(row)">編輯</el-button>
+					@click="showEditForm(row)">編輯</el-button>
 					<el-button
 					link
 					size="small"
 					type="danger"
-					@click="handleDelete(row)">刪除</el-button>
+					@click="handleDelete(row.id)">刪除</el-button>
 				</template>
 				</el-table-column>
 				
@@ -241,87 +265,158 @@ const handleCurrentChange = (page) => {
 				/>
 			</div>
 
+			<!-- 新增彈窗 -->
+			<el-dialog 
+			v-model="showAdd" 
+			title="新增會員">
+				<el-form 
+				ref="FormRef"
+				label-width="70px"
+				:rules="rule"
+				:model="newProduct"
+				@submit.prevent="addCommodity">
+					<el-upload
+					class="form-upload"
+					ref="addCommodity"
+					action="#"
+					list-type="picture-card"
+					:http-request="uploadSubmit"
+					:auto-upload="false"
+					:limit="1"
+					:show-file-list="true"
+					:before-upload="beforeAvatarUpload"
+					:on-exceed="handleExceed"
+					@success="handleUploadSuccess"
+					>
+					<img v-if="newProduct.image" :src="newProduct.image" class="avatar" />
+					<el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+					</el-upload>
+
+					<el-form-item 
+					label="名字" 
+					prop="product_name" >
+						<el-input 
+						v-model="newProduct.product_name" 
+						style="width: 200px;"/>
+					</el-form-item>
+					<el-form-item 
+					label="成分" 
+					prop="ingredient" >
+						<el-input 
+						type="textarea" 
+						v-model="newProduct.ingredient" 
+						:autosize="{ minRows: 2, maxRows: 4}"/>
+					</el-form-item>
+					<el-form-item 
+					label="過敏原" 
+					prop="allergen" >
+						<el-input 
+						type="textarea" 
+						v-model="newProduct.allergen" 
+						:autosize="{ minRows: 2, maxRows: 4}"/>
+					</el-form-item>
+					<el-form-item 
+					label="價格" 
+					prop="price" >
+						<el-input 
+						v-model="newProduct.price" 
+						style="width: 150px;"/>
+					</el-form-item>
+					<el-form-item 
+					label="庫存" 
+					prop="inventory" >
+						<el-input 
+						v-model="newProduct.inventory" 
+						style="width: 150px;"/>
+					</el-form-item>
+
+				</el-form>
+				<template #footer>
+					<span class="dialog-footer">
+						<el-button 
+						type="primary" 
+						@click="addCommodity">保存</el-button>
+					</span>
+				</template>
+			</el-dialog>
+
+			<!-- 編輯彈窗 -->
+			<el-dialog 
+			v-model="showEdit" 
+			title="編輯會員">
+				<el-form 
+				ref="FormRef"
+				label-width="70px"
+				:rules="rule"
+				:model="newProduct"
+				@submit.prevent="editCommodity">
+					<el-upload
+					class="form-upload"
+					ref="editCommodity"
+					action="#"
+					list-type="picture-card"
+					:http-request="uploadSubmit"
+					:auto-upload="false"
+					:limit="1"
+					:show-file-list="true"
+					:before-upload="beforeAvatarUpload"
+					:on-exceed="handleExceed"
+					@success="handleUploadSuccess"
+					>
+					<img v-if="newProduct.image" :src="newProduct.image" class="avatar" />
+					<el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+					</el-upload>
+
+					<el-form-item 
+					label="名字" 
+					prop="product_name" >
+						<el-input 
+						v-model="newProduct.product_name" 
+						style="width: 200px;"/>
+					</el-form-item>
+					<el-form-item 
+					label="成分" 
+					prop="ingredient" >
+						<el-input 
+						type="textarea" 
+						v-model="newProduct.ingredient" 
+						:autosize="{ minRows: 2, maxRows: 4}"/>
+					</el-form-item>
+					<el-form-item 
+					label="過敏原" 
+					prop="allergen" >
+						<el-input 
+						type="textarea" 
+						v-model="newProduct.allergen" 
+						:autosize="{ minRows: 2, maxRows: 4}"/>
+					</el-form-item>
+					<el-form-item 
+					label="價格" 
+					prop="price" >
+						<el-input 
+						v-model="newProduct.price" 
+						style="width: 150px;"/>
+					</el-form-item>
+					<el-form-item 
+					label="庫存" 
+					prop="inventory" >
+						<el-input 
+						v-model="newProduct.inventory" 
+						style="width: 150px;"/>
+					</el-form-item>
+
+				</el-form>
+				<template #footer>
+					<span class="dialog-footer">
+						<el-button 
+						type="primary" 
+						@click="editCommodity">保存</el-button>
+					</span>
+				</template>
+			</el-dialog>
+
 		</el-row>
 	</el-card>
-    
-	<!-- 彈窗 -->
-	<el-dialog 
-	v-model="dialogFormVisible" 
-	:title="dialogType === 'add'? '新增': '編輯'">
-	<el-form 
-	ref="FormRef"
-	label-width="70px"
-	:model="form"
-	:rules="rule"
-	@close="handleClose">
-		<el-upload
-		class="form-upload"
-		ref="handleConfirm"
-		action="#"
-		list-type="picture-card"
-		:http-request="uploadSubmit"
-		:auto-upload="false"
-		:limit="1"
-		:show-file-list="true"
-		:before-upload="beforeAvatarUpload"
-		:on-exceed="handleExceed"
-		@success="handleUploadSuccess"
-		>
-		<img v-if="form.image" :src="form.image" class="avatar" />
-  		<el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
-		</el-upload>
-		<el-form-item 
-		label="名字" 
-		prop="product_name" 
-		:label-width="formLabelWidth">
-			<el-input 
-			v-model="form.product_name" 
-			style="width: 150px;"/>
-		</el-form-item>
-		<el-form-item 
-		label="成分" 
-		prop="ingredient" 
-		:label-width="formLabelWidth">
-			<el-input 
-			type="textarea" 
-			v-model="form.ingredient" 
-			:autosize="{ minRows: 2, maxRows: 4}"/>
-		</el-form-item>
-		<el-form-item 
-		label="過敏原" 
-		prop="allergen" 
-		:label-width="formLabelWidth">
-			<el-input 
-			type="textarea" 
-			v-model="form.allergen" 
-			:autosize="{ minRows: 2, maxRows: 4}"/>
-		</el-form-item>
-		<el-form-item 
-		label="價格" 
-		prop="price" 
-		:label-width="formLabelWidth">
-			<el-input 
-			v-model="form.price" 
-			style="width: 150px;"/>
-		</el-form-item>
-		<el-form-item 
-		label="庫存" 
-		prop="inventory" 
-		:label-width="formLabelWidth">
-			<el-input 
-			v-model="form.inventory" 
-			style="width: 150px;"/>
-		</el-form-item>
-
-	</el-form>
-	<template #footer>
-		<span class="dialog-footer">
-			<el-button @click="handleClose">取消</el-button>
-			<el-button type="primary" @click="handleConfirm">確定</el-button>
-		</span>
-	</template>
-	</el-dialog>
-
 </template>
 
 

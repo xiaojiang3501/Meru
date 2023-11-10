@@ -11,7 +11,10 @@ const datePickerFormat = ref('YYYY-MM'); //時間格式
 const disabledFutureDates = ref((time) => time.getTime() > Date.now()); //禁止選未來時間
 const now = new Date() //現在時間
 const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate(); //抓當下月的天數
-
+const today_pay = ref('');
+const today_nopay = ref('');
+const today_income = ref('');
+const today_member = ref('');
 
 // 月年切換
 watch(tabDate, () => {
@@ -23,10 +26,7 @@ onMounted( () => {
     updateChart(tabDate.value)
     fetchData()
 });
-const today_pay = ref('');
-const today_nopay = ref('');
-const today_income = ref('');
-const today_member = ref('');
+
 
 const fetchData = () => {
     fetch('api/home')

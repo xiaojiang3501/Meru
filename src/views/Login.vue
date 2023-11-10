@@ -1,5 +1,6 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, reactive, nextTick } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 // ===============Router===================================
 import { useRouter } from "vue-router";
 const router = useRouter()
@@ -11,61 +12,56 @@ const { userData } = storeToRefs(getuserdata);
 // ===============FontAwesome===================================
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faFacebook, faInstagram, faLine } from '@fortawesome/free-brands-svg-icons'
-
 library.add(faFacebook, faInstagram, faLine)
+
 import sha256 from 'sha256'
 
-onMounted(() => {
+import axios from 'axios'
 
-})
-
+const apiUrl = 'http://localhost:3000/userlogin';
 const account = ref('')
 const password = ref('')
 
-
-
-// 登入異常訊息
-const errmsg = ref('')
-const login_text = ref(false)
-
 const Login = () => {
-    router.push({
-        path: "/user",
-    })
-    // if (!account.value) {
-    //     login_text.value = true
-    //     errmsg.value = '請輸入帳號'
-    //     return
-    // }
-    // if (!password.value) {
-    //     login_text.value = true
-    //     errmsg.value = '請輸入密碼'
-    //     return
-    // }
+    if (!account.value) {
+        ElMessage({
+            type: 'error',
+            message: '請輸入帳號',
+        });
+        return
+    }
+    if (!password.value) {
+        ElMessage({
+            type: 'error',
+            message: '請輸入密碼',
+        });
+        return
+    }
     const login_data = {
         account: account.value,
         password: password.value,
     }
-    fetch('api/userlogin' ,{
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(login_data),
-    })
-    .then(data => {
-        console.log(data); 
-        userData.value = data;
-        sessionStorage.setItem("token", userData.value.access_token);
-        login_text.value = false
-        router.push({
-            path: "/user",
-        })
-    })
-    
 
-}
+    axios.get(apiUrl,login_data)
+    .then(response => {
+        if(response.data){
+            userData.value = response.data;
+            console.log(userData.value.access_token);
+            // sessionStorage.setItem("token", userData.value.access_token);
 
+            router.push({ path: "/user" })  
+
+        }else {
+            ElMessage({
+                type: 'error',
+                message: '帳號或密碼錯誤',
+            });
+        }
+
+    })
+ }
+
+//動畫
 const signUp = () => {
     document.querySelector('.container').classList.add('right-panel-active');
 }
@@ -82,7 +78,7 @@ const signIn = () => {
 
             <!-- 註冊 -->
             <div class="form-container sign-up-container">
-                <form action="#">
+                <el-form >
                     <h1>註冊</h1>
                     <div class="social-container">
                         <a href="#" class="social">
@@ -96,26 +92,24 @@ const signIn = () => {
                         </a>
                     </div>
                     <span>或者使用您的帳號註冊</span>
-                    <input 
+                    <el-input 
                     type="text" 
                     placeholder="Name" />
-                    <input 
-                    type="phone" 
-                    placeholder="Phone" />
-                    <input 
+                    <el-input 
                     type="account" 
                     placeholder="Account" />
-                    <input 
+                    <el-input 
                     type="password" 
                     placeholder="Password" />
-                    <button class="login-btn">註冊</button>
 
-                </form>
+                    <el-button  class="login-btn">註冊</el-button >
+
+                </el-form>
             </div>
 
             <!-- 登入 -->
             <div class="form-container sign-in-container">
-                <el-form  action="#" >
+                <el-form  >
                     <h1>登入</h1>
                     <div class="social-container">
                         <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
@@ -123,17 +117,18 @@ const signIn = () => {
                         <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
                     </div>
                     <span>或者其他方式登入</span>
-                    <input 
+                    <el-input 
                     type="account" 
                     v-model="account"  
-                    placeholder="Account" />
-                    <input 
+                    placeholder="Account" 
+                    />
+                    <el-input 
                     type="password" 
                     v-model="password"  
-                    placeholder="Password" />
-
+                    placeholder="Password"
+                    />
                     <a href="#" class="login-forget">忘記密碼</a>
-                    <button class="login-btn" @click="Login">登入</button>
+                    <el-button class="login-btn" @click="Login()">登入</el-button>
                 </el-form>
             </div>
 
@@ -174,7 +169,7 @@ const signIn = () => {
         top: 0;
         height: 100%;
         transition: all .6s ease-in-out;
-        form {
+        .el-form {
             background: #fff;
             display: flex;
             flex-direction: column;
@@ -185,10 +180,9 @@ const signIn = () => {
             text-align: center;
 
         }
-        input{
-            background: #eee;
+        .el-input{
             border: none;
-            padding: 12px 15px;
+            padding: 0 15px;
             margin: 8px 0;
             width: 100%;
         }
@@ -275,13 +269,14 @@ const signIn = () => {
 
 .login-btn{
     width: 120px;
+    height: 40px;
     border-radius: 30px;
     border: 1px solid #ff4b2b;
     background: #ff445c;
     color: #fff;
+    margin-top: 20px;
     font-size: 18px;
     font-weight: bold;
-    letter-spacing: 1px;
     text-transform: uppercase;
     transition: transform 80ms ease-in;
 }
@@ -291,11 +286,11 @@ const signIn = () => {
     color: #fff;
     border-radius: 20px;
 }
-.login-btn,.login-btn2:active {
+.login-btn:active,.login-btn2:active {
     transform: scale(.95);
 }
 
-.login-btn,.login-btn2:focus {
+.login-btn:focus,.login-btn2:focus {
     outline: none;
 }
 

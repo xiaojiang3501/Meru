@@ -9,25 +9,33 @@ import { useUser } from '@/store/user.js'
 const getuserdata = useUser();
 const { userData } = storeToRefs(getuserdata);
 
+import axios from 'axios'
+
+
+const apiUrl = 'http://localhost:3000/members';
+const tabValue = ref("1")  //預設第一個
+const num = ref(10) //我的信息
+
+
 onMounted(() => {
     fetchData()
 })
 
-//預設第一個
-const tabValue = ref(1) 
+
+
 
 const fetchData = () => {
     fetch('api/user')
     .then(data => data.json())
     .then(data => {
-        console.log(data); 
+        // console.log(data); 
         userData.value = data;
+
 
     })
 }
 
-//我的信息
-const num = ref(10)
+
 
 
 </script>

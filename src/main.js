@@ -20,7 +20,8 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 //axios
 import axios from 'axios'
-import VueAxios from 'vue-axios'
+// import VueAxios from 'vue-axios'
+
 //創建vue實例
 const app = createApp(App)
 const pinia = createPinia()
@@ -29,7 +30,7 @@ pinia.use(piniaPluginPersistedstate)
 //註冊插件
 app.use(router)
 app.use(pinia)
-app.use(VueAxios,axios);
+
 app.use(ElementPlus)
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component)
@@ -37,6 +38,7 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 
 app.echarts = echarts
 
+// app.use(VueAxios, axios)
 
 app.component('font-awesome-icon', FontAwesomeIcon)
 //掛載容器

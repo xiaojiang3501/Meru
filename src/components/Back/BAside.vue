@@ -1,8 +1,26 @@
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
+
 // ===============Router===================================
 import { useRouter } from "vue-router";
 const router = useRouter()
+const activeIndex = ref('');
+
+watch(() => router.path, () => {
+  switch (router.path) {
+    case '/member':
+      activeIndex.value = 'member';
+      break;
+    case '/order':
+      activeIndex.value = 'order';
+      break;
+    case '/commodity':
+      activeIndex.value = 'commodity';
+      break;
+    default:
+      activeIndex.value = 'home';
+  }
+})
 
 </script>
 
@@ -10,13 +28,11 @@ const router = useRouter()
     <el-col :span="4">
       <el-menu
         class="aside"
-        default-active="bhome"
-        router='true'
+        :default-active="activeIndex"
+        :router="true"
         text-color="#737272"
         active-text-color="#e6a23d"
-        background-color="#dad4ec"
-        @open="handleOpen"
-        @close="handleClose">
+        background-color="#dad4ec">
 
         <h5 class="aside-title">後台管理系統</h5>
 

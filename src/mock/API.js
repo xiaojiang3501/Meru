@@ -4,13 +4,32 @@ export default [
     {
         url: "/api/userlogin",
         method: "post",
-        response: () => {
-            return {
-                account: "123@gmail.com",
-                password: "123",
-                access_token:            "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjViMTBjNjhjNmU1MjkzMzM1MzhhMDJhN2FhZDYwOTIyZDMxOTMyOWJhNTM0ODRmZGEwNzJhOWE1MWY2YTNkNDNlMDAwOTExNjA5ZDk0NTI0In0",
-            };
-        },
+        response: ({ body }) => {
+            let data = {};
+            if (
+              body?.account !== "123" ||
+              body?.password !==
+                "123"
+            ) {
+              data = {
+                result: -1000,
+                status: -999,
+                message: "帳號密碼有誤",
+              };
+              return data;
+            } else {
+              data = {
+                access_token:
+                  "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjViMTBjNjhjNmU1MjkzMzM1MzhhMDJhN2FhZDYwOTIyZDMxOTMyOWJhNTM0ODRmZGEwNzJhOWE1MWY2YTNkNDNlMDAwOTExNjA5ZDk0NTI0In0",
+                member_id: "1",
+                user_name: "小醬",
+                address: '桃園市龜山區文化一路537號8樓之10',
+                phone: '0958354069',
+
+              };
+              return data;
+            }
+          },
 
     },
     // User
