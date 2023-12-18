@@ -25,6 +25,8 @@ import Chinese from "element-plus/es/locale/lang/zh-tw"; //大於此版本2.3.8�
   min-width: 100vw;
   min-height: 100vh;
   text-align: left;
+  /* background-color: #FAE8E0; */
+  background-color: white;
 }
 h1{
   font-size: 40px;

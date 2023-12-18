@@ -7,37 +7,28 @@ import { Delete, Search } from '@element-plus/icons-vue'
 import { useRouter } from "vue-router";
 const router = useRouter()
 // ===============Pinia===================================
-// import { storeToRefs } from 'pinia'
-// import { useMember } from '@/store/member.js'
-// const getmemdata = useMember();
-// const { members } = storeToRefs(getmemdata);
+import { storeToRefs } from 'pinia'
+import { useMessage } from '@/store/message.js'
+const { messages } = storeToRefs(useMessage());
 
-import axios from 'axios'
 
-const apiUrl = 'http://localhost:3000/messages';
+
 const tabValue = ref("1")  //預設第一個
 const search_info = ref('');
 const showAnswer = ref(false);
-const messages = ref([])
 const selectedRow = ref(null);
 const newMessage = reactive({
     FAQ_date:'',
     user_name: '', 
     account: '',
+    question_type:'', 
+    question_title:'', 
     question: '',
     answer: '',
 
 });
 
-onMounted(() => {
-    fetchData()
-})
 
-//抓資料
-const fetchData = async () => {
-    const response = await axios.get(apiUrl);
-    messages.value = response.data;
-};
 
 // 快速搜尋篩選
 const filteredTableData = computed(() => {
@@ -89,7 +80,7 @@ const handleCurrentChange = (page) => {
 
                     <el-table-column type="selection" width="55">
 					</el-table-column>
-                    <el-table-column prop="FAQ_date" label="日期" width="120" />
+                    <el-table-column prop="message_date" label="日期" width="120" />
                     <el-table-column prop="user_name" label="姓名" 
                     width="150"/>
                     <el-table-column prop="account" label="帳號"  
@@ -145,17 +136,15 @@ const handleCurrentChange = (page) => {
 
         <!-- 回覆彈窗 -->
         <el-dialog 
-        v-model="showAnswer" 
-        title="回覆信件">
+        v-model="showAnswer" >
             <div class="message-answer">
-                <h4 class="name"> {{ newMessage.question_title }}</h4>
+                <h4 class="title"> {{ newMessage.question_title }}</h4>
 
 
                 <h6 class="name">姓名 &nbsp {{ newMessage.user_name }}</h6>
                 <h6 class="account">帳號 &nbsp {{ newMessage.account }}</h6>
 
-                <el-divider content-position="left"></el-divider>
-                <h6>{{ newMessage.question_type }}</h6>
+                <el-divider></el-divider>
                 <p class="question">{{ newMessage.question }}</p>
                 <el-input 
                 type="textarea" 
@@ -193,12 +182,22 @@ const handleCurrentChange = (page) => {
 }
 
 .message-answer{
+    .title{
+        color: #173E76;
+        margin-bottom: 20px;
+        font-size: 24px;
+    }
+    .name{
 
+    }
+    .account{
+
+    }
     .question{
 
     }
     .answer{
-        margin-top: 5% ;
+        margin-top: 5%;
     }
 }
 

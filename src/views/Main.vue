@@ -14,7 +14,7 @@ import CommonFooter from '@/components/Front/Footer.vue';
             </el-header>
 
             <!-- main -->
-            <el-main style="max-width: 100%;">
+            <el-main style="width: 100%;">
                 <router-view />
             </el-main>
 
@@ -42,7 +42,7 @@ import CommonFooter from '@/components/Front/Footer.vue';
     padding: 0;
     width: 100%;
     height: 150px;
-    background-color: gray;
+    background-color: #D8A7B1;
 
 }
 

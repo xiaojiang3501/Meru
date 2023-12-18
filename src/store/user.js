@@ -3,14 +3,13 @@ import { defineStore } from 'pinia'
 
 export const useUser = defineStore('userData', () => {
     const userData = ref({})
-    const setToken = (token) => {
 
-    }
     const clearToken = () => {
-        user
+        // access_token.value = ""
+        // userData = {}
     }
 
-    return { userData,  setToken, clearToken}
+    return { userData, clearToken}
     },
     {
         persist: {

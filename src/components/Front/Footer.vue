@@ -13,10 +13,10 @@ library.add(faFacebook, faInstagram, faLine)
             <img src="../../assets/logo.png">
         </div>
         <div class="footer-privacy">
-            <li><router-link to="/" >FAQ</router-link></li> 
+            <li><router-link to="FAQ" >FAQ</router-link></li> 
+            <li><router-link to="/" >購物須知</router-link></li> 
             <li><router-link to="/" >隱私政策</router-link></li>
             <li><router-link to="/" >客戶服務條款</router-link></li>
-            <li><router-link to="/" >聯絡我們</router-link></li> 
 
         </div>
         <div class="footer-info">

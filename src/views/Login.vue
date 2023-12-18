@@ -7,49 +7,40 @@ const router = useRouter()
 // ===============Pinia===================================
 import { storeToRefs } from 'pinia'
 import { useUser } from '@/store/user.js'
-const getuserdata = useUser();
-const { userData } = storeToRefs(getuserdata);
+const { userData } = storeToRefs(useUser());
+
 // ===============FontAwesome===================================
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faFacebook, faInstagram, faLine } from '@fortawesome/free-brands-svg-icons'
 library.add(faFacebook, faInstagram, faLine)
 
-import sha256 from 'sha256'
-
+// import sha256 from 'sha256'
 import axios from 'axios'
 
-const apiUrl = 'http://localhost:3000/userlogin';
+const apiUrl = 'http://localhost:4000/user/login';
+const apiUrl2 = 'http://localhost:4000/user/register';
 const account = ref('')
 const password = ref('')
+const user_name = ref('')
+const newaccount = ref('')
+const newpassword = ref('')
 
+//登入
 const Login = () => {
-    if (!account.value) {
-        ElMessage({
-            type: 'error',
-            message: '請輸入帳號',
-        });
-        return
-    }
-    if (!password.value) {
-        ElMessage({
-            type: 'error',
-            message: '請輸入密碼',
-        });
-        return
-    }
     const login_data = {
         account: account.value,
         password: password.value,
     }
 
-    axios.get(apiUrl,login_data)
+    axios.post(apiUrl,login_data)
     .then(response => {
-        if(response.data){
-            userData.value = response.data;
-            console.log(userData.value.access_token);
-            // sessionStorage.setItem("token", userData.value.access_token);
+        if(response.data.success){
+            userData.value = response.data.user;
 
-            router.push({ path: "/user" })  
+            // console.log(userData.value.access_token);
+            sessionStorage.setItem("token", userData.value.access_token);
+
+            router.push({ path: "/user" }) 
 
         }else {
             ElMessage({
@@ -59,7 +50,48 @@ const Login = () => {
         }
 
     })
- }
+}
+
+//註冊
+const Register = () => {
+    if (!user_name.value) {
+        ElMessage({
+            type: 'error',
+            message: '請輸入姓名',
+        });
+        return
+    }
+    if (!newaccount.value && !newpassword.value) {
+        ElMessage({
+            type: 'error',
+            message: '請輸入帳號和密碼',
+        });
+        return
+    }
+
+    
+    const register_data = {
+        user_name: user_name.value,
+        account: newaccount.value,
+        password: newpassword.value,
+    }
+    axios.post(apiUrl2,register_data)
+    .then(response => {
+            console.log(response.data);
+        if(response.data.success){
+            userData.value = response.data.user;
+
+            sessionStorage.setItem("token", userData.value.access_token);
+
+        }else {
+            ElMessage({
+                type: 'error',
+                message: '帳號已存在',
+            });
+        }
+     })
+
+}
 
 //動畫
 const signUp = () => {
@@ -78,7 +110,7 @@ const signIn = () => {
 
             <!-- 註冊 -->
             <div class="form-container sign-up-container">
-                <el-form >
+                <el-form  @submit.prevent="Register">
                     <h1>註冊</h1>
                     <div class="social-container">
                         <a href="#" class="social">
@@ -87,22 +119,19 @@ const signIn = () => {
                         <a href="#" class="social">
                             <font-awesome-icon class="icon" :icon="['fab', 'line']" size="2xl" />
                         </a>
-                        <a href="#" class="social"> 
-                            <font-awesome-icon class="icon" :icon="['fab', 'line']" size="2xl" />
-                        </a>
                     </div>
-                    <span>或者使用您的帳號註冊</span>
+                    <span>或者其他方式註冊</span>
                     <el-input 
-                    type="text" 
-                    placeholder="Name" />
+                    v-model="user_name" 
+                    placeholder="姓名" />
                     <el-input 
-                    type="account" 
-                    placeholder="Account" />
+                    v-model="newaccount" 
+                    placeholder="帳號" />
                     <el-input 
-                    type="password" 
-                    placeholder="Password" />
+                    v-model="newpassword" 
+                    placeholder="密碼" />
 
-                    <el-button  class="login-btn">註冊</el-button >
+                    <el-button  class="login-btn" @click="Register()">註冊</el-button >
 
                 </el-form>
             </div>
@@ -114,7 +143,6 @@ const signIn = () => {
                     <div class="social-container">
                         <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
                         <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
-                        <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
                     </div>
                     <span>或者其他方式登入</span>
                     <el-input 

@@ -6,12 +6,13 @@ import { Delete, Search } from '@element-plus/icons-vue'
 // ===============Pinia===================================
 import { storeToRefs } from 'pinia'
 import { useProduct } from '@/store/product.js'
-const getprodata = useProduct();
-const { products } = storeToRefs(getprodata);
+import { useRule } from '@/store/rule.js'
+const { products } = storeToRefs(useProduct());
+const { rule } = storeToRefs(useRule());
 
 import axios from 'axios'
 
-const apiUrl = 'http://localhost:3000/products';
+const apiUrl = 'http://localhost:4000/backstage/product';
 const search_info = ref('');
 const showAdd = ref(false);
 const showEdit = ref(false);
@@ -35,31 +36,9 @@ onMounted(() => {
 
 //抓資料
 const fetchData = async () => {
-	const response = await axios.get(apiUrl);
+	const response = await axios.post(apiUrl);
     products.value = response.data;
 }
-
-//表單驗證規則
-const rule = ref({
-    product_name:[
-        {required:true,message:'请输入名字',trigger:'blur'},
-		{min:1,max:10,message:'請輸入1-10位字符長度',trigger:'blur'}
-    ],
-    ingredient:[
-        {required:true,message:'请输入成分',trigger:'blur'}
-    ],
-    allergen:[
-        {required:true,message:'请输入過敏原',trigger:'blur'}
-    ],
-    price:[
-        {required:true,message:'请输入價格',trigger:'blur'},
-        {min:1,max:6,message:'請輸入1-6位數字',trigger:'blur'}
-    ],
-	inventory:[
-        {required:true,message:'请输入庫存',trigger:'blur'},
-        {min:1,max:6,message:'請輸入1-6位數字',trigger:'blur'}
-    ]
-});
 
 
 // // 快速搜尋篩選
@@ -119,19 +98,19 @@ const showEditForm = (product) => {
 };
 
 const editCommodity = () => {
-  FormRef.value.validate(async (valid) => {
-    if (valid) {
-        const productId = editedProduct.value.id;
-        const response = await axios.put(`${apiUrl}/${productId}`, newProduct );
-        const index = products.value.findIndex((product) => product.id === productId);
-        if (index !== -1) {
-			products.value[index] = response.data;
-        }
+	FormRef.value.validate(async (valid) => {
+		if (valid) {
+			const productId = editedProduct.value.id;
+			const response = await axios.put(`${apiUrl}/${productId}`, newProduct );
+			const index = products.value.findIndex((product) => product.id === productId);
+			if (index !== -1) {
+				products.value[index] = response.data;
+			}
 
-        //關窗口
-        showEdit.value = false;
-    }
-  });
+			//關窗口
+			showEdit.value = false;
+		}
+	});
 };
 
 //停權
@@ -173,14 +152,14 @@ const handleDelete = async (productId) => {
 
 //圖片
 function beforeAvatarUpload(rawFile) {
-  if (rawFile.type !== 'image/jpeg') {
-    ElMessage.error('Avatar picture must be JPG format!');
-    return false;
-  } else if (rawFile.size / 1024 / 1024 > 2) {
-    ElMessage.error('Avatar picture size cannot exceed 2MB!');
-    return false;
-  }
-  return true;
+	if (rawFile.type !== 'image/jpeg') {
+		ElMessage.error('Avatar picture must be JPG format!');
+		return false;
+	} else if (rawFile.size / 1024 / 1024 > 2) {
+		ElMessage.error('Avatar picture size cannot exceed 2MB!');
+		return false;
+	}
+	return true;
 }
 
 //分頁

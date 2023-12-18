@@ -1,17 +1,22 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+// ===============Router===================================
 import { useRouter } from "vue-router"
-import sha256 from 'sha256'
-
 const router = useRouter()
+
+import sha256 from 'sha256'
+import axios from 'axios'
+
 const account = ref('')
 const password = ref('')
 
-
-
+const apiUrl = 'http://localhost:4000/backstage/login';
 // 登入異常訊息
 const errmsg = ref('')
 const login_text = ref(false)
+
+
 
 const Login = () => {
     if (!account.value) {
@@ -26,24 +31,30 @@ const Login = () => {
     }
     const login_data = {
         account: account.value,
-        password: sha256(password.value),
+        // password: sha256(password.value),
+        password: password.value,
     }
-    
-    fetch('/api/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(login_data),
-    })
-    .then(data => {
-        sessionStorage.setItem("token", "xj");
-        login_text.value = false
-        router.push({ name: 'home' })
-    })
 
+    axios.post(apiUrl,login_data)
+    .then(response => {
+        if(response.data.success){
+
+            sessionStorage.setItem("auth", response.data.Auth_token);
+
+            router.push({  path: "/home" }) 
+
+        }else {
+            ElMessage({
+                type: 'error',
+                message: '帳號或密碼錯誤',
+            });
+        }
+
+    })
 
 }
+
+
 </script>
 <template>
     <div class="backstage-wrapper">

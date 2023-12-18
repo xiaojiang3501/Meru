@@ -2,8 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 // ===============Pinia===================================
 // import { storeToRefs } from 'pinia'
 // import { useUser } from '@/store/user.js'
-// const getuserdata = useUser();
-// const { userData } = storeToRefs(getuserdata);
+// const { userData } = storeToRefs(useUser());
 
 
 //創建路由器對象
@@ -53,14 +52,6 @@ const router = createRouter({
 			path: '/cart',
 			name: 'cart',
 			component: () => import('../components/Front/Cart.vue'),
-			// beforeEach: (to, from, next) => {
-			// 	if(userData.access_token){
-			// 		next()
-			// 	}else{
-			// 		next('/login')
-			// 	}
-			
-			// }
 			},
 			{
 			path: '/form',
@@ -149,16 +140,28 @@ const router = createRouter({
   })
 
 //添加路由守衛
-// router.beforeEach((to, from, next) => {
-// 	//驗證token，只有token存在的時候才會跳轉頁面
-// 	let token = sessionStorage.getItem('token')
-// 	if(token || to.path ==="/backstage"){
-// 		next()
-// 	}else{
-// 		next('/backstage')
-// 	}
+router.beforeEach((to, from, next) => {
+	if (to.meta.userauth) {
+		//驗證token，只有token存在的時候才會跳轉頁面
+		let token = sessionStorage.getItem('token')
+		if(token){
+			next()
+		}else{
+			next('/login')
+		}
+	}else if (to.meta.auth){
+		let auth = sessionStorage.getItem('auth');
+		if (auth) {
+			next();
+		} else {
+			next('/backstage'); 
+		}
 
-// })
+	}else{
+		next();
+	}
+
+})
 
 //導出路由器對象
 export default router

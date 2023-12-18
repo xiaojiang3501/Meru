@@ -4,7 +4,7 @@ import axios from 'axios'
 //初始化一個axios實例
 const instance = axios.create({
     //請求前綴
-    baseURL: 'http://localhost:3000/api/',
+    baseURL: 'http://localhost:3000',
     //請求超時時間
     timeout: 20000,
 })
@@ -15,7 +15,7 @@ export const setToken = (token) => {
 }
 
 // 添加请求拦截器
-axios.instance.request.use(function (config) {
+instance.interceptors.request.use(function (config) {
     // 在发送请求之前做些什么
     return config;
   }, function (error) {
@@ -24,7 +24,7 @@ axios.instance.request.use(function (config) {
   });
 
 // 添加响应拦截器
-axios.instance.response.use(function (response) {
+instance.interceptors.response.use(function (response) {
     // 2xx 范围内的状态码都会触发该函数。
     // 对响应数据做点什么
     return response;

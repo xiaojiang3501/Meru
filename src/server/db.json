@@ -27,10 +27,9 @@
       "user_id": 1,
       "FAQ_date": "2023-05-03",
       "user_name": "小醬",
-      "account": "123",
       "question_type": "訂單問題",
       "question_title": "有什麼口味？",
-      "question": "AAAAAA",
+      "question": "有什麼口味？",
       "answer": ""
     }
   ],
@@ -42,7 +41,7 @@
       "password": "1",
       "address": "1",
       "phone": "1",
-      "user_suspend": false,
+      "user_suspend": true,
       "id": 1
     },
     {

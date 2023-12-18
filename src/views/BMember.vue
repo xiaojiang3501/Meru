@@ -6,12 +6,14 @@ import { Delete, Search } from '@element-plus/icons-vue'
 // ===============Pinia===================================
 import { storeToRefs } from 'pinia'
 import { useMember } from '@/store/member.js'
-const getmemdata = useMember();
-const { members } = storeToRefs(getmemdata);
+import { useRule } from '@/store/rule.js'
+
+const { members } = storeToRefs(useMember());
+const { rule } = storeToRefs(useRule());
 
 import axios from 'axios'
 
-const apiUrl = 'http://localhost:3000/members';
+const apiUrl = 'http://localhost:4000/backstage/member';
 const search_info = ref('');
 const showAdd = ref(false);
 const showEdit = ref(false);
@@ -35,31 +37,10 @@ onMounted(() => {
 
 //抓資料
 const fetchData = async () => {
-    const response = await axios.get(apiUrl);
+    const response = await axios.post(apiUrl);
     members.value = response.data;
 };
 
-//表單驗證規則
-const rule = ref({
-    user_name: [
-        { required: true, message: '请输入名字', trigger: 'blur' }
-    ],
-    account: [
-        { required: true, message: '请输入帳號', trigger: 'blur' },
-        { min: 1, max: 20, message: '請輸入1-20位數字', trigger: 'blur' }
-    ],
-    password: [
-        { required: true, message: '请输入密碼', trigger: 'blur' },
-        { min: 1, max: 20, message: '請輸入1-20位數字', trigger: 'blur' }
-    ],
-    address: [
-        { required: true, message: '请输入地址', trigger: 'blur' }
-    ],
-    phone: [
-        { required: true, message: '请输入電話', trigger: 'blur' },
-        { min: 1, max: 20, message: '請輸入1-20位數字', trigger: 'blur' }
-    ]
-});
 
 // 快速搜尋篩選
 const filteredTableData = computed(() => {
@@ -97,17 +78,17 @@ const showAddForm = () => {
 
 const addMember = async () => {
     FormRef.value.validate(async (valid) => {
-    if (valid) {
-        const response = await axios.post(apiUrl, newMember);
-        members.value.push(response.data);
-        ElMessage({
-            type: 'success',
-            message: '商品已新增',
-        });
-        // 關窗口
-        showAdd.value = false;
-    }
-  });
+        if (valid) {
+            const response = await axios.post(apiUrl, newMember);
+            members.value.push(response.data);
+            ElMessage({
+                type: 'success',
+                message: '商品已新增',
+            });
+            // 關窗口
+            showAdd.value = false;
+        }
+    });
 }
 
 //編輯

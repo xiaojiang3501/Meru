@@ -8,12 +8,10 @@ const router = useRouter()
 import { storeToRefs } from 'pinia'
 
 import { useProduct } from '@/store/product.js'
-const getprodata = useProduct();
-const { products } = storeToRefs(getprodata);
-
 import { useCart } from '@/store/cart.js'
-const getcartdata = useCart();
-const { cartData  } = storeToRefs(getcartdata);
+const { products } = storeToRefs(useProduct());
+const { cartData } = storeToRefs(useCart());
+
 
 
 // 獲取路由參數中的id

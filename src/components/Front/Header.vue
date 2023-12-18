@@ -8,7 +8,11 @@ import { useCart } from '@/store/cart.js'
 const getcartdata = useCart();
 const { cartData } = storeToRefs(getcartdata);
 
+const userLink = () => {
+    let token = sessionStorage.getItem('token');
+    return token ? '/user' : '/login';
 
+}
 
 
 </script>
@@ -30,15 +34,15 @@ const { cartData } = storeToRefs(getcartdata);
                     class="item" 
                     type="danger" >
                         <el-icon size="35px">
-                            <ShoppingCart color="pink" />
+                            <ShoppingCart color="#EF7C8E" />
                         </el-icon>
                     </el-badge>
                 </router-link>
             </li>
             <li>            
-                <router-link to="/login" >
+                <router-link :to="userLink()">
                     <el-icon size="35px">
-                        <UserFilled color="pink" />
+                        <UserFilled color="#EF7C8E" />
                     </el-icon>
                 </router-link>
             </li>
@@ -74,7 +78,7 @@ const { cartData } = storeToRefs(getcartdata);
         line-height: 40px;
         font-size: 24px;
         a{
-            color: pink;
+            color: #EF7C8E;
         }
         // border: 1px solid red;
     }

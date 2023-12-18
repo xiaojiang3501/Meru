@@ -6,18 +6,20 @@ import { Delete, Search } from '@element-plus/icons-vue'
 // ===============Pinia===================================
 import { storeToRefs } from 'pinia'
 import { useOrder } from '@/store/order.js'
+import { useRule } from '@/store/rule.js'
 const getordata = useOrder();
 const { orders } = storeToRefs(getordata);
+const { rule } = storeToRefs(useRule());
 
 import axios from 'axios'
 
-const apiUrl = 'http://localhost:3000/orders';
+const apiUrl = 'http://localhost:4000/backstage/order';
 const search_info = ref(''); // 快速搜尋篩選
 const search_time = ref(''); //查詢時間
-const dialogFormVisible = ref(false);
-const dialogType = ref('add');
-const form = reactive({});
+const showCheck = ref(false);
+
 const FormRef = ref(null); 
+const form = reactive({});
 
 
 onMounted(() => {
@@ -25,38 +27,17 @@ onMounted(() => {
 })
 
 
-const fetchData = () => {
-    fetch('api/order')
-    .then(data => data.json())
-    .then(data => {
-		// console.log(data.order); 
-        orders.value = data.order;
-    })
-}
+//抓資料
+const fetchData = async () => {
+    const response = await axios.post(apiUrl);
+    orders.value = response.data;
 
-
-//表單驗證規則
-const rule = ref({
-    user_name: [
-        { required: true, message: '请输入名字', trigger: 'blur' }
-    ],
-    account: [
-        { required: true, message: '请输入帳號', trigger: 'blur' },
-        { min: 6, max: 20, message: '請輸入6-20位字符長度', trigger: 'blur' }
-    ],
-    address: [
-        { required: true, message: '请输入地址', trigger: 'blur' }
-    ],
-    phone: [
-        { required: true, message: '请输入電話', trigger: 'blur' },
-        { min: 1, max: 20, message: '請輸入1-20位數字', trigger: 'blur' }
-    ]
-});
+};
 
 
 // 快速搜尋篩選
 const filteredTableData = computed(() => {
-	// console.log(orderData.value); 
+
 	return orders.value.filter((item) =>
 		!search_info.value ||
 		item.order_id.toLowerCase().includes(search_info.value.toLowerCase()) ||
@@ -65,76 +46,37 @@ const filteredTableData = computed(() => {
 	);
 });
 
-//編輯
+//詳情
 const handleCheck = (row) => {
-    dialogFormVisible.value = true;
-    dialogType.value = 'edit';
-    nextTick(() => {
-        FormRef.value.clearValidate();
-    });
+    showCheck.value = true;
+
     // console.log(row);
 	form.user_id = row.user_id;
-    form.register_date = row.register_date;
+	form.order_id = row.order_id;
+    form.order_date = row.order_date;
     form.user_name = row.user_name;
     form.account = row.account;
-    form.address = row.address;
+	form.address = row.address;
     form.phone = row.phone;
-    form.user_suspend = row.user_suspend;
+	form.total_price = row.total_price;
+	form.pay = row.pay;
+	form.items = row.items;
 
 }
 
-//確認
-const handleConfirm = () => {
-    FormRef.value.validate(valid => {
-        if (valid){
-            dialogFormVisible.value = false;
-            if (dialogType.value === 'add') {
-                orders.value.push({
-                id: (memData.value.length +1).toString(),
-                ...form
-                });
-                ElMessage({
-                    type: 'success',
-                    message: '商品已新增',
-                });
-            } else {
-                let index = orderData.value.findIndex(item => item.user_id === form.user_id);
-                orders.value[index] = form
-                ElMessage({
-                    type: 'success',
-                    message: '商品已編輯',
-                });
-            };
-            
-        }
-
-    
-    });
-
-};
 
 //刪除
-const handleDelete = ({user_id}) => {
-	ElMessageBox.confirm('確定要刪除？', '刪除', { //內容,標題
+const handleDelete = async (orderId) => {
+	await ElMessageBox.confirm('確定要刪除？', '刪除', { //內容,標題
     confirmButtonText: '確定', //按鈕
     icon: markRaw(Delete),
-    callback: function(action) { //按鈕完出現的訊息
-		if (action === 'confirm') {
-        let index = orderData.value.findIndex(item => item.user_id == user_id);
-        orderData.value.splice(index, 1);
-        ElMessage({
-          type: 'success',
-          message: '已刪除',
-        });
-      }
-    },
-  });
+	});
+	await axios.delete(`${apiUrl}/${orderId}`);
+    orders.value = orders.value.filter((order) => order.id !== orderId);
+    ElMessage.success('删除成功');
+
 }
 
-//關閉視窗
-const handleClose = () => {
-	dialogFormVisible.value = false;
-};
 
 
 //分頁
@@ -146,6 +88,7 @@ const handleCurrentChange = (page) => {
 
 
 </script>
+
 <template>
 
         <el-card class="order">
@@ -192,30 +135,30 @@ const handleCurrentChange = (page) => {
 					<el-table-column prop="total_price" label="總金額"  width="100" />
 
 					<el-table-column
-					prop="state"
+					prop="order_state"
 					label="訂單狀態"
 					width="100"
 					>
 					<template #default="{ row }">
 						<el-tag
-						:type="row.state === '成功' ? 'success' : 'danger'"
+						:type="row.order_state === '成功' ? 'success' : 'danger'"
 						disable-transitions
-						>{{ row.state }}</el-tag
+						>{{ row.order_state }}</el-tag
 						>
 					</template>
 					
 					</el-table-column>
 
 					<el-table-column
-					prop="state"
+					prop="pay_state"
 					label="交易狀態"
 					width="100"
 					>
 					<template #default="{ row }">
 						<el-tag
-						:type="row.state === '成功' ? 'success' : 'danger'"
+						:type="row.pay_state === '成功' ? 'success' : 'danger'"
 						disable-transitions
-						>{{ row.state }}</el-tag
+						>{{ row.pay_state }}</el-tag
 						>
 					</template>
 					
@@ -252,43 +195,41 @@ const handleCurrentChange = (page) => {
 				<!-- 彈窗 -->
 				<el-dialog 
 				width="80%"
-				v-model="dialogFormVisible" 
-				:title="dialogType === 'add'? '新增': '訂單資料'">
+				v-model="showCheck" 
+				title="詳情">
+					<!-- 上面 -->
 					<el-table 
 					:default-sort="{ prop: 'date',order: 'descending' }"
 					:header-cell-style="{color:'#596580',textAlign: 'center'}"
 					:cell-style="{ textAlign: 'center' }"
-					:data="filteredTableData.slice((currentPage - 1) * pageSize, currentPage * pageSize)"
+					:data="[form]"
 					class="order-details">
 						<el-table-column fixed sortable prop="order_id" label="訂單編號" width="150" />
 						<el-table-column fixed prop="order_date" label="訂單日期" sortable width="150" />
 
-						<el-table-column prop="account" label="交易方式" />
+						<el-table-column prop="pay" label="交易方式" />
 						<el-table-column prop="total_price" label="總金額"  width="100" />
-						<el-table-column prop="account" label="收件地址" />
+						<el-table-column prop="address" label="收件地址" />
 
 					</el-table>
-
+					<!-- 下面 -->
 					<el-table 
 					border
-					:default-sort="{ prop: 'date',order: 'descending' }"
 					:header-cell-style="{background:'#ecf5ff',color:'#606266',textAlign: 'center'}"
 					:cell-style="{ textAlign: 'center' }"
-					:data="filteredTableData.slice((currentPage - 1) * pageSize, currentPage * pageSize)"
+					:data="form.items"
 					class="order-details2">
-						<el-table-column  prop="order_id" label="訂單編號" width="150" />
-						<el-table-column prop="name" label="名字" />
-						<el-table-column label="數量"  width="180"/>
+						<el-table-column  prop="product_image" label="商品圖片" width="150" />
+						<el-table-column prop="product_name" label="商品名字" />
+						<el-table-column prop="quantity" label="數量"  width="180"/>
 
-						<el-table-column prop="total_price" label="單價" />
-						<el-table-column prop="account" label="收件地址" />
+						<el-table-column prop="price" label="單價" />
 
 					</el-table>
 
 
 					<template #footer>
 						<span class="dialog-footer">
-							<el-button @click="handleClose">取消</el-button>
 							<el-button type="primary" @click="handleConfirm">確定</el-button>
 						</span>
 					</template>

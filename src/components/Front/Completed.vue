@@ -21,7 +21,7 @@ const next = () => {
 const prev = () => {
     if (active.value-- > 2) active.value = 1
     router.push({
-        path: "/cart",
+        path: "/form",
     })
 }
 

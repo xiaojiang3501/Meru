@@ -6,36 +6,89 @@ const router = useRouter()
 // ===============Pinia===================================
 import { storeToRefs } from 'pinia'
 import { useCart } from '@/store/cart.js'
-const getcartdata = useCart();
-const { cartData } = storeToRefs(getcartdata);
+const { cartData } = storeToRefs(useCart());
 
+const pay = ref('')
+const ship = ref('')
+const options1 = [
+    {
+    value: 'Option1',
+    label: '信用卡付款',
+    },
+    {
+    value: 'Option2',
+    label: '超商取貨付款',
+    }
+]
+const options2 = [
+    {
+    value: 'Option1',
+    label: '全家',
+    },
+    {
+    value: 'Option2',
+    label: '7-11',
+    },
+    {
+    value: 'Option3',
+    label: '宅配',
+    },
+]
 
-//合計
-const sum = ref(0);
-const handleSum = (selectedItems) => {
-    // console.log(selectedItems)
+//小計
+const subtotal = ref(0);
+const handleSubtotal = (selectedItems) => {
     if (Array.isArray(selectedItems)) {
-        sum.value = 0;
+        subtotal.value = 0;
         selectedItems.forEach((item) => {
-            sum.value += item.price * item.count;
+            subtotal.value += item.price * item.count;
         });
     }
 }
+//運費
+const freight = ref(0);
+
+watch(ship, (newOption, oldOption) => {
+    if (newOption === 'Option1' || newOption === 'Option2') {
+    freight.value = 60;
+    } else {
+    freight.value = 80;
+    }
+});
+
+
+//優惠碼
+const promo = ref(0);
+const promoCode = ref('');
+const handlePromo = () => {
+    promo.value = promoCode.value === 'meru' ? 50 : 0;
+};
+
+watch(promoCode, () => {
+    handlePromo();
+});
+
+//合計
+const sum = ref(0);
+const handleSum = () => {
+    sum.value = subtotal.value + freight.value - promo.value 
+}
+watch([subtotal, freight, promo], () => {
+  handleSum();
+});
 
 
 //刪除
 const handleDelete = (i) => {
     cartData.value.splice(i, 1);
-    handleSum();
+    handleSubtotal();
 };
 
 //步驟條
 const active = ref(0)
 const next = () => {
     if (active.value++ > 2) active.value = 0
-    router.push({
-        path: "/form",
-    })
+    router.push({ path: "/form"})
 }
 
 
@@ -57,10 +110,10 @@ const next = () => {
 
             <el-table 
             :default-sort="{ prop: 'date',order: 'descending' }"
-            :header-cell-style="{background:'#ecf5ff',color:'#606266',textAlign: 'center'}"
+            :header-cell-style="{background:'#EF7C8E',color:'white',textAlign: 'center'}"
             :cell-style="{ textAlign: 'center' }"
             :data="cartData"
-            @selection-change="handleSum" 
+            @selection-change="handleSubtotal" 
             class="cart-table"
             >
 
@@ -74,7 +127,7 @@ const next = () => {
 					</template>
 				</el-table-column>
 
-                <el-table-column prop="name" label="名字" />
+                <el-table-column prop="name" label="商品名稱" />
 
                 <el-table-column label="數量"  width="180">
                     <template #default="{ row }">
@@ -92,7 +145,7 @@ const next = () => {
                     </template>
                 </el-table-column> 
 
-                <el-table-column label="金額">
+                <el-table-column label="小計">
                     <template  #default="{ row }">
                         <span>{{row.price*row.count}}</span>
                     </template>
@@ -109,15 +162,80 @@ const next = () => {
                 </el-table-column>
                     
             </el-table>
-            <div class="cart-buttom">
-                <div class="cart-sum">
-                    合計：<span class="sum">{{sum}}</span>
+            <div class="cart-center">
+                <div class="cart-info">
+                    <div class="cart-header">選擇付款及運送方式</div>
+                    <div class="cart-select">
+                        <span>付款方式</span>
+                        <el-select v-model="pay" class="m-2" placeholder="請選擇"
+                        style="width: 70%">
+                            <el-option
+                            v-for="item in options1"
+                            :key="item.pay"
+                            :label="item.label"
+                            :value="item.value"
+                            />
+                        </el-select>
+
+                    </div>
+                    <div class="cart-select">
+                        <span>運送方式</span>
+                        <el-select v-model="ship" class="m-2" placeholder="請選擇"
+                        style="width: 70%">
+                            <el-option
+                            v-for="item in options2"
+                            :key="item.ship"
+                            :label="item.label"
+                            :value="item.value"
+                            
+                            />
+                        </el-select>
+
+                    </div>
+                    <div class="cart-select">
+                        <span>優惠碼</span>
+                        <el-input v-model="promoCode" style="width: 75%"></el-input>
+
+                    </div>    
                 </div>
-                <div class="cart-next">
-                    <el-button @click="next">下一步</el-button>
+
+
+                <div class="cart-price">
+                    <div class="cart-header">訂單金額計算</div>
+                    <div class="cart-sum">
+                    
+                        <div class="price">
+                            <span>小記</span>
+                            <span>{{subtotal}}</span>
+                        </div>
+                        <div class="price">
+                            <span>運費</span>
+                            <span>{{freight}}</span>
+                        </div>
+                        <div class="price">
+                            <span>優惠金</span>
+                            <span>{{promo}}</span>
+                        </div>
+                        <div class="cart-line"></div>
+                        <div class="price">
+                            <span>合計</span>
+                            <span>{{sum}}</span>
+                        </div>
+                        
+                    </div>
+    
                 </div>
 
             </div>
+
+
+
+            <div class="cart-buttom">
+                <div class="cart-next">
+                    <el-button @click="next">下一步</el-button>
+                </div>
+            </div>
+
         </div>
     </el-row>
 
@@ -128,9 +246,61 @@ const next = () => {
 .cart-container{
     width: 70%;
     margin: 5% auto;
-    .cart-step{
-        margin: 3% auto;
+}
 
+    .cart-step{
+        margin: 5% auto;
+    }
+    .cart-center{
+        display: flex;
+        justify-content: space-between;
+        margin: 2% 0;
+        font-size: 18px;
+        color: #606266;
+    }
+    .cart-header{
+        width: 100%;
+        height: 35px;
+        background-color: #EF7D8D;
+        color: white;
+        font-weight: bold;
+        text-align: center;
+        line-height: 35px;
+    }
+    .cart-info{
+        background-color: white;
+        border: 1px solid #ebeef5;
+        width: 49%;
+
+        .cart-select{
+            margin: 25px 40px;
+            span{
+                margin-right: 15px;
+            }
+        }
+
+
+    }
+    .cart-price{
+        background-color: white;
+        border: 1px solid #ebeef5;
+        width: 49%;
+        .cart-sum{
+            margin: 20px 40px;
+            .price{
+                display: flex;
+                justify-content: space-between;
+            }
+            span{
+                margin: 1% 0;
+            }
+
+        }
+
+    }
+    .cart-line{
+        border: 1px solid #ebeef5;
+        margin: 2% 0;
     }
     .cart-buttom{
         display: flex;
@@ -138,14 +308,5 @@ const next = () => {
         margin: 3% auto;
 
     }
-    .cart-sum{
-        margin: 0 3%;
-        font-size: 20px;
-    }
-    .sum{
-        color: red;
-    }
-
-}
 </style>
   

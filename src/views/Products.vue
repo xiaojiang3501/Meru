@@ -6,23 +6,23 @@ const router = useRouter()
 // ===============Pinia===================================
 import { storeToRefs } from 'pinia'
 import { useProduct } from '@/store/product.js'
-const getprodata = useProduct();
-const { products } = storeToRefs(getprodata);
+const { products } = storeToRefs(useProduct());
+
+import axios from 'axios'
+
+
+const apiUrl = 'http://localhost:4000/backstage/product';
 
 onMounted(() => {
     fetchData()
 })
 
-const fetchData = () => {
-    // fetch('api/products')
-    fetch('http://localhost:3000/products')
-    .then(data => data.json())
-    .then(data => {
-        console.log(data); 
-        products.value = data;
-
-    })
+//抓資料
+const fetchData = async () => {
+	const response = await axios.post(apiUrl);
+    products.value = response.data;
 }
+
 
 const filteredProducts = computed(() => products.value.filter(item => item.product_suspend === true));
 

@@ -2,61 +2,65 @@
 import { ref, onMounted, watch, reactive, computed } from 'vue'
 import * as echarts from 'echarts'
 
+import axios from 'axios'
 
+
+const apiUrl = 'http://localhost:4000/backstage/home';
+const tableData = reactive([])
 const tabDate = ref('month'); //預選顯示
 const echartRef = ref(null); //圖表
 const pickertime = ref(new Date); //選擇時間v-model
-const datePickerType = ref(''); //時間樣式
+const datePickerType = ref('month'); //時間樣式
 const datePickerFormat = ref('YYYY-MM'); //時間格式
 const disabledFutureDates = ref((time) => time.getTime() > Date.now()); //禁止選未來時間
 const now = new Date() //現在時間
 const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate(); //抓當下月的天數
+
+
+
 const today_pay = ref('');
 const today_nopay = ref('');
 const today_income = ref('');
 const today_member = ref('');
 
+
 // 月年切換
-watch(tabDate, () => {
+watch(tabDate, async() => {
     updatePickertime() 
     tabDate.value = tabDate.value 
+    await SHistory(); 
 })
-onMounted( () => {
+onMounted( async () => {
     updatePickertime() 
     updateChart(tabDate.value)
     fetchData()
+    await SHistory()
 });
 
 
-const fetchData = () => {
-    fetch('api/home')
-    .then(data => data.json())
-    .then(data => {
-        // console.log(data.home[0].today_pay); 
-        today_pay.value = data.home[0].today_pay;
-        today_nopay.value = data.home[0].today_nopay;
-        today_income.value = data.home[0].today_income;
-        today_member.value = data.home[0].today_member;
-    })
-}
-const tableData = [
-  {
-    name: '草莓',
-    number: 5,
-  },
-  {
-    name: '檸檬',
-    number: 8,
-  },
-  {
-    name: '巧克力',
-    number: 11,
-  },
-  {
-    name: '香草',
-    number: 12,
-  },
-]
+
+//抓資料
+const fetchData = async () => {
+    const response = await axios.post(apiUrl);
+    
+    // console.log(response.data.month_sales); 
+    today_pay.value = response.data.today_pay;
+    today_nopay.value = response.data.today_nopay;
+    today_income.value = response.data.today_income;
+    today_member.value = response.data.today_member;
+
+
+    const monthSalesData = response.data.month_sales;
+    
+        tableData.length = 0;
+        tableData.push(...Object.keys(monthSalesData).map(name => ({
+            name,
+            number: monthSalesData[name]
+        })));
+
+
+};
+
 
 // 選擇時間格式input
 function updatePickertime() {
@@ -72,38 +76,76 @@ function updatePickertime() {
     }
 }
 
+
+
+// 查詢時間
+async function SHistory(year, month) {
+    if (pickertime.value) {
+        year = pickertime.value.getFullYear();
+        month = ("0" + (pickertime.value.getMonth() + 1)).slice(-2);
+    }
+    
+  const timedata = await getDataWithParams(year, month);
+  return timedata;  
+}
+
+// 把參數寫入
+async function getDataWithParams(year, month) {   
+    // console.log([year, month])
+    const hisparams = new URLSearchParams({
+        time_mode: tabDate.value,
+        ymd: `${year}-${month}`,
+    });
+    const timedata = await axios.post(apiUrl , hisparams);
+    // console.log(tabDate.value)
+    switch (tabDate.value) {
+        case 'month':
+            parseData(timedata.data.chart_data.history.split(','), data.month);
+            break;
+        case 'year':
+            parseData(timedata.data.chart_data.history.split(','), data.year);
+            break;
+        default:
+            break;
+    }
+    updateChart(tabDate.value, data)
+    return timedata; 
+}
+
+// 把數據循環並放進data（圖表）
+function parseData(dataArray, targetObject) {
+        for (let i = 0; i < dataArray.length; i += 5) {
+            const index = i / 5; // 6個循環
+            targetObject.Income[index] = parseFloat(dataArray[i]); //收入
+            targetObject.Expense[index] = parseFloat(dataArray[i + 1]); //支出
+            targetObject.Sales[index] = parseFloat(dataArray[i + 2]); //銷售
+            targetObject.Member[index] = parseFloat(dataArray[i + 3]); //會員
+            targetObject.xAxisData[index] = parseFloat(dataArray[i + 4]); //X軸
+        }
+}
+
 // 圖表data
 const data = {
     month: {
         xAxisData: Array.from(Array(daysInMonth).keys()).map(i => `${i + 1}`),
-        Income: Array.from(Array(daysInMonth).keys()).map(i => Math.floor(Math.random() * 100)),
-        Expense: Array.from(Array(daysInMonth).keys()).map(i => Math.floor(Math.random() * 100)),
-        Member: Array.from(Array(daysInMonth).keys()).map(i => Math.floor(Math.random() * 100)),
-        Sales: Array.from(Array(daysInMonth).keys()).map(i => Math.floor(Math.random() * 100)),
-        // Income: Array.from({length: daysInMonth}).fill(null),
-
+        Income: Array.from({length: daysInMonth}).fill(null),
+        Expense: Array.from({length: daysInMonth}).fill(null),
+        Member: Array.from({length: daysInMonth}).fill(null),
+        Sales: Array.from({length: daysInMonth}).fill(null),
     },
     year: {
         xAxisData: Array.from(Array(12).keys()).map(i => `${i + 1}`), //X軸顯示內容
-        Income: Array.from(Array(12).keys()).map(i => Math.floor(Math.random() * 100)),
-        Expense: Array.from(Array(daysInMonth).keys()).map(i => Math.floor(Math.random() * 100)),
-        Member: Array.from(Array(daysInMonth).keys()).map(i => Math.floor(Math.random() * 100)),
-        Sales: Array.from(Array(daysInMonth).keys()).map(i => Math.floor(Math.random() * 100)),
-        // Income: Array.from({length: 12}).fill(null),
+        Income: Array.from({length: 12}).fill(null),
+        Expense: Array.from({length: 12}).fill(null),
+        Member: Array.from({length: 12}).fill(null),
+        Sales: Array.from({length: 12}).fill(null),
+        
     }
- }
-//  function parseData(dataArray, targetObject) {
-//         for (let i = 0; i < dataArray.length; i += 6) {
-//             const index = i / 6; // 6個循環
-//             targetObject.Income[index] = parseFloat(dataArray[i + 1]); //桶盤里
-//             targetObject.xAxisData[index] = parseFloat(dataArray[i + 5]); //X軸
-//         }
-// }
-
+}
 
 //圖表
 function updateChart(value) {
-    // console.log(value);
+
     const { xAxisData, Income, Expense, Sales, Member } = data[value]
     const myChart = echarts.getInstanceByDom(echartRef.value)
     if (myChart) {
@@ -113,7 +155,7 @@ function updateChart(value) {
 
     newChart.setOption({
         legend: {
-            data: ['收入','支出','總銷售','加入會員數'] //最上面篩選
+            data: ['總銷售','收入','支出','加入會員數'] //最上面篩選
         },
         grid: { 
             left: '5%',
@@ -167,14 +209,25 @@ function updateChart(value) {
 
         ],
         series: [
+        {
+                name: '總銷售',
+                type: 'line',
+                data: Sales, //資料
+                symbol:'circle', //點樣式
+                itemStyle: {
+                borderColor: 'green',
+                color: 'green'
+                },
+                barWidth: 5
+            }, 
             {
                 name: '收入',
                 type: 'line',
                 data: Income, //資料
                 symbol:'circle', //點樣式
                 itemStyle: {
-                borderColor: 'SkyBlue',
-                color: 'SkyBlue'
+                borderColor: 'orange',
+                color: 'orange'
                 },
                 barWidth: 5
             },  
@@ -188,26 +241,15 @@ function updateChart(value) {
                 color: 'red'
                 },
                 barWidth: 5
-            },  
-            {
-                name: '總銷售',
-                type: 'line',
-                data: Sales, //資料
-                symbol:'circle', //點樣式
-                itemStyle: {
-                borderColor: 'green',
-                color: 'green'
-                },
-                barWidth: 5
-            },    
+            },     
             {
                 name: '加入會員數',
                 type: 'line',
                 data: Member, //資料
                 symbol:'circle', //點樣式
                 itemStyle: {
-                borderColor: 'orange',
-                color: 'orange'
+                borderColor: 'SkyBlue',
+                color: 'SkyBlue'
                 },
                 barWidth: 5
             },         
@@ -308,6 +350,7 @@ function updateChart(value) {
                 class="home-table">
                     <el-table-column prop="name" label="商品名字"  />
                     <el-table-column sortable prop="number" label="數量"  />
+
                 </el-table>
             </el-card>
         </el-col>
