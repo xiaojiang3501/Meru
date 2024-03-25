@@ -7,16 +7,18 @@ import { Delete, Search } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useProduct } from '@/store/product.js'
 import { useRule } from '@/store/rule.js'
+
 const { products } = storeToRefs(useProduct());
 const { rule } = storeToRefs(useRule());
 
 import axios from 'axios'
 
-const apiUrl = 'http://localhost:4000/backstage/product';
+const apiUrl = 'http://localhost:4000/backstage';
 const search_info = ref('');
 const showAdd = ref(false);
 const showEdit = ref(false);
 const FormRef = ref();
+const uploadRef = ref(null);
 const newProduct = reactive({
     image:'',
     product_name: '', 
@@ -25,7 +27,6 @@ const newProduct = reactive({
     price: '',
     inventory: '',
     product_suspend: ''
-
 });
 const editedProduct = ref(null);  
 
@@ -36,13 +37,13 @@ onMounted(() => {
 
 //抓資料
 const fetchData = async () => {
-	const response = await axios.post(apiUrl);
-    products.value = response.data;
+	const response = await axios.post(apiUrl + '/product');
+    products.value = response.data.data;
 }
 
-
-// // 快速搜尋篩選
+//快速搜尋篩選
 const filteredTableData = computed(() => {
+
 	return products.value.filter((item) =>
 		!search_info.value ||
 		item.product_name.toLowerCase().includes(search_info.value.toLowerCase())
@@ -57,56 +58,72 @@ const showAddForm = () => {
 	nextTick(() => {
         FormRef.value.clearValidate();
     });
-    newProduct.image = '';
+	console.log(newProduct.image)
     newProduct.product_name = '';
     newProduct.ingredient = '';
     newProduct.allergen = '';
     newProduct.price = '';
     newProduct.inventory = '';
-    newProduct.product_suspend = true;
 };
 
-const addCommodity = async () => {
+const addCommodity = async (file) => {
+    console.log(file.file)
 	FormRef.value.validate(async (valid) => {
-    if (valid) {
-        const response = await axios.post(apiUrl, newProduct);
-        products.value.push(response.data);
-        ElMessage({
-            type: 'success',
-            message: '商品已新增',
-        });
-        // 關窗口
-        showAdd.value = false;
-    }
-  });
+		if (valid) {
+			const newProductID = products.value.length + 1;
+			console.log(newProductID)
+			const formData = new FormData();
+			formData.append('file', file.file);
+			formData.append('newProductID', newProductID);
+			formData.append('product_name', newProduct.product_name);
+			formData.append('ingredient', newProduct.ingredient);
+			formData.append('allergen', newProduct.allergen);
+			formData.append('price', newProduct.price);
+			formData.append('inventory', newProduct.inventory);
+			formData.append('product_suspend', newProduct.product_suspend);
+
+			const response = await axios.post(apiUrl + '/create-product', formData);
+
+			await fetchData();
+
+
+			ElMessage({
+				type: 'success',
+				message: '商品已新增',
+			});
+			// 關窗口
+			showAdd.value = false;
+		}
+  	});
 }
 
+
 //編輯
-const showEditForm = (product) => {
+const showEditForm = (row) => {
     showEdit.value = true;
     nextTick(() => {
         FormRef.value.clearValidate();
     });
-	editedProduct.value = product;
-    newProduct.image = product.image;
-    newProduct.product_name = product.product_name;
-    newProduct.ingredient = product.ingredient;
-    newProduct.allergen = product.allergen;
-    newProduct.price = product.price;
-    newProduct.inventory = product.inventory;
-    newProduct.product_suspend = product.product_suspend;
+	editedProduct.value = row;
+    newProduct.image = row.image;
+    newProduct.product_name = row.product_name;
+    newProduct.ingredient = row.ingredient;
+    newProduct.allergen = row.allergen;
+    newProduct.price = row.price;
+    newProduct.inventory = row.inventory;
+
 };
 
 const editCommodity = () => {
-	FormRef.value.validate(async (valid) => {
+	FormRef.value.validate( (valid) => {
 		if (valid) {
-			const productId = editedProduct.value.id;
-			const response = await axios.put(`${apiUrl}/${productId}`, newProduct );
-			const index = products.value.findIndex((product) => product.id === productId);
+			const Product_ID = editedProduct.value.Product_ID;
+			const index = products.value.findIndex((product) => product.id === Product_ID);
 			if (index !== -1) {
 				products.value[index] = response.data;
 			}
 
+			const response =  axios.put(`${apiUrl}/edit-product/${Product_ID}`, newProduct );
 			//關窗口
 			showEdit.value = false;
 		}
@@ -114,28 +131,22 @@ const editCommodity = () => {
 };
 
 //停權
-const toggleSuspendStatus = async (product) => {
-    const productId = product.id;
+const toggleSuspendStatus = async (row) => {
+	const Product_ID = row.Product_ID;
+    const newStatus = row.product_suspend;
 
-    const newStatus = product.user_suspend;
-	await axios.put(`${apiUrl}/${productId}`, {
-		image: product.image,
-		product_name: product.product_name,
-		ingredient: product.ingredient,
-		allergen: product.allergen,
-		price: product.price,
-		inventory: product.inventory,
-		product_suspend: product.product_suspend,
+	await axios.put(`${apiUrl}/toggle-product/${Product_ID}`, {
+		product_suspend: newStatus,
 	});
 
     // 只在成功更新后，將新的狀態赋值给 suspend 属性
-    product.suspend = newStatus;
+    row.product_suspend = newStatus;
 };
 
 
 
 //刪除
-const handleDelete = async (productId) => {
+const handleDelete = async (Product_ID) => {
 
 	await ElMessageBox.confirm('確定要刪除？', '提示', { //內容,標題
         confirmButtonText: '確定', //按鈕
@@ -143,15 +154,15 @@ const handleDelete = async (productId) => {
         icon: markRaw(Delete)
     });
 
-    await axios.delete(`${apiUrl}/${productId}`);
-    products.value = products.value.filter((product) => product.id !== productId);
+    await axios.delete(`${apiUrl}/delete-product/${Product_ID}`);
+    products.value = products.value.filter((product) => product.Product_ID !== Product_ID);
     ElMessage.success('删除成功');
 
 }
 
 
 //圖片
-function beforeAvatarUpload(rawFile) {
+const beforeAvatarUpload = (rawFile) => {
 	if (rawFile.type !== 'image/jpeg') {
 		ElMessage.error('Avatar picture must be JPG format!');
 		return false;
@@ -161,6 +172,7 @@ function beforeAvatarUpload(rawFile) {
 	}
 	return true;
 }
+
 
 //分頁
 const pageSize = ref(5) // 5個項目為一頁
@@ -176,11 +188,11 @@ const handleCurrentChange = (page) => {
 			<div class="top">
 				<!-- 搜尋 -->
 				<div class="search">
-				<el-input
-				v-model="search_info"
-				placeholder="搜尋"
-				:suffix-icon="Search"
-				/>
+					<el-input
+					v-model="search_info"
+					placeholder="搜尋"
+					:suffix-icon="Search"
+					/>
 				</div>
 
 				<el-button
@@ -188,7 +200,6 @@ const handleCurrentChange = (page) => {
 				type="primary"
 				class="add"
 				@click="showAddForm()">新增商品</el-button>
-
 			</div>
 
 			<el-table 
@@ -198,9 +209,9 @@ const handleCurrentChange = (page) => {
             currentPage * pageSize)"
 			style="width: 100%">
 				<el-table-column fixed prop="image" label="商品圖片" width="100" >
-					<!-- !-- 使用插槽自定义列的内容 -->
+					<!-- !-- 使用插槽自定列的内容 -->
 					<template #default="{ row }">
-						<img :src="row.image" alt="商品圖片" style="max-width: 60px; max-height: 60px;" />
+						<img :src="`../public/products/${row.image}`" alt="商品圖片" style="max-width: 60px; max-height: 60px;" />
 					</template>
 				</el-table-column>
 				
@@ -227,7 +238,7 @@ const handleCurrentChange = (page) => {
 					link
 					size="small"
 					type="danger"
-					@click="handleDelete(row.id)">刪除</el-button>
+					@click="handleDelete(row.Product_ID)">刪除</el-button>
 				</template>
 				</el-table-column>
 				
@@ -238,7 +249,7 @@ const handleCurrentChange = (page) => {
 				<el-pagination
 				:page-size="pageSize"
 				:current-page="currentPage"
-				:total= products.length
+				:total=products.length
 				layout="total, prev, pager, next, jumper"
 				@current-change="handleCurrentChange"
 				/>
@@ -255,17 +266,15 @@ const handleCurrentChange = (page) => {
 				:model="newProduct"
 				@submit.prevent="addCommodity">
 					<el-upload
+					ref="uploadRef"
 					class="form-upload"
-					ref="addCommodity"
 					action="#"
 					list-type="picture-card"
-					:http-request="uploadSubmit"
+					:http-request="addCommodity"
 					:auto-upload="false"
 					:limit="1"
 					:show-file-list="true"
 					:before-upload="beforeAvatarUpload"
-					:on-exceed="handleExceed"
-					@success="handleUploadSuccess"
 					>
 					<img v-if="newProduct.image" :src="newProduct.image" class="avatar" />
 					<el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
@@ -314,7 +323,7 @@ const handleCurrentChange = (page) => {
 					<span class="dialog-footer">
 						<el-button 
 						type="primary" 
-						@click="addCommodity">保存</el-button>
+						@click="uploadRef.submit()">保存</el-button>
 					</span>
 				</template>
 			</el-dialog>
@@ -330,20 +339,17 @@ const handleCurrentChange = (page) => {
 				:model="newProduct"
 				@submit.prevent="editCommodity">
 					<el-upload
-					class="form-upload"
 					ref="editCommodity"
+					class="form-upload"
 					action="#"
 					list-type="picture-card"
-					:http-request="uploadSubmit"
+					:http-request="editCommodity"
 					:auto-upload="false"
 					:limit="1"
 					:show-file-list="true"
 					:before-upload="beforeAvatarUpload"
-					:on-exceed="handleExceed"
-					@success="handleUploadSuccess"
 					>
-					<img v-if="newProduct.image" :src="newProduct.image" class="avatar" />
-					<el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+					<img  class="avatar" />
 					</el-upload>
 
 					<el-form-item 
@@ -415,6 +421,9 @@ const handleCurrentChange = (page) => {
 		height: 30px;
 		}
     }
+	.paginationBox{
+		margin: 10px auto;
+	}
 }
 .form-upload{
 	margin: 0 0 20px 20px;
@@ -423,8 +432,5 @@ const handleCurrentChange = (page) => {
 	}
 }
 
-.paginationBox{
-    margin: 10px auto;
-}
 
 </style>

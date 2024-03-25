@@ -11,19 +11,34 @@ const { userData } = storeToRefs(getuserdata);
 
 import axios from 'axios'
 
-const apiUrl = 'http://localhost:4000/user/login';
+const apiUrl = 'http://localhost:4000/user';
 const tabValue = ref("1")  //預設第一個
 const showAnswer = ref(false);
-const replyMessage = reactive({
-    FAQ_date:'',
-    user_name: '', 
-    question_type:'', 
-    question_title:'', 
-    question_content:'',
-    answer: '',
+
+const updateData = reactive({
+    Member_ID: userData.value.user.Member_ID,
+    account: userData.value.user.account,
+    password: userData.value.user.password,
+    name: userData.value.user.name,
+    phone: userData.value.user.phone,
+    address: userData.value.user.address,
 
 });
 
+
+//更新資料
+const updateUser = () => {
+    axios.put(apiUrl + '/edit-user', updateData)
+
+}
+
+// 重置 updateData 為原始數據
+const cancelUpdate = () => {
+    updateData.password = userData.value.user.password;
+    updateData.name = userData.value.user.name;
+    updateData.phone = userData.value.user.phone;
+    updateData.address = userData.value.user.address;
+};
 
 // 提問新訊息
 const question = () => {
@@ -60,16 +75,23 @@ const send = () => {
         question_title: newMessage.value,
         question_content: newMessage_content.value,
         question_type: option.value,
-        user_name: user_name.value,
+        name: name.value,
         account: account.value
     }
     axios.post(apiUrl,message)
-
-    console.log(option.value)
-
 }
 
 //回覆
+const replyMessage = reactive({
+    FAQ_date:'',
+    name: '', 
+    question_type:'', 
+    question_title:'', 
+    question_content:'',
+    answer: '',
+
+});
+
 const reply = () => {
 
 
@@ -78,8 +100,8 @@ const reply = () => {
 
 // 登出
 const Logout = () => {
-    sessionStorage.clear();
-    localStorage.removeItem('token')
+    sessionStorage.removeItem('User')
+    sessionStorage.removeItem('token')
     router.push({ path: "/" })
     alert("成功登出")
 }
@@ -90,34 +112,32 @@ const Logout = () => {
     <el-tabs v-model="tabValue" class="user-container" tab-position="left">
         <el-tab-pane label="個人資訊" name="1">
             <el-form 
-            :model="userData"  
+            :model="updateData"  
             :rules="rules"
             class="user-table">
                 <el-form-item label="帳號">
-                    <el-input :disabled="true" v-model="userData.account" style="width: 350px;"/>
+                    <el-input :disabled="true" v-model="updateData.account" style="width: 350px;"/>
                 </el-form-item>
                 <el-form-item label="密碼">
-                    <el-input required v-model="userData.password" type="password" style="width: 350px;"/>
+                    <el-input required v-model="updateData.password" type="password" style="width: 350px;" />
                 </el-form-item>
                 <el-form-item label="姓名">
-                    <el-input required v-model="userData.personal. user_name" style="width: 350px;"/>
+                    <el-input required v-model="updateData.name" style="width: 350px;"/>
                 </el-form-item>
                 <el-form-item label="電話">
-                    <el-input required v-model="userData.personal.phone" style="width: 350px;"/>
+                    <el-input required v-model="updateData.phone" style="width: 350px;"/>
                 </el-form-item>
                 <el-form-item label="地址">
-                    <el-input required v-model="userData.personal.address" style="width: 350px;"/>
+                    <el-input required v-model="updateData.address" style="width: 350px;"/>
                 </el-form-item>
 
                 <div class="user-personal-button">
 
-                    <el-button @click="" >取消</el-button>
+                    <el-button @click="cancelUpdate">重置</el-button>
 
-                    <el-button type="primary"  @click="" >儲存變更</el-button>
+                    <el-button type="primary"  @click="updateUser" >儲存變更</el-button>
 
                 </div>
-
-
             </el-form>
 
         </el-tab-pane>
@@ -157,8 +177,8 @@ const Logout = () => {
         <el-tab-pane label="信息" name="3" >
             <template #label >
                 <el-badge 
-                :value="userData.message.length" 
-                :hidden="userData.message.length === 0"
+                :value="userDatalength" 
+                :hidden="userDatalength === 0"
                 class="item" 
                 type="danger" >
                 信息</el-badge>

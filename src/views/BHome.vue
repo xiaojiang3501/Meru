@@ -33,33 +33,8 @@ watch(tabDate, async() => {
 onMounted( async () => {
     updatePickertime() 
     updateChart(tabDate.value)
-    fetchData()
     await SHistory()
 });
-
-
-
-//抓資料
-const fetchData = async () => {
-    const response = await axios.post(apiUrl);
-    
-    // console.log(response.data.month_sales); 
-    today_pay.value = response.data.today_pay;
-    today_nopay.value = response.data.today_nopay;
-    today_income.value = response.data.today_income;
-    today_member.value = response.data.today_member;
-
-
-    const monthSalesData = response.data.month_sales;
-    
-        tableData.length = 0;
-        tableData.push(...Object.keys(monthSalesData).map(name => ({
-            name,
-            number: monthSalesData[name]
-        })));
-
-
-};
 
 
 // 選擇時間格式input
@@ -77,7 +52,6 @@ function updatePickertime() {
 }
 
 
-
 // 查詢時間
 async function SHistory(year, month) {
     if (pickertime.value) {
@@ -91,19 +65,33 @@ async function SHistory(year, month) {
 
 // 把參數寫入
 async function getDataWithParams(year, month) {   
-    // console.log([year, month])
     const hisparams = new URLSearchParams({
         time_mode: tabDate.value,
-        ymd: `${year}-${month}`,
+        year: year,
+        month: month
     });
     const timedata = await axios.post(apiUrl , hisparams);
-    // console.log(tabDate.value)
+    // console.log(timedata.data.chart_data)
+    today_pay.value = timedata.data.today_pay;
+    today_nopay.value = timedata.data.today_nopay;
+    today_income.value = timedata.data.today_income;
+    today_member.value = timedata.data.today_member;
+
+    const monthSalesData = timedata.data.month_sales;
+    
+    tableData.length = 0;
+    tableData.push(...Object.keys(monthSalesData).map(name => ({
+        name,
+        number: monthSalesData[name]
+    })));
+
+
     switch (tabDate.value) {
         case 'month':
-            parseData(timedata.data.chart_data.history.split(','), data.month);
+            parseData(timedata.data.chart_data.history, data.month);
             break;
         case 'year':
-            parseData(timedata.data.chart_data.history.split(','), data.year);
+            parseData(timedata.data.chart_data.history, data.year);
             break;
         default:
             break;
@@ -114,17 +102,25 @@ async function getDataWithParams(year, month) {
 
 // 把數據循環並放進data（圖表）
 function parseData(dataArray, targetObject) {
-        for (let i = 0; i < dataArray.length; i += 5) {
-            const index = i / 5; // 6個循環
-            targetObject.Income[index] = parseFloat(dataArray[i]); //收入
-            targetObject.Expense[index] = parseFloat(dataArray[i + 1]); //支出
-            targetObject.Sales[index] = parseFloat(dataArray[i + 2]); //銷售
-            targetObject.Member[index] = parseFloat(dataArray[i + 3]); //會員
-            targetObject.xAxisData[index] = parseFloat(dataArray[i + 4]); //X軸
-        }
+    if (!dataArray || dataArray.length === 0) {
+        targetObject.Income.fill(0);
+        targetObject.Expense.fill(0);
+        targetObject.Sales.fill(0);
+        targetObject.Member.fill(0);
+        targetObject.xAxisData.fill(0);
+        return;
+    }
+    for (let i = 0; i < dataArray.length; i += 5) {
+        const index = i / 5; // 6個循環
+        targetObject.Income[index] = parseFloat(dataArray[i]) || 0; //收入
+        targetObject.Expense[index] = parseFloat(dataArray[i + 1]) || 0; //支出
+        targetObject.Sales[index] = parseFloat(dataArray[i + 2]) || 0; //銷售
+        targetObject.Member[index] = parseFloat(dataArray[i + 3]) || 0; //會員
+        targetObject.xAxisData[index] = parseFloat(dataArray[i + 4]) || 0; //X軸
+    }
 }
 
-// 圖表data
+//圖表data
 const data = {
     month: {
         xAxisData: Array.from(Array(daysInMonth).keys()).map(i => `${i + 1}`),
@@ -139,7 +135,6 @@ const data = {
         Expense: Array.from({length: 12}).fill(null),
         Member: Array.from({length: 12}).fill(null),
         Sales: Array.from({length: 12}).fill(null),
-        
     }
 }
 

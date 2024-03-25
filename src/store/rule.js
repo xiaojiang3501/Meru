@@ -5,7 +5,7 @@ export const useRule = defineStore('Rule', () => {
     //表單驗證規則
     const rule = ref({
         //使用者名字
-        user_name: [
+        name: [
             { required: true, message: '請输入名字', trigger: 'blur' }
         ],
         //使用者帳號

@@ -13,29 +13,25 @@ const { userData } = storeToRefs(useUser());
 const { cartData } = storeToRefs(useCart());
 const { rule } = storeToRefs(useRule());
 
-
-import axios from 'axios'
-
-const apiUrl = 'http://localhost:4000/orders';
 const FormRef = ref(null);
 const checked = ref(false)
 
 const form1 = reactive({
-    user_name: userData.value.personal.user_name,
-    address: userData.value.personal.address,
-    phone: userData.value.personal.phone
+    name: userData.value.name,
+    address: userData.value.address,
+    phone: userData.value.phone
 
-}) //收件人
+}) //訂購人
 
 const form2 = reactive({
-    user_name:'',
+    name:'',
     address:'',
     phone: ''
 
 }) //收件人
 
 const recipient = {
-    user_name:form2.user_name,
+    name:form2.name,
     address:form2.address,
     phone: form2.phone
 }
@@ -46,11 +42,11 @@ onMounted(() => {
 
 const same = () => {
     if (!checked.value) {
-        form2.user_name = userData.value.personal.user_name;
-        form2.phone= userData.value.personal.phone;
-        form2.address = userData.value.personal.address;
+        form2.name = userData.value.user.name;
+        form2.phone= userData.value.user.phone;
+        form2.address = userData.value.user.address;
     } else {
-        form2.user_name = '';
+        form2.name = '';
         form2.phone = '';
         form2.address = '';
     }
@@ -60,14 +56,12 @@ const same = () => {
 const active = ref(1)
 
 const next =  () => {
-    FormRef.value.validate( (valid) => {
+    FormRef.value.validate((valid) => {
         if (valid) {
             if (active.value++ > 2) active.value = 0;
             router.push({
             path: '/completed'
             });
-        }else {
-            console.log("error submit!!");
         }
     });
     
@@ -98,38 +92,39 @@ const prev = () => {
             <div class="form-table">
                 <el-form 
                 :model="form1" 
-                :rules="rule" 
-                ref="FormRef" 
                 class="form1" >
                     <h5 class="form-title">訂購人</h5>
-                    <el-form-item label="姓名" prop="user_name" >
-                        <el-input v-model="userData.personal.user_name" />
+                    <el-form-item label="姓名">
+                        <el-input disabled v-model="userData.user.name" />
                     </el-form-item>
-                    <el-form-item label="電話" prop="phone">
-                        <el-input v-model="userData.personal.phone"/>
+                    <el-form-item label="電話">
+                        <el-input disabled v-model="userData.user.phone"/>
                     </el-form-item>
-                    <el-form-item label="地址" prop="address">
-                        <el-input v-model="userData.personal.address" />
+                    <el-form-item label="地址">
+                        <el-input disabled v-model="userData.user.address" />
                     </el-form-item>
                 </el-form>
 
 
                 <el-form 
                 :model="form2" 
+                ref="FormRef" 
+                :rules="rule" 
                 class="form2">
                     <el-checkbox v-model="checked" class="form-same" @click="same">同上</el-checkbox>
                     <h5 class="form-title">收件人</h5>
-                    <el-form-item label="姓名">
-                        <el-input v-model="form2.user_name" />
+                    <el-form-item label="姓名" prop="name">
+                        <el-input v-model="form2.name" />
                     </el-form-item>
-                    <el-form-item label="電話">
+                    <el-form-item label="電話" prop="phone">
                         <el-input v-model="form2.phone"/>
                     </el-form-item>
-                    <el-form-item label="地址">
+                    <el-form-item label="地址" prop="address">
                         <el-input v-model="form2.address" />
                     </el-form-item>
                 </el-form>
             </div>
+
 
             <div class="form-buttom">
                 <div class="form-sum">
@@ -163,7 +158,6 @@ const prev = () => {
         margin: 5% auto;
         background-color: white;
         border: 1px solid #ebeef5;
-
         border-radius: 10px;
         .form1, .form2{
             margin: 5%;

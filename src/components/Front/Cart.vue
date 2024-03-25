@@ -1,61 +1,63 @@
 <script setup>
 import { ref, onMounted, computed, reactive, watch } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 // ===============Router===================================
 import { useRouter } from "vue-router";
 const router = useRouter()
 // ===============Pinia===================================
 import { storeToRefs } from 'pinia'
 import { useCart } from '@/store/cart.js'
-const { cartData } = storeToRefs(useCart());
+const { cartData, sum, pay, ship } = storeToRefs(useCart());
 
-const pay = ref('')
-const ship = ref('')
 const options1 = [
     {
-    value: 'Option1',
-    label: '信用卡付款',
+    value: 'ATM轉帳',
+    label: 'ATM轉帳',
     },
     {
-    value: 'Option2',
+    value: '超商取貨付款',
     label: '超商取貨付款',
     }
 ]
 const options2 = [
     {
-    value: 'Option1',
+    value: '全家',
     label: '全家',
     },
     {
-    value: 'Option2',
+    value: '7-11',
     label: '7-11',
     },
     {
-    value: 'Option3',
+    value: '宅配',
     label: '宅配',
     },
 ]
 
+
+
 //小計
 const subtotal = ref(0);
-const handleSubtotal = (selectedItems) => {
-    if (Array.isArray(selectedItems)) {
+const selectedItems = ref([]);
+const handleSubtotal = (items) => {
+    selectedItems.value = items;
+    if (Array.isArray(items)) {
         subtotal.value = 0;
-        selectedItems.forEach((item) => {
+        items.forEach((item) => {
             subtotal.value += item.price * item.count;
         });
     }
 }
+
 //運費
 const freight = ref(0);
-
 watch(ship, (newOption, oldOption) => {
     if (newOption === 'Option1' || newOption === 'Option2') {
-    freight.value = 60;
+        freight.value = 60;
     } else {
-    freight.value = 80;
+        freight.value = 80;
     }
 });
-
 
 //優惠碼
 const promo = ref(0);
@@ -69,7 +71,6 @@ watch(promoCode, () => {
 });
 
 //合計
-const sum = ref(0);
 const handleSum = () => {
     sum.value = subtotal.value + freight.value - promo.value 
 }
@@ -87,8 +88,23 @@ const handleDelete = (i) => {
 //步驟條
 const active = ref(0)
 const next = () => {
-    if (active.value++ > 2) active.value = 0
-    router.push({ path: "/form"})
+    console.log(selectedItems.value.length)
+    if(selectedItems.value.length == 0){
+        ElMessage.error('請勾選商品');
+        return; 
+    }else{
+        if(pay.value && ship.value ){
+            if (active.value++ > 2) active.value = 0
+            router.push({ path: "/form"})
+        }else{
+            ElMessage({
+                type: 'error',
+                message: '請選擇付款方式和運送方式',
+            });
+        }
+    }
+
+
 }
 
 
@@ -109,21 +125,20 @@ const next = () => {
             </el-steps>
 
             <el-table 
+            class="cart-table"
             :default-sort="{ prop: 'date',order: 'descending' }"
             :header-cell-style="{background:'#EF7C8E',color:'white',textAlign: 'center'}"
             :cell-style="{ textAlign: 'center' }"
-            :data="cartData"
-            @selection-change="handleSubtotal" 
-            class="cart-table"
-            >
+            :data="cartData" 
+            @selection-change="handleSubtotal">
 
-                <el-table-column type="selection" width="55">
+                <el-table-column type="selection" width="55" >
                 </el-table-column>
 
                 <el-table-column prop="image" label="商品圖片" width="150" >
 					<!-- !-- 使用插槽自定义列的内容 -->
 					<template #default="{ row }">
-						<img :src="row.image" alt="商品圖片" style="max-width: 60px; max-height: 60px;" />
+						<img :src="`../public/products/${row.image}`" alt="商品圖片" style="max-width: 60px; max-height: 60px;" />
 					</template>
 				</el-table-column>
 
@@ -227,7 +242,6 @@ const next = () => {
                 </div>
 
             </div>
-
 
 
             <div class="cart-buttom">

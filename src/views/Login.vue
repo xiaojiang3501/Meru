@@ -17,11 +17,10 @@ library.add(faFacebook, faInstagram, faLine)
 // import sha256 from 'sha256'
 import axios from 'axios'
 
-const apiUrl = 'http://localhost:4000/user/login';
-const apiUrl2 = 'http://localhost:4000/user/register';
+const apiUrl = 'http://localhost:4000/user';
 const account = ref('')
 const password = ref('')
-const user_name = ref('')
+const name = ref('')
 const newaccount = ref('')
 const newpassword = ref('')
 
@@ -32,15 +31,14 @@ const Login = () => {
         password: password.value,
     }
 
-    axios.post(apiUrl,login_data)
+    axios.post(apiUrl + '/login',login_data)
     .then(response => {
         if(response.data.success){
-            userData.value = response.data.user;
-
-            // console.log(userData.value.access_token);
-            sessionStorage.setItem("token", userData.value.access_token);
+            userData.value = response.data;
+            sessionStorage.setItem("token",  response.data.user.Auth_token);
 
             router.push({ path: "/user" }) 
+
 
         }else {
             ElMessage({
@@ -54,7 +52,7 @@ const Login = () => {
 
 //註冊
 const Register = () => {
-    if (!user_name.value) {
+    if (!name.value) {
         ElMessage({
             type: 'error',
             message: '請輸入姓名',
@@ -71,17 +69,20 @@ const Register = () => {
 
     
     const register_data = {
-        user_name: user_name.value,
+        name: name.value,
         account: newaccount.value,
         password: newpassword.value,
     }
-    axios.post(apiUrl2,register_data)
+    axios.post(apiUrl + '/register',register_data)
     .then(response => {
-            console.log(response.data);
         if(response.data.success){
-            userData.value = response.data.user;
-
-            sessionStorage.setItem("token", userData.value.access_token);
+            ElMessage({
+                type: 'success',
+                message: '成功註冊,請進行登入',
+            });
+            name.value = '';
+            newaccount.value = '';
+            newpassword.value = '';
 
         }else {
             ElMessage({
@@ -122,7 +123,7 @@ const signIn = () => {
                     </div>
                     <span>或者其他方式註冊</span>
                     <el-input 
-                    v-model="user_name" 
+                    v-model="name" 
                     placeholder="姓名" />
                     <el-input 
                     v-model="newaccount" 

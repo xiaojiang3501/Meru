@@ -20,18 +20,18 @@ onMounted(() => {
 //抓資料
 const fetchData = async () => {
 	const response = await axios.post(apiUrl);
-    products.value = response.data;
+    products.value = response.data.data;
 }
 
 
 const filteredProducts = computed(() => products.value.filter(item => item.product_suspend === true));
 
 //跳轉頁面
-const goDetail = (product_id) => {
+const goDetail = (Product_ID) => {
     router.push({
         path: "/productsdetail",
         query:{
-            product_id
+            Product_ID
         }
 
     })
@@ -47,10 +47,10 @@ const goDetail = (product_id) => {
             
             <div 
             v-for="item in filteredProducts" 
-            :key="item.product_id" 
+            :key="item.Product_ID" 
             class="item" 
-            @click="goDetail((item.product_id))">
-                <img :src="item.image" alt="">
+            @click="goDetail((item.Product_ID))">
+                <img :src="`../public/products/${item.image}`" alt="">
                 <h5>{{ item.product_name }}</h5>
             </div>
 
@@ -82,10 +82,15 @@ const goDetail = (product_id) => {
             margin: 0 auto;
             display: block;
             width: 150px;
+            height: 150px;
 
         }
-    }
 
+    }
+    .item:hover{
+        transform: scale(1.1);
+        color: gray;
+    }
 }
 
 </style>

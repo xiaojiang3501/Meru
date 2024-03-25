@@ -15,10 +15,11 @@ const { cartData } = storeToRefs(useCart());
 
 
 // 獲取路由參數中的id
-const id = router.currentRoute.value.query.product_id;
-console.log(id);
+const id = parseInt(router.currentRoute.value.query.Product_ID);
+
 // 使用計算屬性找到匹配的id
-const selectedProduct = computed(() => products.value.find(product => product.product_id === id))
+const selectedProduct = computed(() => products.value.find(product => product.Product_ID === id))
+
 
 const num = ref(1)
 function handleChange(value) {
@@ -26,13 +27,13 @@ function handleChange(value) {
 }
 
 const addCart = () => {
-    const selectedProduct = products.value.find(product => product.product_id === id);
+    const selectedProduct = products.value.find(product => product.Product_ID === id);
     const existingItem = cartData.value.find(item => item.id === selectedProduct.id);
     if (existingItem) {
         existingItem.count += num.value;
     } else {
         const newItem = {
-            id: selectedProduct.product_id,
+            id: selectedProduct.Product_ID,
             image: selectedProduct.image,
             name: selectedProduct.product_name,
             price: selectedProduct.price,
@@ -54,7 +55,7 @@ const addCart = () => {
     <el-row class="detail-wrapper">
 
         <div class="detail-image">
-            <img :src="selectedProduct.image" alt="">
+            <img :src="`../public/products/${selectedProduct.image}`" alt="">
         </div>
 
         <div class="detail-contect" >
@@ -116,6 +117,11 @@ const addCart = () => {
             width: 150px;
             background-color: pink;
             color: white;
+            border: 0;
+        }
+        .detail-button:hover{
+            border: 0;
+            background-color: #EF7C8E;
         }
     }
 
