@@ -193,19 +193,19 @@ router.post('/create-product', upload.single('file'), (req, res) => {
 		// const currentMaxProductID = results[0].maxProductID || 0;
 		// const newProductID = currentMaxProductID + 1;
 
-		const query = `INSERT INTO product (Product_ID, image, product_name, price, inventory, ingredient, allergen, product_suspend) VALUES (?, ?, ?, ?, ?, ?, ?, 1)`;
+    const query = `INSERT INTO product (Product_ID, image, product_name, price, inventory, ingredient, allergen, product_suspend) VALUES (?, ?, ?, ?, ?, ?, ?, 1)`;
 
-		const values = [newProductID, image, product_name, price, inventory, ingredient, allergen];
+    const values = [newProductID, image, product_name, price, inventory, ingredient, allergen];
 
-		connection.query(query, values, (err, results, fields) => {
-			if (err) {
-				console.error(err);
-				res.json({ success: false, message: values });
-				return;
-			}
+    connection.query(query, values, (err, results, fields) => {
+        if (err) {
+            console.error(err);
+            res.json({ success: false, message: values });
+            return;
+        }
 
-			res.json({ success: true, msg: '上传成功', newProductID });
-		});
+        res.json({ success: true, msg: '上传成功', newProductID });
+    });
 	// });
 });
 router.put('/edit-product/:Product_ID', (req, res) => {
@@ -386,9 +386,9 @@ router.delete('/delete-member/:Member_ID', (req, res) => {
 });
 
 
-router.post('/order', (req, res) => {
-	res.json(order)
-});
+// router.post('/order', (req, res) => {
+// 	res.json(order)
+// });
 
 const order = [
 	{
@@ -447,38 +447,63 @@ const order = [
 
 ]
 
-router.post('/create-order', (req, res) => {
-	const { Member_ID, account, payee, payee_phone, payment_address, pay,ship, total_price, } = req.body;
 
-	const query = "INSERT INTO order (Order_ID, Member_ID, create_time, payee, payee_phone, payment_address, total_price, pay, ship, order_state, pay_state) VALUES ()";
-
-	connection.query(query, (err, results, fields) => {
+router.post('/order', (req, res) => {
+	const query = "SELECT * FROM orders ";
+    connection.query(query, (err, results, fields) => {
 		if (err) {
 			console.error(err);
 			res.json({ success: false, message: '數據庫查詢錯誤' });
 			return;
 		}
+       results.forEach(order => {
+            order.items = JSON.parse(order.items);
+            const date = new Date(order.create_time);
+            const formattedDate = new Date(date.getTime() + (date.getTimezoneOffset() * 60000)).toISOString().replace('T', ' ').replace(/\..+/, '');
+            order.create_time = formattedDate;
 
+        });
+        console.log(results);
+		
 		res.json({ success: true, data: results });
-	});
+	}); 
 });
-router.delete('/delete-order/:Order_ID', (req, res) => {
-    const Member_ID = req.params.Member_ID;
-    const query = `
-        DELETE FROM order
-        WHERE Member_ID = ?
-    `;
+router.put('/toggle-order/:Order_ID', (req, res) => {
+    const Order_ID = req.params.Order_ID;
+    const order_state = req.body.order_state;
+    console.log(order_state);
+	const query = `
+		UPDATE orders
+		SET order_state = '${order_state}'
+		WHERE Order_ID = ${Order_ID}
+	`;
 
-    connection.query(query, [Member_ID], (err, results, fields) => {
+	connection.query(query, (err, results, fields) => {
         if (err) {
             console.error(err);
-            res.json({ success: false, message: '會員刪除錯誤' });
+            res.json({ success: false, message: query });
+            return;
+        }
+        res.json({ success: true, message: query });
+    });
+});
+router.delete('/delete-order/:Order_ID', (req, res) => {
+    const Order_ID = req.params.Order_ID;
+    const query = `
+        DELETE FROM orders
+        WHERE Order_ID = ${Order_ID}
+    `;
+
+    connection.query(query, (err, results, fields) => {
+        if (err) {
+            console.error(err);
+            res.json({ success: false, message: '訂單刪除錯誤' });
             return;
         }
         if (results.affectedRows > 0) {
-            res.json({ success: true, message: '會員刪除成功' });
+            res.json({ success: true, message: '訂單刪除成功' });
         } else {
-            res.json({ success: false, message: '找不到要刪除的會員' });
+            res.json({ success: false, message: '找不到要刪除的訂單' });
         }
     });
 });

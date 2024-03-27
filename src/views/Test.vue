@@ -1,52 +1,71 @@
-<template>
-  <div>
-    <h2>文件上传</h2>
-
-	<div>
-	  <el-upload
-		class="avatar-uploader"
-		action="#"
-		list-type="picture-card"
-		:show-file-list="true"
-		:limit="1"
-		:http-request="uploadFile">
-		<img v-if="imageUrl" :src="imageUrl" class="avatar" alt="Avatar" style="width: 200px; height: 200px;" />
-		<el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
-	  </el-upload>
-	</div>
-  </div>
-</template>
-  
 <script setup>
-import { ref } from 'vue';
-import axios from 'axios';
-import { Plus } from '@element-plus/icons-vue'
+import { ref, onMounted, computed, reactive, nextTick } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { markRaw } from 'vue'
+import { Delete, Search } from '@element-plus/icons-vue'
+// ===============Pinia===================================
+import { storeToRefs } from 'pinia'
+import { useOrder } from '@/store/order.js'
+import { useRule } from '@/store/rule.js'
+const getordata = useOrder();
+const { orders } = storeToRefs(getordata);
+const { rule } = storeToRefs(useRule());
 
-const apiUrl = 'http://localhost:4000/backstage';
-
-const imageUrl = ref(null);
-
-const uploadFile = async (file) => {
-	console.log(file)
-	// 检查是否已经存在预览的图片，如果存在则先将其删除
-	if (imageUrl.value) {
-		// 删除操作，根据你的实际需求进行处理
-		imageUrl.value = null;
-	}
-
-//   const formData = new FormData();
-//   formData.append("file", file.file);
-//   console.log(imageUrl.value)
+import axios from 'axios'
 
 
-//   const response = await axios.post(apiUrl + '/create-product', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-//   console.log(response)
 
+const activeName = ref('123')
+const handleClick = () => {
 
 }
 
+onMounted(() => {
+
+
+})
+
+
 
 </script>
+
+<template>
+
+        <!-- <el-card class="order">
+            <el-row :gutter="10">
+				<el-tabs 
+				v-model="activeName" 
+				type="border-card"
+				class="demo-tabs"
+				@tab-click="handleClick">
+					<el-tab-pane label="待處理" payee="123">
+
+					</el-tab-pane>
+					<el-tab-pane label="已處理" payee="second">
+
+					</el-tab-pane>
+				</el-tabs>
+
+
+            </el-row>
+        </el-card> -->
+
+
+  <el-tabs type="border-card">
+    <el-tab-pane label="User">User</el-tab-pane>
+    <el-tab-pane label="Config">Config</el-tab-pane>
+    <el-tab-pane label="Role">Role</el-tab-pane>
+    <el-tab-pane label="Task">Task</el-tab-pane>
+  </el-tabs>
+
+</template>
+
+
+<style lang="scss" scoped>
+
+
+
+</style>
 
 
   

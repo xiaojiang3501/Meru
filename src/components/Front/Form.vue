@@ -6,49 +6,45 @@ const router = useRouter()
 // ===============Pinia===================================
 import { storeToRefs } from 'pinia'
 import { useCart } from '@/store/cart.js'
+const { payee, payee_phone, payment_address } = storeToRefs(useCart());
 import { useUser } from '@/store/user.js'
-import { useRule } from '@/store/rule.js'
-
 const { userData } = storeToRefs(useUser());
-const { cartData } = storeToRefs(useCart());
+import { useRule } from '@/store/rule.js'
 const { rule } = storeToRefs(useRule());
 
 const FormRef = ref(null);
 const checked = ref(false)
-
+//訂購人
 const form1 = reactive({
     name: userData.value.name,
     address: userData.value.address,
     phone: userData.value.phone
 
-}) //訂購人
+}) 
 
+//收件人
 const form2 = reactive({
-    name:'',
-    address:'',
-    phone: ''
+    payee:'',
+    payee_phone:'',
+    payment_address: ''
+}) 
 
-}) //收件人
+watch(form2, () => {
+    payee.value = form2.payee;
+    payee_phone.value = form2.payee_phone;
+    payment_address.value = form2.payment_address;
+}, { deep: true })
 
-const recipient = {
-    name:form2.name,
-    address:form2.address,
-    phone: form2.phone
-}
-
-onMounted(() => {
-
-})
 
 const same = () => {
     if (!checked.value) {
-        form2.name = userData.value.user.name;
-        form2.phone= userData.value.user.phone;
-        form2.address = userData.value.user.address;
+        form2.payee = userData.value.user.name;
+        form2.payee_phone= userData.value.user.phone;
+        form2.payment_address = userData.value.user.address;
     } else {
-        form2.name = '';
-        form2.phone = '';
-        form2.address = '';
+        form2.payee = '';
+        form2.payee_phone = '';
+        form2.payment_address = '';
     }
 };
 
@@ -113,14 +109,14 @@ const prev = () => {
                 class="form2">
                     <el-checkbox v-model="checked" class="form-same" @click="same">同上</el-checkbox>
                     <h5 class="form-title">收件人</h5>
-                    <el-form-item label="姓名" prop="name">
-                        <el-input v-model="form2.name" />
+                    <el-form-item label="姓名" prop="payee">
+                        <el-input v-model="form2.payee" />
                     </el-form-item>
-                    <el-form-item label="電話" prop="phone">
-                        <el-input v-model="form2.phone"/>
+                    <el-form-item label="電話" prop="payee_phone">
+                        <el-input v-model="form2.payee_phone"/>
                     </el-form-item>
-                    <el-form-item label="地址" prop="address">
-                        <el-input v-model="form2.address" />
+                    <el-form-item label="地址" prop="payment_address">
+                        <el-input v-model="form2.payment_address" />
                     </el-form-item>
                 </el-form>
             </div>

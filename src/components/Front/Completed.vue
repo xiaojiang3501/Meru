@@ -5,22 +5,38 @@ import { useRouter } from "vue-router";
 const router = useRouter()
 // ===============Pinia===================================
 import { storeToRefs } from 'pinia'
-import { useCart } from '@/store/cart.js'
 import { useUser } from '@/store/user.js'
 const { userData } = storeToRefs(useUser());
-const { cartData, sum, pay, ship } = storeToRefs(useCart());
+import { useCart } from '@/store/cart.js'
+const { cartData, total_price, pay, ship, payee, payee_phone, payment_address } = storeToRefs(useCart());
 
 import axios from 'axios'
 
-const apiUrl = 'http://localhost:4000/backstage';
+const apiUrl = 'http://localhost:4000/user';
+console.log(payee.value)
+
+const newOrder = reactive({
+    Member_ID: userData.value.user.Member_ID,
+    account: userData.value.user.account,
+    payee: payee.value, 
+    payment_address: payment_address.value,
+    payee_phone: payee_phone.value,
+    pay: pay.value,
+    ship: ship.value,
+    total_price: total_price.value,
+    order_state: '待處理',
+    pay_state: '未支付',
+    items: cartData.value,
+});
+
+console.log(newOrder)
 
 //步驟條
 const active = ref(2)
-const next = () => {
+const completed = () => {
+    axios.post(apiUrl + '/create-order', newOrder)
     if (active.value++ > 2) active.value = 2
-    localStorage.clear();
-
-    axios.post(apiUrl + '/create-order', updateData)
+    // localStorage.clear();
 
 }
 const prev = () => {
@@ -55,13 +71,12 @@ const prev = () => {
                 :header-cell-style="{textAlign: 'center'}"
                 :cell-style="{ textAlign: 'center' }"
                 :data="cartData"
-                @selection-change="handleSubtotal" 
                 class="cart-table"
                 >
                 <el-table-column prop="image" label="商品圖片" width="150" >
 					<!-- !-- 使用插槽自定义列的内容 -->
 					<template #default="{ row }">
-						<img :src="row.image" alt="商品圖片" style="max-width: 60px; max-height: 60px;" />
+						<img :src="`../public/products/${row.image}`" alt="商品圖片" style="max-width: 60px; max-height: 60px;" />
 					</template>
 				</el-table-column>
                 <el-table-column prop="name" label="商品名稱" />
@@ -70,10 +85,10 @@ const prev = () => {
                 </el-table>
                 <h6>配送方式<span >{{ship}}</span></h6>
                 <h6>付款方式<span >{{pay}}</span></h6>
-                <h6>收件人姓名<span >{{userData.user.name}}</span></h6>
-                <h6>收件人電話<span >{{userData.user.phone}}</span></h6>
-                <h6>收件人地址<span >{{sum}}</span></h6>
-                <h6>合計<span >{{sum}}</span></h6>
+                <h6>收件人姓名<span >{{payee}}</span></h6>
+                <h6>收件人電話<span >{{payee_phone}}</span></h6>
+                <h6>收件人地址<span >{{payment_address}}</span></h6>
+                <h6>合計<span >{{total_price}}</span></h6>
             </div>
 
             
@@ -84,7 +99,7 @@ const prev = () => {
                     <el-button @click="prev">上一步</el-button>
                 </div>
                 <div class="form-next">
-                    <el-button @click="next">完成</el-button>
+                    <el-button @click="completed">完成</el-button>
                 </div>
 
             </div>

@@ -7,7 +7,7 @@ const router = useRouter()
 // ===============Pinia===================================
 import { storeToRefs } from 'pinia'
 import { useCart } from '@/store/cart.js'
-const { cartData, sum, pay, ship } = storeToRefs(useCart());
+const { cartData, total_price, pay, ship } = storeToRefs(useCart());
 
 const options1 = [
     {
@@ -72,8 +72,9 @@ watch(promoCode, () => {
 
 //合計
 const handleSum = () => {
-    sum.value = subtotal.value + freight.value - promo.value 
+    total_price.value = subtotal.value + freight.value - promo.value 
 }
+
 watch([subtotal, freight, promo], () => {
   handleSum();
 });
@@ -88,7 +89,7 @@ const handleDelete = (i) => {
 //步驟條
 const active = ref(0)
 const next = () => {
-    console.log(selectedItems.value.length)
+    // console.log(selectedItems.value.length)
     if(selectedItems.value.length == 0){
         ElMessage.error('請勾選商品');
         return; 
@@ -234,7 +235,7 @@ const next = () => {
                         <div class="cart-line"></div>
                         <div class="price">
                             <span>合計</span>
-                            <span>{{sum}}</span>
+                            <span>{{total_price}}</span>
                         </div>
                         
                     </div>

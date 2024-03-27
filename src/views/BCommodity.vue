@@ -407,7 +407,7 @@ const handleCurrentChange = (page) => {
 
 <style lang="scss" scoped>
 .commodity{
-    height: 100%;
+    height: 100vh;
     .top{
         width: 100%;
         // border: 1px solid red;

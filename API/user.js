@@ -50,7 +50,6 @@ router.post('/login', (req, res) => {
 	
 });
 
-
 //註冊
 router.post('/register', (req, res) => {
     const { account, password, name } = req.body;
@@ -88,8 +87,6 @@ router.post('/register', (req, res) => {
     });
 });
 
-
-
 //會員中心
 router.put('/edit-user', (req, res) => {
     const Member_ID = req.body.Member_ID;
@@ -112,4 +109,28 @@ router.put('/edit-user', (req, res) => {
     });
 });
 
+//創建訂單
+router.post('/create-order', (req, res) => {
+	const { Member_ID, account, payee, payee_phone, payment_address, pay, ship, total_price, order_state, pay_state, items } = req.body;
+
+
+	const Order_ID = new Date().getTime();
+	const create_time = new Date().toISOString().split('T')[0];
+
+	const query = "INSERT INTO orders (Order_ID, Member_ID, create_time,account, payee, payee_phone, payment_address, total_price, pay, ship, order_state, pay_state, items) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+	const values = [Order_ID, Member_ID, create_time, account, payee, payee_phone, payment_address, total_price, pay, ship, order_state, pay_state, items];
+
+	connection.query(query, values, (err, results, fields) => {
+		if (err) {
+			console.error(err);
+			res.json({ success: false, message: results });
+			return;
+		}
+
+		console.log(results);
+
+		res.json({ success: true, data: values });
+	});
+});
 module.exports = router;

@@ -13,8 +13,9 @@ const { rule } = storeToRefs(useRule());
 
 import axios from 'axios'
 
-const apiUrl = 'http://localhost:4000/backstage/order';
+const apiUrl = 'http://localhost:4000/user';
 const search_info = ref(''); // 快速搜尋篩選
+const search_info_completed = ref(''); // 快速搜尋篩選
 const search_time = ref(''); //查詢時間
 const showCheck = ref(false);
 const disabledFutureDates = ref((time) => time.getTime() > Date.now()); //禁止選未來時間
@@ -23,30 +24,24 @@ const FormRef = ref(null);
 const form = reactive({});
 
 
-
 onMounted(() => {
     fetchData()
+
 })
 
 
 //抓資料
 const fetchData = async () => {
-    const response = await axios.post(apiUrl);
-    orders.value = response.data;
-
+    const response = await axios.post(apiUrl + '/order');
+    orders.value = response.data.data;
 };
-
-const activeName = ref('first')
-const handleClick = () => {
-
-}
 
 // 待處理快速搜尋篩選
 const filteredTableData = computed(() => {
     return orders.value.filter((item) =>
         (item.order_state === '待處理') &&
         (!search_info.value ||
-            item.Order_ID.toLowerCase().includes(search_info.value.toLowerCase()) ||
+            item.Order_ID.toString().toLowerCase().includes(search_info.value.toLowerCase()) ||
             item.payee.toLowerCase().includes(search_info.value.toLowerCase()) ||
             item.account.toLowerCase().includes(search_info.value.toLowerCase())
         )
@@ -56,10 +51,10 @@ const filteredTableData = computed(() => {
 const completedOrders = computed(() => {
     return orders.value.filter((item) =>
         (item.order_state === '已處理') &&
-        (!search_info.value ||
-            item.Order_ID.toLowerCase().includes(search_info.value.toLowerCase()) ||
-            item.payee.toLowerCase().includes(search_info.value.toLowerCase()) ||
-            item.account.toLowerCase().includes(search_info.value.toLowerCase())
+        (!search_info_completed.value ||
+            item.Order_ID.toString().toLowerCase().includes(search_info_completed.value.toLowerCase()) ||
+            item.payee.toLowerCase().includes(search_info_completed.value.toLowerCase()) ||
+            item.account.toLowerCase().includes(search_info_completed.value.toLowerCase())
         )
     );
 });
@@ -73,7 +68,7 @@ const handleCheck = (row) => {
 	form.Member_ID = row.Member_ID;
 	form.Order_ID = row.Order_ID;
     form.create_time = row.create_time;
-    form.user_payee = row.user_payee;
+    form.payee = row.payee;
     form.account = row.account;
 	form.payment_address = row.payment_address;
     form.payee_phone = row.payee_phone;
@@ -89,26 +84,32 @@ const editOrder = () => {
 }
 
 //刪除
-const handleDelete = async (orderId) => {
+const handleDelete = async (Order_ID) => {
 	await ElMessageBox.confirm('確定要刪除？', '刪除', { //內容,標題
-    confirmButtonText: '確定', //按鈕
-    icon: markRaw(Delete),
+        confirmButtonText: '確定', //按鈕
+        cancelButtonText: '取消',
+        icon: markRaw(Delete)
 	});
-	await axios.delete(`${apiUrl}/${orderId}`);
-    orders.value = orders.value.filter((order) => order.id !== orderId);
+	await axios.delete(`${apiUrl}/delete-order/${Order_ID}`);
+    orders.value = orders.value.filter((order) => order.Order_ID !== Order_ID);
     ElMessage.success('删除成功');
 
 }
 
 //完成
-const handleSuccess = (row) => {
+const handleSuccess = async (Order_ID) => {
+	await axios.put(`${apiUrl}/toggle-order/${Order_ID}`, {
+		order_state: '已處理',
+	});
+	// 只在成功更新后，將新的狀態赋值
 	row.order_state = '已處理';
-	orders.value.findIndex(order => order.Order_ID === row.Order_ID);
 }
 //取消完成
-const handleCancel = (row) => {
+const handleCancel = async (Order_ID) => {
+	await axios.put(`${apiUrl}/toggle-order/${Order_ID}`, {
+		order_state: '待處理',
+	});
 	row.order_state = '待處理';
-	completedOrders.value.findIndex(order => order.Order_ID === row.Order_ID);
 }
 
 
@@ -128,11 +129,9 @@ const handleCurrentChange = (page) => {
         <el-card class="order">
             <el-row :gutter="10">
 				<el-tabs 
-				v-model="activeName" 
 				type="border-card"
-				class="demo-tabs"
-				@tab-click="handleClick">
-					<el-tab-pane label="待處理" payee="first" >
+				class="demo-tabs">
+					<el-tab-pane label="待處理"  >
 						<div class="top">
 							<!-- 搜尋 -->
 							<div class="search">
@@ -174,7 +173,7 @@ const handleCurrentChange = (page) => {
 							</el-table-column> -->
 
 							<el-table-column fixed sortable prop="Order_ID" label="訂單編號" width="150" />
-							<el-table-column fixed prop="create_time" label="訂單日期" sortable width="150" />
+							<el-table-column fixed prop="create_time" label="訂單日期" sortable width="120" />
 							<el-table-column prop="payee" label="會員名字"  width="100" />
 							<el-table-column prop="account" label="帳號" />
 							<el-table-column prop="total_price" label="總金額"  width="100" />
@@ -218,12 +217,12 @@ const handleCurrentChange = (page) => {
 								link
 								size="small"
 								type="danger"
-								@click="handleDelete(row)">刪除</el-button>
+								@click="handleDelete(row.Order_ID)">刪除</el-button>
 								<el-button
 								link
 								size="small"
 								type="success"
-								@click="handleSuccess(row)">完成</el-button>
+								@click="handleSuccess(row.Order_ID)">完成</el-button>
 							</template>
 							</el-table-column>
 							
@@ -239,12 +238,12 @@ const handleCurrentChange = (page) => {
 							@current-change="handleCurrentChange"/>
 						</div>
 					</el-tab-pane>
-					<el-tab-pane label="已處理" payee="second">
+					<el-tab-pane label="已處理" >
 						<div class="top">
 							<!-- 搜尋 -->
 							<div class="search">
 								<el-input
-								v-model="search_info"
+								v-model="search_info_completed"
 								placeholder="搜尋"
 								:suffix-icon="Search"
 								/>
@@ -278,7 +277,7 @@ const handleCurrentChange = (page) => {
 						:header-cell-style="{ color: '#596580', textAlign: 'center' }"
 						:cell-style="{ textAlign: 'center' }">
 							<el-table-column fixed sortable prop="Order_ID" label="訂單編號" width="150" />
-							<el-table-column prop="create_time" label="訂單日期" sortable width="150" />
+							<el-table-column prop="create_time" label="訂單日期" sortable width="120" />
 							<el-table-column prop="payee" label="會員名字"  width="100" />
 							<el-table-column prop="account" label="帳號" />
 							<el-table-column prop="total_price" label="總金額"  width="100" />
@@ -321,12 +320,12 @@ const handleCurrentChange = (page) => {
 								link
 								size="small"
 								type="danger"
-								@click="handleDelete(row)">刪除</el-button>
+								@click="handleDelete(row.Order_ID)">刪除</el-button>
 								<el-button
 								link
 								size="small"
 								type="info"
-								@click="handleCancel(row)">取消完成</el-button>
+								@click="handleCancel(row.Order_ID)">取消完成</el-button>
 							</template>
 							</el-table-column>
 
