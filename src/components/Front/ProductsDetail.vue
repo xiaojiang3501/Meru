@@ -28,17 +28,17 @@ function handleChange(value) {
 
 const addCart = () => {
     const selectedProduct = products.value.find(product => product.Product_ID === id);
-    const existingItem = cartData.value.find(item => item.id === selectedProduct.id);
+    const existingItem = cartData.value.find(item => item.id === selectedProduct.Product_ID);
     if (existingItem) {
         existingItem.count += num.value;
     } else {
         const newItem = {
-            id: selectedProduct.Product_ID,
+            Product_ID: selectedProduct.Product_ID,
             image: selectedProduct.image,
-            name: selectedProduct.product_name,
+            product_name: selectedProduct.product_name,
             price: selectedProduct.price,
-            inventory: selectedProduct.inventory,
-            count: num.value
+            quantity: num.value,
+            inventory: selectedProduct.inventory
         };
         cartData.value.push(newItem);
     }
@@ -70,7 +70,7 @@ const addCart = () => {
             <el-input-number 
             v-model="num" 
             :min="1"
-            :max="products.inventory"
+            :max="selectedProduct.inventory"
             @change="handleChange" 
             class="detail-num"/>
             <button class="detail-button" @click="addCart">加入購物車</button>

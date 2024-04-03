@@ -44,7 +44,7 @@ const handleSubtotal = (items) => {
     if (Array.isArray(items)) {
         subtotal.value = 0;
         items.forEach((item) => {
-            subtotal.value += item.price * item.count;
+            subtotal.value += item.price * item.quantity;
         });
     }
 }
@@ -143,12 +143,12 @@ const next = () => {
 					</template>
 				</el-table-column>
 
-                <el-table-column prop="name" label="商品名稱" />
+                <el-table-column prop="product_name" label="商品名稱" />
 
                 <el-table-column label="數量"  width="180">
                     <template #default="{ row }">
                         <el-input-number 
-                        v-model="row.count"  
+                        v-model="row.quantity"  
                         :min="1" 
                         :max="row.inventory"
                         @change="handleQuantityChange(row)" />
@@ -163,7 +163,7 @@ const next = () => {
 
                 <el-table-column label="小計">
                     <template  #default="{ row }">
-                        <span>{{row.price*row.count}}</span>
+                        <span>{{row.price*row.quantity}}</span>
                     </template>
                 </el-table-column> 
 

@@ -9,6 +9,7 @@ import router from './router/router.js'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import './assets/element-variables.scss' 
 //Echart
 import  * as echarts from "echarts"
 

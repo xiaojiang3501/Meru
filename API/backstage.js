@@ -20,11 +20,16 @@ const storage = multer.diskStorage({
     destination: 'public/products',
     filename: function (req, file, cb) {
         const fileFormat = (file.originalname).split('.')
-        // // 获取时间戳
-        // const filename = new Date().getTime()
-        const newProductID = req.params.newProductID;
-        // 文件的命名为：时间戳 + 点 + 文件的后缀名
-        cb(null, newProductID + "." + fileFormat[fileFormat.length-1])
+
+        connection.query('SELECT COUNT(Product_ID) AS productCount FROM product', function (error, results, fields) {
+            if (error) throw error;
+
+            const productCount = results[0].productCount;
+            const newProductID = productCount + 1;
+
+            // 文件的命名为： ProductID + 点 + 文件的后缀名
+            cb(null, newProductID + "." + fileFormat[fileFormat.length-1]);
+        });
     },
 });
 
@@ -449,7 +454,7 @@ const order = [
 
 
 router.post('/order', (req, res) => {
-	const query = "SELECT * FROM orders ";
+	const query = "SELECT Order_ID, Member_ID, DATE_FORMAT(create_time, '%Y-%m-%d %H:%i:%s') as create_time, account, payee, payee_phone, payment_address, total_price, pay, ship, order_state, pay_state, items FROM orders";
     connection.query(query, (err, results, fields) => {
 		if (err) {
 			console.error(err);
@@ -458,10 +463,6 @@ router.post('/order', (req, res) => {
 		}
        results.forEach(order => {
             order.items = JSON.parse(order.items);
-            const date = new Date(order.create_time);
-            const formattedDate = new Date(date.getTime() + (date.getTimezoneOffset() * 60000)).toISOString().replace('T', ' ').replace(/\..+/, '');
-            order.create_time = formattedDate;
-
         });
         console.log(results);
 		

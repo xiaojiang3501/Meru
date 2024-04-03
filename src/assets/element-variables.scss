@@ -1,0 +1,20 @@
+button.el-message-box__headerbtn:focus {
+	outline: none;
+}
+
+button.el-dialog__headerbtn:focus {
+	outline: none;
+}
+
+.upLoadShow .el-upload {
+	margin: 0 20px 20px;
+}
+.el-upload-list--picture-card .el-upload-list__item{
+	margin: 0 20px 20px;
+}
+/* 当upLoadHide为true时，启用如下样式，即上传框的样式，若为false则不启用该样式 */
+.upLoadHide .el-upload {
+	display: none;
+}
+
+@import "/node_modules/element-plus/theme-chalk/index.css";

@@ -13,7 +13,7 @@ const { userData } = storeToRefs(useUser());
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faFacebook, faInstagram, faLine } from '@fortawesome/free-brands-svg-icons'
 library.add(faFacebook, faInstagram, faLine)
-
+// ===============Other===================================
 // import sha256 from 'sha256'
 import axios from 'axios'
 

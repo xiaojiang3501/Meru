@@ -1,19 +1,22 @@
 <script setup>
 import { ref, onMounted, computed, reactive, watch } from 'vue'
+import { ElMessageBox } from 'element-plus'
+import { markRaw } from 'vue'
+import { CircleCheck } from '@element-plus/icons-vue'
 // ===============Router===================================
 import { useRouter } from "vue-router";
 const router = useRouter()
 // ===============Pinia===================================
 import { storeToRefs } from 'pinia'
 import { useUser } from '@/store/user.js'
-const { userData } = storeToRefs(useUser());
 import { useCart } from '@/store/cart.js'
+const { userData } = storeToRefs(useUser());
 const { cartData, total_price, pay, ship, payee, payee_phone, payment_address } = storeToRefs(useCart());
-
+// ===============Other===================================
 import axios from 'axios'
 
+
 const apiUrl = 'http://localhost:4000/user';
-console.log(payee.value)
 
 const newOrder = reactive({
     Member_ID: userData.value.user.Member_ID,
@@ -33,19 +36,35 @@ console.log(newOrder)
 
 //步驟條
 const active = ref(2)
-const completed = () => {
-    axios.post(apiUrl + '/create-order', newOrder)
-    if (active.value++ > 2) active.value = 2
-    // localStorage.clear();
-
-}
 const prev = () => {
     if (active.value-- > 2) active.value = 1
     router.push({
         path: "/form",
     })
 }
+const completed = () => {
+    if (active.value++ > 2) active.value = 2
 
+    // axios.post(apiUrl + '/create-order', newOrder)
+    
+    ElMessageBox.alert('將跳回首頁', '訂單已成功送出', { //內容,標題
+        showConfirmButton: false,
+        type: 'success',
+        center: true,
+        icon: markRaw(CircleCheck),
+	});
+    localStorage.clear();
+    cartData.value = [];
+    total_price.value = 0;
+    pay.value = '';
+    ship.value = '';
+    payee.value = '';
+    payee_phone.value = '';
+    payment_address.value = '';
+
+    router.push({path: "/",})
+    
+}
 
 </script>
 
@@ -79,8 +98,8 @@ const prev = () => {
 						<img :src="`../public/products/${row.image}`" alt="商品圖片" style="max-width: 60px; max-height: 60px;" />
 					</template>
 				</el-table-column>
-                <el-table-column prop="name" label="商品名稱" />
-                <el-table-column prop="count" label="數量"  width="180" />
+                <el-table-column prop="product_name" label="商品名稱" />
+                <el-table-column prop="quantity" label="數量"  width="180" />
 
                 </el-table>
                 <h6>配送方式<span >{{ship}}</span></h6>
@@ -139,8 +158,11 @@ const prev = () => {
             color: gray;
         }
     }
-
-
 }
+
+.el-message-box__headerbtn{
+    border: 1px solid  red;
+}
+
 </style>
   

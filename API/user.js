@@ -114,23 +114,53 @@ router.post('/create-order', (req, res) => {
 	const { Member_ID, account, payee, payee_phone, payment_address, pay, ship, total_price, order_state, pay_state, items } = req.body;
 
 
-	const Order_ID = new Date().getTime();
-	const create_time = new Date().toISOString().split('T')[0];
+	const Order_ID = new Date().getTime().toString();
+	// 将本地时间转换为 UTC 格式的 ISO 字符串
+	const create_time = new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().slice(0, 19).replace('T', ' '); 
+	const itemsJSON = JSON.stringify(items); // 將對象轉為JSON 
 
-	const query = "INSERT INTO orders (Order_ID, Member_ID, create_time,account, payee, payee_phone, payment_address, total_price, pay, ship, order_state, pay_state, items) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	const query = `INSERT INTO orders (Order_ID, Member_ID, create_time, account, payee, payee_phone, payment_address, total_price, pay, ship, order_state, pay_state, items) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '${itemsJSON}')`;
 
-	const values = [Order_ID, Member_ID, create_time, account, payee, payee_phone, payment_address, total_price, pay, ship, order_state, pay_state, items];
+	const values = [Order_ID, Member_ID, create_time, account, payee, payee_phone, payment_address, total_price, pay, ship, order_state, pay_state];
 
 	connection.query(query, values, (err, results, fields) => {
+		if (err) {
+			console.error(err);
+			res.json({ success: false, message: '創建訂單失敗' });
+			return;
+		}
+
+		// console.log(results);
+
+		res.json({ success: true, data: '創建訂單成功' });
+	});
+});
+
+//user訂單
+router.post('/user-order/:Member_ID', (req, res) => {
+	const Member_ID = req.params.Member_ID;
+	const query = `
+		SELECT Order_ID, Member_ID, DATE_FORMAT(create_time, '%Y-%m-%d %H:%i:%s') as create_time, account, payee, payee_phone, payment_address, total_price, pay, ship, order_state, pay_state, items
+		FROM orders
+		WHERE Member_ID = ${Member_ID}
+	`;
+
+	connection.query(query, (err, results, fields) => {
 		if (err) {
 			console.error(err);
 			res.json({ success: false, message: results });
 			return;
 		}
 
-		console.log(results);
+		results.forEach(order => {
+			order.items = JSON.parse(order.items);
 
-		res.json({ success: true, data: values });
+		});
+		
+
+		res.json({ success: true, data: results });
 	});
 });
+
+
 module.exports = router;

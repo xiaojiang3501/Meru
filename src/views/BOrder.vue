@@ -10,10 +10,10 @@ import { useRule } from '@/store/rule.js'
 const getordata = useOrder();
 const { orders } = storeToRefs(getordata);
 const { rule } = storeToRefs(useRule());
-
+// ===============Other===================================
 import axios from 'axios'
 
-const apiUrl = 'http://localhost:4000/user';
+const apiUrl = 'http://localhost:4000/backstage';
 const search_info = ref(''); // 快速搜尋篩選
 const search_info_completed = ref(''); // 快速搜尋篩選
 const search_time = ref(''); //查詢時間
@@ -173,7 +173,7 @@ const handleCurrentChange = (page) => {
 							</el-table-column> -->
 
 							<el-table-column fixed sortable prop="Order_ID" label="訂單編號" width="150" />
-							<el-table-column fixed prop="create_time" label="訂單日期" sortable width="120" />
+							<el-table-column fixed prop="create_time" label="訂單日期" sortable width="180" />
 							<el-table-column prop="payee" label="會員名字"  width="100" />
 							<el-table-column prop="account" label="帳號" />
 							<el-table-column prop="total_price" label="總金額"  width="100" />
@@ -277,7 +277,7 @@ const handleCurrentChange = (page) => {
 						:header-cell-style="{ color: '#596580', textAlign: 'center' }"
 						:cell-style="{ textAlign: 'center' }">
 							<el-table-column fixed sortable prop="Order_ID" label="訂單編號" width="150" />
-							<el-table-column prop="create_time" label="訂單日期" sortable width="120" />
+							<el-table-column prop="create_time" label="訂單日期" sortable width="180" />
 							<el-table-column prop="payee" label="會員名字"  width="100" />
 							<el-table-column prop="account" label="帳號" />
 							<el-table-column prop="total_price" label="總金額"  width="100" />
@@ -356,7 +356,7 @@ const handleCurrentChange = (page) => {
 					:data="[form]"
 					class="order-details">
 						<el-table-column fixed sortable prop="Order_ID" label="訂單編號" width="150" />
-						<el-table-column fixed prop="create_time" label="訂單日期" sortable width="150" />
+						<el-table-column fixed prop="create_time" label="訂單日期" sortable width="180" />
 						<el-table-column prop="payee_phone" label="電話" />
 						<el-table-column prop="payment_address" label="收件地址" />
 						<el-table-column prop="pay" label="交易方式" />

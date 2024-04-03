@@ -7,7 +7,7 @@ const router = useRouter()
 import { storeToRefs } from 'pinia'
 import { useProduct } from '@/store/product.js'
 const { products } = storeToRefs(useProduct());
-
+// ===============Other===================================
 import axios from 'axios'
 
 

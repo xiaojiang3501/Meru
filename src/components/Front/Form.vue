@@ -6,10 +6,10 @@ const router = useRouter()
 // ===============Pinia===================================
 import { storeToRefs } from 'pinia'
 import { useCart } from '@/store/cart.js'
-const { payee, payee_phone, payment_address } = storeToRefs(useCart());
 import { useUser } from '@/store/user.js'
-const { userData } = storeToRefs(useUser());
 import { useRule } from '@/store/rule.js'
+const { userData } = storeToRefs(useUser());
+const { payee, payee_phone, payment_address } = storeToRefs(useCart());
 const { rule } = storeToRefs(useRule());
 
 const FormRef = ref(null);

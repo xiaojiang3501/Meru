@@ -1,19 +1,17 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, reactive, watch } from 'vue'
 import { useRouter } from 'vue-router';
 const router = useRouter()
 // ===============Pinia===================================
 import { storeToRefs } from 'pinia'
 import { useCart } from '@/store/cart.js'
-const getcartdata = useCart();
-const { cartData } = storeToRefs(getcartdata);
+const { cartData } = storeToRefs(useCart());
 
 const userLink = () => {
     let token = sessionStorage.getItem('token');
     return token ? '/user' : '/login';
 
 }
-
 
 </script>
 <template>

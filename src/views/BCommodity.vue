@@ -10,7 +10,7 @@ import { useRule } from '@/store/rule.js'
 
 const { products } = storeToRefs(useProduct());
 const { rule } = storeToRefs(useRule());
-
+// ===============Other===================================
 import axios from 'axios'
 
 const apiUrl = 'http://localhost:4000/backstage';
@@ -28,7 +28,24 @@ const newProduct = reactive({
     inventory: '',
     product_suspend: ''
 });
-const editedProduct = ref(null);  
+
+const editProduct = reactive({
+    image:'',
+    product_name: '', 
+    ingredient: '',
+    allergen: '',
+    price: '',
+    inventory: '',
+    product_suspend: ''
+});
+
+
+const dialogVisible = ref(false);
+const fileList = ref([]);
+const objClass = ref({
+	upLoadShow: true,
+	upLoadHide: false,
+});
 
 
 onMounted(() => {
@@ -58,7 +75,7 @@ const showAddForm = () => {
 	nextTick(() => {
         FormRef.value.clearValidate();
     });
-	console.log(newProduct.image)
+
     newProduct.product_name = '';
     newProduct.ingredient = '';
     newProduct.allergen = '';
@@ -104,30 +121,30 @@ const showEditForm = (row) => {
     nextTick(() => {
         FormRef.value.clearValidate();
     });
-	editedProduct.value = row;
-    newProduct.image = row.image;
-    newProduct.product_name = row.product_name;
-    newProduct.ingredient = row.ingredient;
-    newProduct.allergen = row.allergen;
-    newProduct.price = row.price;
-    newProduct.inventory = row.inventory;
-
+    editProduct.image = row.image;
+    editProduct.product_name = row.product_name;
+    editProduct.ingredient = row.ingredient;
+    editProduct.allergen = row.allergen;
+    editProduct.price = row.price;
+    editProduct.inventory = row.inventory;
 };
 
-const editCommodity = () => {
-	FormRef.value.validate( (valid) => {
-		if (valid) {
-			const Product_ID = editedProduct.value.Product_ID;
-			const index = products.value.findIndex((product) => product.id === Product_ID);
-			if (index !== -1) {
-				products.value[index] = response.data;
-			}
+const editCommodity = (file) => {
+	console.log(file)
+	console.log(editProduct.value)
+	// FormRef.value.validate( (valid) => {
+	// 	if (valid) {
+	// 		const Product_ID = products.value.Product_ID;
+	// 		const index = products.value.findIndex((product) => product.id === Product_ID);
+	// 		if (index !== -1) {
+	// 			products.value[index] = response.data;
+	// 		}
 
-			const response =  axios.put(`${apiUrl}/edit-product/${Product_ID}`, newProduct );
-			//關窗口
-			showEdit.value = false;
-		}
-	});
+	// 		const response =  axios.put(`${apiUrl}/edit-product/${Product_ID}`, editProduct );
+	// 		//關窗口
+	// 		showEdit.value = false;
+	// 	}
+	// });
 };
 
 //停權
@@ -160,8 +177,31 @@ const handleDelete = async (Product_ID) => {
 
 }
 
+//分頁
+const pageSize = ref(5) // 5個項目為一頁
+const currentPage = ref(1) // 初始顯示第幾頁
+const handleCurrentChange = (page) => {
+    currentPage.value = page;  // 每次點擊分頁按鈕發生變化
+}
+
 
 //圖片
+const handleChange = (file, fileList) => {
+  objClass.value.upLoadHide = true; // 上传图片后置upLoadHide为真，隐藏上传框
+  objClass.value.upLoadShow = false;
+};
+
+const handleRemove = (file, fileList) => {
+  objClass.value.upLoadShow = true; // 删除图片后显示上传框
+  objClass.value.upLoadHide = false;
+};
+
+// 点击预览图的放大按钮后会触发handlePictureCardPreview
+const handlePictureCardPreview = (file) => {
+	newProduct.value.image = file.url;
+  	dialogVisible.value = true;
+};
+
 const beforeAvatarUpload = (rawFile) => {
 	if (rawFile.type !== 'image/jpeg') {
 		ElMessage.error('Avatar picture must be JPG format!');
@@ -173,13 +213,6 @@ const beforeAvatarUpload = (rawFile) => {
 	return true;
 }
 
-
-//分頁
-const pageSize = ref(5) // 5個項目為一頁
-const currentPage = ref(1) // 初始顯示第幾頁
-const handleCurrentChange = (page) => {
-    currentPage.value = page;  // 每次點擊分頁按鈕發生變化
-}
 
 </script>
 <template>
@@ -258,7 +291,7 @@ const handleCurrentChange = (page) => {
 			<!-- 新增彈窗 -->
 			<el-dialog 
 			v-model="showAdd" 
-			title="新增會員">
+			title="新增商品">
 				<el-form 
 				ref="FormRef"
 				label-width="70px"
@@ -267,15 +300,18 @@ const handleCurrentChange = (page) => {
 				@submit.prevent="addCommodity">
 					<el-upload
 					ref="uploadRef"
-					class="form-upload"
 					action="#"
 					list-type="picture-card"
-					:http-request="addCommodity"
+					:class="objClass"
 					:auto-upload="false"
+					:file-list="fileList"
 					:limit="1"
 					:show-file-list="true"
-					:before-upload="beforeAvatarUpload"
-					>
+					:http-request="addCommodity"
+					:on-preview="handlePictureCardPreview"
+					:on-remove="handleRemove" 
+					:on-change="handleChange" 
+					:before-upload="beforeAvatarUpload">
 					<img v-if="newProduct.image" :src="newProduct.image" class="avatar" />
 					<el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
 					</el-upload>
@@ -331,32 +367,36 @@ const handleCurrentChange = (page) => {
 			<!-- 編輯彈窗 -->
 			<el-dialog 
 			v-model="showEdit" 
-			title="編輯會員">
+			title="編輯商品">
 				<el-form 
 				ref="FormRef"
 				label-width="70px"
 				:rules="rule"
-				:model="newProduct"
+				:model="editProduct"
 				@submit.prevent="editCommodity">
 					<el-upload
-					ref="editCommodity"
-					class="form-upload"
+					ref="uploadRef"
 					action="#"
 					list-type="picture-card"
-					:http-request="editCommodity"
+					:class="objClass"
 					:auto-upload="false"
+					:file-list="fileList"
 					:limit="1"
 					:show-file-list="true"
-					:before-upload="beforeAvatarUpload"
-					>
-					<img  class="avatar" />
+					:http-request="editCommodity"
+					:on-preview="handlePictureCardPreview"
+					:on-remove="handleRemove" 
+					:on-change="handleChange" 
+					:before-upload="beforeAvatarUpload">
+
+					<img :src="`../public/products/${editProduct.image}`"  class="avatar" />
 					</el-upload>
 
 					<el-form-item 
 					label="名字" 
 					prop="product_name" >
 						<el-input 
-						v-model="newProduct.product_name" 
+						v-model="editProduct.product_name" 
 						style="width: 200px;"/>
 					</el-form-item>
 					<el-form-item 
@@ -364,7 +404,7 @@ const handleCurrentChange = (page) => {
 					prop="ingredient" >
 						<el-input 
 						type="textarea" 
-						v-model="newProduct.ingredient" 
+						v-model="editProduct.ingredient" 
 						:autosize="{ minRows: 2, maxRows: 4}"/>
 					</el-form-item>
 					<el-form-item 
@@ -372,21 +412,21 @@ const handleCurrentChange = (page) => {
 					prop="allergen" >
 						<el-input 
 						type="textarea" 
-						v-model="newProduct.allergen" 
+						v-model="editProduct.allergen" 
 						:autosize="{ minRows: 2, maxRows: 4}"/>
 					</el-form-item>
 					<el-form-item 
 					label="價格" 
 					prop="price" >
 						<el-input 
-						v-model="newProduct.price" 
+						v-model="editProduct.price" 
 						style="width: 150px;"/>
 					</el-form-item>
 					<el-form-item 
 					label="庫存" 
 					prop="inventory" >
 						<el-input 
-						v-model="newProduct.inventory" 
+						v-model="editProduct.inventory" 
 						style="width: 150px;"/>
 					</el-form-item>
 
@@ -395,7 +435,7 @@ const handleCurrentChange = (page) => {
 					<span class="dialog-footer">
 						<el-button 
 						type="primary" 
-						@click="editCommodity">保存</el-button>
+						@click="uploadRef.submit()">保存</el-button>
 					</span>
 				</template>
 			</el-dialog>
@@ -425,12 +465,10 @@ const handleCurrentChange = (page) => {
 		margin: 10px auto;
 	}
 }
-.form-upload{
-	margin: 0 0 20px 20px;
-	.avatar{
-		width: 140px;
-	}
+.avatar{
+	width: 140px;
 }
+
 
 
 </style>

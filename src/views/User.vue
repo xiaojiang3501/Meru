@@ -8,13 +8,12 @@ import { storeToRefs } from 'pinia'
 import { useUser } from '@/store/user.js'
 const getuserdata = useUser();
 const { userData } = storeToRefs(getuserdata);
-
+// ===============Other===================================
 import axios from 'axios'
 
 const apiUrl = 'http://localhost:4000/user';
 const tabValue = ref("1")  //預設第一個
 const showAnswer = ref(false);
-
 const updateData = reactive({
     Member_ID: userData.value.user.Member_ID,
     account: userData.value.user.account,
@@ -22,9 +21,15 @@ const updateData = reactive({
     name: userData.value.user.name,
     phone: userData.value.user.phone,
     address: userData.value.user.address,
-
 });
 
+const orderData = ref()
+const showCheck = ref(false);
+const form = reactive({});
+
+onMounted(() => {
+    updateOrder()
+})
 
 //更新資料
 const updateUser = () => {
@@ -40,7 +45,30 @@ const cancelUpdate = () => {
     updateData.address = userData.value.user.address;
 };
 
-// 提問新訊息
+//訂單資料
+const updateOrder = async () => {
+    const Member_ID = userData.value.user.Member_ID
+    const response = await axios.post(`${apiUrl}/user-order/${Member_ID}`)
+    orderData.value = response.data.data;
+    console.log(orderData.value)
+
+}
+
+//詳情
+const handleCheck = (row) => {
+    showCheck.value = true;
+    form.payee = row.payee;
+	form.payment_address = row.payment_address;
+    form.payee_phone = row.payee_phone;
+	form.total_price = row.total_price;
+	form.pay = row.pay;
+	form.ship = row.ship;
+	form.items = row.items;
+    console.log(form.items)
+
+}
+
+// 提問新訊息--------------
 const question = () => {
     showAnswer.value = true;
 }
@@ -70,6 +98,8 @@ const options = [
     label: '其他問題',
   },
 ]
+
+//寄信
 const send = () => {
     const message = {
         question_title: newMessage.value,
@@ -139,46 +169,68 @@ const Logout = () => {
 
                 </div>
             </el-form>
-
         </el-tab-pane>
 
         <el-tab-pane label="我的訂單" name="2">
             <el-table 
+            border
+            :data="orderData" 
+            :default-sort="{ prop: 'date',order: 'descending' }"
+            :header-cell-style="{color:'#606266',textAlign: 'center'}"
+            :cell-style="{ textAlign: 'center' }"
+            style="width: 90%; margin-left: 50px;">
+                <el-table-column fixed prop="Order_ID" label="訂單編號" />
+                <el-table-column fixed prop="create_time" label="訂單日期" width="180"/>
+                <el-table-column prop="total_price" label="金額"  />
+                <el-table-column prop="pay_state" label="交易狀態">
+                    <template #default="{ row }">
+                        <el-tag :type="row.pay_state === '成功' ? 'success' : 'danger'">{{ row.pay_state }}</el-tag>
+                    </template>
+                </el-table-column>
+
+                <el-table-column fixed="right" label="詳情" width="150" class="edit">
+                    <template #default="{ row }">
+                        <el-button 
+                        size="small" 
+                        type="primary"
+                        @click="handleCheck(row)">查看</el-button>
+                    </template>
+                </el-table-column>
+                
+            </el-table> 
+            <!-- 彈窗 -->
+            <el-dialog 
+            width="80%"
+            v-model="showCheck" 
+            title="詳情">
+                <!-- 訂單詳情 -->
+                <el-table 
                 border
-                :data="userData.order" 
-                :default-sort="{ prop: 'date',order: 'descending' }"
-                :header-cell-style="{color:'#606266',textAlign: 'center'}"
+                :header-cell-style="{background:'#ecf5ff',color:'#606266',textAlign: 'center'}"
                 :cell-style="{ textAlign: 'center' }"
-                style="width: 90%; margin-left: 50px;">
-                    <el-table-column fixed prop="order_id" label="訂單編號" />
-                    <el-table-column fixed prop="order_date" label="訂單日期" />
-                    <el-table-column prop="total_price" label="金額"  />
-                    <el-table-column prop="state" label="訂單狀態">
+                :data="form.items"
+                class="order-details2">
+                    <el-table-column fixed prop="image" label="商品圖片" width="200" >
                         <template #default="{ row }">
-                            <el-tag :type="row.state === '成功' ? 'success' : 'danger'">{{ row.state }}</el-tag>
+                            <img :src="`../public/products/${row.image}`" alt="商品圖片" style="max-width: 60px; max-height: 60px;" />
                         </template>
                     </el-table-column>
+                    <el-table-column prop="product_name" label="商品名字" />
+                    <el-table-column prop="quantity" label="數量"  width="180"/>
 
-                    <el-table-column fixed="right" label="操作" width="150" class="edit">
-                        <template #default="{ row }">
-                            <el-button 
-                            size="small" 
-                            type="primary"
-                            @click="handleCheck(row)">查看</el-button>
-                        </template>
-                    </el-table-column>
-                    
-            </el-table>
-            
+                    <el-table-column prop="price" label="單價" />
 
+                </el-table>
+
+            </el-dialog>      
         </el-tab-pane>
 
     
         <el-tab-pane label="信息" name="3" >
             <template #label >
                 <el-badge 
-                :value="userDatalength" 
-                :hidden="userDatalength === 0"
+                :value="userData.length" 
+                :hidden="userData.length === 0"
                 class="item" 
                 type="danger" >
                 信息</el-badge>

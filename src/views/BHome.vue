@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted, watch, reactive, computed } from 'vue'
+import axios from 'axios'
 import * as echarts from 'echarts'
 
-import axios from 'axios'
 
 
 const apiUrl = 'http://localhost:4000/backstage/home';

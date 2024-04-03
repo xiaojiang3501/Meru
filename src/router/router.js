@@ -149,6 +149,10 @@ const router = createRouter({
 
 //添加路由守衛
 router.beforeEach((to, from, next) => {
+	window.scrollTo({
+		top: 0,
+		behavior: "smooth" 
+	});
 	if (to.meta.userauth) {
 		//驗證token，只有token存在的時候才會跳轉頁面
 		let token = sessionStorage.getItem('token')

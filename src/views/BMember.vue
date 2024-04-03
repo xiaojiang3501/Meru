@@ -10,7 +10,7 @@ import { useRule } from '@/store/rule.js'
 
 const { members } = storeToRefs(useMember());
 const { rule } = storeToRefs(useRule());
-
+// ===============Other===================================
 import axios from 'axios'
 
 const apiUrl = 'http://localhost:4000/backstage';
@@ -126,8 +126,7 @@ const editMember =  () => {
 
 
 //停權
-const toggleSuspendStatus = async (row) => {
-    const Member_ID = row.Member_ID;
+const toggleSuspendStatus = async (Member_ID) => {
     const newStatus = row.user_suspend;
 
 	await axios.put(`${apiUrl}/toggle-member/${Member_ID}`, {
@@ -199,7 +198,7 @@ const handleCurrentChange = (page) => {
                     <el-table-column prop="address" label="地址"  />
                     <el-table-column prop="user_suspend" label="啟用狀態" width="80">
                         <template #default="{ row }">
-                            <el-switch v-model="row.user_suspend" @change="toggleSuspendStatus(row)"/> <!-- 使用 row.suspend 绑定每行的停權狀態 -->
+                            <el-switch v-model="row.user_suspend" @change="toggleSuspendStatus(row.Member_ID)"/> <!-- 使用 row.suspend 绑定每行的停權狀態 -->
                         </template>
                     </el-table-column>
 
