@@ -165,152 +165,152 @@ const handleCurrentChange = (page) => {
 </script>
 
 <template>
-        <el-card class="member">
-            <el-row :gutter="10">
-                <div class="top">
-                    <!-- 搜尋 -->
-                    <div class="search">
-                        <el-input
-                        v-model="search_info"
-                        placeholder="搜尋"
-                        :suffix-icon="Search"
-                        />
-                    </div>
-
-                    <el-button
-                    size="small"
-                    type="primary"
-                    class="add"
-                    @click="showAddForm()">新增會員</el-button>
-
-                </div>
-
-                <el-table 
-                :default-sort="{ prop: 'date',order: 'descending' }"
-				:header-cell-style="{color:'#596580',textAlign: 'center'}"
-                :cell-style="{ textAlign: 'center' }"
-                :data="filteredTableData.slice((currentPage - 1) * pageSize, currentPage * pageSize)">
-                    <el-table-column prop="register_date" label="註冊日期" width="120" />
-                    <el-table-column prop="name" label="姓名" width="100" />
-                    <el-table-column prop="account" label="帳號"  />
-                    <el-table-column prop="password" label="密碼"  />
-                    <el-table-column prop="phone" label="電話" width="120" />
-                    <el-table-column prop="address" label="地址"  />
-                    <el-table-column prop="user_suspend" label="啟用狀態" width="80">
-                        <template #default="{ row }">
-                            <el-switch v-model="row.user_suspend" @change="toggleSuspendStatus(row.Member_ID)"/> <!-- 使用 row.suspend 绑定每行的停權狀態 -->
-                        </template>
-                    </el-table-column>
-
-                    <el-table-column fixed="right" label="操作" width="120" class="edit">
-                    <template #default="{ row }">
-                        <el-button
-                        link
-                        size="small"
-                        type="primary"
-                        @click="showEditForm(row)">編輯</el-button>
-                        <el-button
-                        link
-                        size="small"
-                        type="danger"
-                        @click="handleDelete(row.Member_ID)">刪除</el-button>
-                    </template>
-                    </el-table-column>
-                    
-                </el-table>
-				
-				<!-- 下面頁碼 -->
-                <div class="paginationBox">
-                    <el-pagination
-                    :page-size="pageSize"
-                    :current-page="currentPage"
-                    :total=members.length
-                    layout="total, prev, pager, next, jumper"
-                    @current-change="handleCurrentChange"
+    <el-card class="member">
+        <el-row :gutter="10">
+            <div class="top">
+                <!-- 搜尋 -->
+                <div class="search">
+                    <el-input
+                    v-model="search_info"
+                    placeholder="搜尋"
+                    :suffix-icon="Search"
                     />
                 </div>
 
-                <!-- 新增彈窗 -->
-                <el-dialog 
-                v-model="showAdd" 
-                width="40%"
-                title="新增會員">
-                    <el-form 
-                    ref="FormRef"
-                    label-width="70px"
-                    :rules="rule"
-                    :model="newMember"
-                    @submit.prevent="addMember">
+                <el-button
+                size="small"
+                type="primary"
+                class="add"
+                @click="showAddForm()">新增會員</el-button>
 
-                    <el-form-item label="姓名" prop="name" >
-                        <el-input v-model="newMember.name" style="width: 200px;" />
-                    </el-form-item>
-                    <el-form-item label="帳號" prop="account"> 
-                        <el-input v-model="newMember.account" style="width: 200px;" />
-                    </el-form-item>
-                    <el-form-item label="密碼" prop="password"> 
-                        <el-input v-model="newMember.password" style="width: 200px;" />
-                    </el-form-item>
-                    <el-form-item label="電話" prop="phone"> 
-                        <el-input v-model="newMember.phone"  style="width: 200px;" />
-                    </el-form-item>
-                    <el-form-item label="地址" prop="address">
-                        <el-input v-model="newMember.address" style="width: 350px;" />
-                    </el-form-item>
+            </div>
 
-                    </el-form>
-                    <template #footer>
-                        <span class="dialog-footer">
-                            <el-button 
-                            native-type="submit"
-                            type="primary" 
-                            @click="addMember">保存</el-button>
-                        </span>
+            <el-table 
+            :default-sort="{ prop: 'date',order: 'descending' }"
+            :header-cell-style="{color:'#596580',textAlign: 'center'}"
+            :cell-style="{ textAlign: 'center' }"
+            :data="filteredTableData.slice((currentPage - 1) * pageSize, currentPage * pageSize)">
+                <el-table-column prop="register_date" label="註冊日期" width="120" />
+                <el-table-column prop="name" label="姓名" width="100" />
+                <el-table-column prop="account" label="帳號"  />
+                <el-table-column prop="password" label="密碼"  />
+                <el-table-column prop="phone" label="電話" width="120" />
+                <el-table-column prop="address" label="地址"  />
+                <el-table-column prop="user_suspend" label="啟用狀態" width="80">
+                    <template #default="{ row }">
+                        <el-switch v-model="row.user_suspend" @change="toggleSuspendStatus(row.Member_ID)"/> <!-- 使用 row.suspend 绑定每行的停權狀態 -->
                     </template>
-                </el-dialog>
+                </el-table-column>
 
-
-                <!-- 編輯彈窗 -->
-                <el-dialog 
-                v-model="showEdit" 
-                width="40%"
-                title="編輯會員">
-                    <el-form 
-                    ref="FormRef"
-                    label-width="70px"
-                    :rules="rule"
-                    :model="newMember"
-                    @submit.prevent="editMember">
-
-                    <el-form-item label="姓名" prop="name" >
-                        <el-input v-model="newMember.name" style="width: 200px;" />
-                    </el-form-item>
-                    <el-form-item label="帳號" prop="account"> 
-                        <el-input v-model="newMember.account" style="width: 200px;" />
-                    </el-form-item>
-                    <el-form-item label="密碼" prop="password"> 
-                        <el-input v-model="newMember.password" style="width: 200px;" />
-                    </el-form-item>
-                    <el-form-item label="電話" prop="phone"> 
-                        <el-input v-model="newMember.phone"  style="width: 200px;" />
-                    </el-form-item>
-                    <el-form-item label="地址" prop="address">
-                        <el-input v-model="newMember.address" style="width: 350px;" />
-                    </el-form-item>
-
-                    </el-form>
-                    <template #footer>
-                        <span class="dialog-footer">
-                            <el-button 
-                            type="primary" 
-                            @click="editMember">保存</el-button>
-                        </span>
-                    </template>
-                </el-dialog>
+                <el-table-column fixed="right" label="操作" width="120" class="edit">
+                <template #default="{ row }">
+                    <el-button
+                    link
+                    size="small"
+                    type="primary"
+                    @click="showEditForm(row)">編輯</el-button>
+                    <el-button
+                    link
+                    size="small"
+                    type="danger"
+                    @click="handleDelete(row.Member_ID)">刪除</el-button>
+                </template>
+                </el-table-column>
                 
+            </el-table>
+            
+            <!-- 下面頁碼 -->
+            <div class="paginationBox">
+                <el-pagination
+                :page-size="pageSize"
+                :current-page="currentPage"
+                :total=members.length
+                layout="total, prev, pager, next, jumper"
+                @current-change="handleCurrentChange"
+                />
+            </div>
 
-            </el-row>
-        </el-card>
+            <!-- 新增彈窗 -->
+            <el-dialog 
+            v-model="showAdd" 
+            width="40%"
+            title="新增會員">
+                <el-form 
+                ref="FormRef"
+                label-width="70px"
+                :rules="rule"
+                :model="newMember"
+                @submit.prevent="addMember">
+
+                <el-form-item label="姓名" prop="name" >
+                    <el-input v-model="newMember.name" style="width: 200px;" />
+                </el-form-item>
+                <el-form-item label="帳號" prop="account"> 
+                    <el-input v-model="newMember.account" style="width: 200px;" />
+                </el-form-item>
+                <el-form-item label="密碼" prop="password"> 
+                    <el-input v-model="newMember.password" style="width: 200px;" />
+                </el-form-item>
+                <el-form-item label="電話" prop="phone"> 
+                    <el-input v-model="newMember.phone"  style="width: 200px;" />
+                </el-form-item>
+                <el-form-item label="地址" prop="address">
+                    <el-input v-model="newMember.address" style="width: 350px;" />
+                </el-form-item>
+
+                </el-form>
+                <template #footer>
+                    <span class="dialog-footer">
+                        <el-button 
+                        native-type="submit"
+                        type="primary" 
+                        @click="addMember">保存</el-button>
+                    </span>
+                </template>
+            </el-dialog>
+
+
+            <!-- 編輯彈窗 -->
+            <el-dialog 
+            v-model="showEdit" 
+            width="40%"
+            title="編輯會員">
+                <el-form 
+                ref="FormRef"
+                label-width="70px"
+                :rules="rule"
+                :model="newMember"
+                @submit.prevent="editMember">
+
+                <el-form-item label="姓名" prop="name" >
+                    <el-input v-model="newMember.name" style="width: 200px;" />
+                </el-form-item>
+                <el-form-item label="帳號" prop="account"> 
+                    <el-input v-model="newMember.account" style="width: 200px;" />
+                </el-form-item>
+                <el-form-item label="密碼" prop="password"> 
+                    <el-input v-model="newMember.password" style="width: 200px;" />
+                </el-form-item>
+                <el-form-item label="電話" prop="phone"> 
+                    <el-input v-model="newMember.phone"  style="width: 200px;" />
+                </el-form-item>
+                <el-form-item label="地址" prop="address">
+                    <el-input v-model="newMember.address" style="width: 350px;" />
+                </el-form-item>
+
+                </el-form>
+                <template #footer>
+                    <span class="dialog-footer">
+                        <el-button 
+                        type="primary" 
+                        @click="editMember">保存</el-button>
+                    </span>
+                </template>
+            </el-dialog>
+            
+
+        </el-row>
+    </el-card>
 </template>
 
 

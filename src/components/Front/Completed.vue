@@ -29,10 +29,11 @@ const newOrder = reactive({
     total_price: total_price.value,
     order_state: '待處理',
     pay_state: '未支付',
+    ship_state: '未出貨',
     items: cartData.value,
 });
 
-console.log(newOrder)
+
 
 //步驟條
 const active = ref(2)
@@ -45,7 +46,7 @@ const prev = () => {
 const completed = () => {
     if (active.value++ > 2) active.value = 2
 
-    // axios.post(apiUrl + '/create-order', newOrder)
+    axios.post(apiUrl + '/create-order', newOrder)
     
     ElMessageBox.alert('將跳回首頁', '訂單已成功送出', { //內容,標題
         showConfirmButton: false,

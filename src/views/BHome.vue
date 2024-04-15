@@ -4,7 +4,6 @@ import axios from 'axios'
 import * as echarts from 'echarts'
 
 
-
 const apiUrl = 'http://localhost:4000/backstage/home';
 const tableData = reactive([])
 const tabDate = ref('month'); //預選顯示
@@ -13,15 +12,24 @@ const pickertime = ref(new Date); //選擇時間v-model
 const datePickerType = ref('month'); //時間樣式
 const datePickerFormat = ref('YYYY-MM'); //時間格式
 const disabledFutureDates = ref((time) => time.getTime() > Date.now()); //禁止選未來時間
-const now = new Date() //現在時間
-const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate(); //抓當下月的天數
-
-
+const daysInMonth = new Date( new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate(); //抓當下月的天數
 
 const today_pay = ref('');
 const today_nopay = ref('');
 const today_income = ref('');
 const today_member = ref('');
+
+// 更新 xAxisData (月的X軸)
+function updateXAxisData() {
+    const daysInMonth = new Date(pickertime.value.getFullYear(), pickertime.value.getMonth() + 1, 0).getDate(); 
+    data.month.xAxisData = Array.from(Array(daysInMonth).keys()).map(i => `${i + 1}`);
+}
+
+
+// 在 pickertime 值變化时更新函數
+watch(pickertime, () => {
+    updateXAxisData();
+});
 
 
 // 月年切換
@@ -35,6 +43,7 @@ onMounted( async () => {
     updateChart(tabDate.value)
     await SHistory()
 });
+
 
 
 // 選擇時間格式input
@@ -107,7 +116,6 @@ function parseData(dataArray, targetObject) {
         targetObject.Expense.fill(0);
         targetObject.Sales.fill(0);
         targetObject.Member.fill(0);
-        targetObject.xAxisData.fill(0);
         return;
     }
     for (let i = 0; i < dataArray.length; i += 5) {

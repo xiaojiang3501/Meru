@@ -1,159 +1,84 @@
 <template>
+	<el-input v-model="inputContent" style="width: 200px;"></el-input>
+	<el-date-picker
+	v-model="selectedDate"
+	type="date"
+	placeholder="選擇開始時間"
+	format="YYYY-MM-DD"
+	value-format="YYYY-MM-DD"
+	style="width: 160px;"/>
 
-	<el-button
-	size="small"
-	type="primary"
-	class="add"
-	@click="showAddForm()">新增商品</el-button>
-	<!-- 新增彈窗 -->
-	<el-dialog 
-	v-model="showAdd" 
-	title="新增會員">
-		<el-form 
-		label-width="70px"
-		:model="newProduct"
-		@submit.prevent="addCommodity">
-			<el-upload
-			ref="uploadRef"
-			class="form-upload"
-			action="#"
-			list-type="picture-card"
-			:auto-upload="false"
-			:limit="1"
-            :show-file-list="true"
-			:http-request="addCommodity"
-			>
-			<img v-if="newProduct.image" :src="newProduct.image"  class="avatar" />
-			<el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
-			</el-upload>
+	<el-button @click="addItem" type="primary">新增</el-button>
 
-			<el-form-item 
-				label="名字" 
-				prop="product_name" >
-					<el-input 
-					v-model="newProduct.product_name" 
-					style="width: 200px;"/>
-			</el-form-item>
-			<el-form-item 
-				label="成分" 
-				prop="ingredient" >
-				<el-input 
-				type="textarea" 
-				v-model="newProduct.ingredient" 
-				:autosize="{ minRows: 2, maxRows: 4}"/>
-			</el-form-item>
-			<el-form-item 
-				label="過敏原" 
-				prop="allergen" >
-					<el-input 
-					type="textarea" 
-					v-model="newProduct.allergen" 
-					:autosize="{ minRows: 2, maxRows: 4}"/>
-			</el-form-item>
-			<el-form-item 
-			label="價格" 
-			prop="price" >
-				<el-input 
-				v-model="newProduct.price" 
-				style="width: 150px;"/>
-			</el-form-item>
-			<el-form-item 
-			label="庫存" 
-			prop="inventory" >
-				<el-input 
-				v-model="newProduct.inventory" 
-				style="width: 150px;"/>
-			</el-form-item>
-		</el-form>
+	<el-calendar>
+		<template #date-cell="{data}">
+		<div>
+			<div >
+			{{ data.day.split('-').slice(2).join('')}}
+			</div>
 
-		<template #footer>
-			<span class="dialog-footer">
-				<el-button 
-				type="primary" 
-				@click="uploadRef.submit()">保存</el-button>
-			</span>
+			<div>
+				<span class="remark-text" v-for="(item, index) in dealMyDate(data.day)" :key="index">
+					{{ item }}
+					<el-button 
+					link 
+					size="small"
+					@click="deleteItem(data.day)" 
+					style="color: gray;">X</el-button>
+				</span>
+			</div>
+			
+		</div>
 		</template>
-	</el-dialog>
-
-
-
+	</el-calendar>
 
 </template>
-  
+
 <script setup>
-import { ref, onMounted, computed, reactive, nextTick } from 'vue'
-import axios from 'axios';
-import { Plus } from '@element-plus/icons-vue'
+import { ref, reactive } from 'vue';
 
-const apiUrl = 'http://localhost:4000/backstage';
-const showAdd = ref(false);
-const uploadRef = ref(null);
-const imageUrl = ref('');
 
-const newProduct = reactive({
-    image:'',
-    product_name: '', 
-    ingredient: '',
-    allergen: '',
-    price: '',
-    inventory: ''
-});
+const inputContent = ref('');
+const selectedDate = ref('');
+const resDate = reactive([
+    { date: '2024-04-30', content: '放假' },
+    { date: '2024-04-01', content: '放假' },
+]);
 
-const showAddForm = () => {
-	showAdd.value = true;
-    imageUrl.value = '';
-};
 
-const addCommodity = async (file) => {
-    console.log(file.file)
 
-	const formData = new FormData();
-	formData.append('file', file.file);
-	formData.append('product_name', newProduct.product_name);
-	formData.append('ingredient', newProduct.ingredient);
-	formData.append('allergen', newProduct.allergen);
-	formData.append('price', newProduct.price);
-	formData.append('inventory', newProduct.inventory);
-	formData.append('product_suspend', newProduct.product_suspend);
-	for (const entry of formData.entries()) {
-		console.log(entry[0], entry[1]);
+
+const dealMyDate = (v) => {
+	let res = [];
+	for (let index = 0; index < resDate.length; index++) {
+		if (resDate[index].date === v) {
+			res.push(resDate[index].content);
+		}
 	}
-
-
-
-	const response = await axios.post(apiUrl + '/create-product', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-	// console.log(response)
-
-	showAdd.value = false;
-
+	return res;
 }
 
+const addItem = () => {
+	if (inputContent.value && selectedDate.value) {
+		console.log(inputContent.value)
+		console.log(selectedDate.value)
+		resDate.push({ date: selectedDate.value, content: inputContent.value });
+		inputContent.value = '';
+		selectedDate.value = '';
+	}
+}
+
+const deleteItem = (date) => {
+	const index = resDate.findIndex(item => item.date === date);
+	if (index !== -1) {
+		resDate.splice(index, 1);
+	}
+}
 
 </script>
 
-  <style scoped>
-  .avatar-uploader {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	border: 1px dashed #d9d9d9;
-	border-radius: 6px;
-	overflow: hidden;
-	position: relative;
-	width: 120px;
-	height: 120px;
-  }
-  
-  .avatar {
-	width: 100%;
-	height: 100%;
-	border-radius: 6px;
-  }
-  
-  .avatar-uploader-icon {
-	font-size: 28px;
-	color: #999;
-  }
-  
-  </style>
-  
+<style lang="scss" scoped>
+.remark-text {
+	color: DodgerBlue;
+}
+</style>

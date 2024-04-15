@@ -7,8 +7,7 @@ import { Delete, Search } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useOrder } from '@/store/order.js'
 import { useRule } from '@/store/rule.js'
-const getordata = useOrder();
-const { orders } = storeToRefs(getordata);
+const { orders } = storeToRefs(useOrder());
 const { rule } = storeToRefs(useRule());
 // ===============Other===================================
 import axios from 'axios'
@@ -96,8 +95,14 @@ const handleDelete = async (Order_ID) => {
 
 }
 
+
+const handlePayStateChange = async (row) => {
+
+}
+
 //完成
-const handleSuccess = async (Order_ID) => {
+const handleSuccess = async (row) => {
+	const Order_ID = row.Order_ID
 	await axios.put(`${apiUrl}/toggle-order/${Order_ID}`, {
 		order_state: '已處理',
 	});
@@ -105,7 +110,8 @@ const handleSuccess = async (Order_ID) => {
 	row.order_state = '已處理';
 }
 //取消完成
-const handleCancel = async (Order_ID) => {
+const handleCancel = async (row) => {
+	const Order_ID = row.Order_ID
 	await axios.put(`${apiUrl}/toggle-order/${Order_ID}`, {
 		order_state: '待處理',
 	});
@@ -138,8 +144,7 @@ const handleCurrentChange = (page) => {
 								<el-input
 								v-model="search_info"
 								placeholder="搜尋"
-								:suffix-icon="Search"
-								/>
+								:suffix-icon="Search"/>
 							</div>
 
 							<!-- 查詢時間 -->
@@ -169,14 +174,34 @@ const handleCurrentChange = (page) => {
 						:header-cell-style="{color:'#596580',textAlign: 'center'}"
 						:cell-style="{ textAlign: 'center' }"
 						:data="filteredTableData.slice((currentPage - 1) * pageSize, currentPage * pageSize)">
-							<!-- <el-table-column type="selection" width="55">
-							</el-table-column> -->
-
 							<el-table-column fixed sortable prop="Order_ID" label="訂單編號" width="150" />
 							<el-table-column fixed prop="create_time" label="訂單日期" sortable width="180" />
 							<el-table-column prop="payee" label="會員名字"  width="100" />
 							<el-table-column prop="account" label="帳號" />
 							<el-table-column prop="total_price" label="總金額"  width="100" />
+							<el-table-column
+							prop="pay_state"
+							label="交易狀態"
+							width="120">
+							<template #default="{ row }">
+								<el-select v-model="row.pay_state" placeholder="請選擇交易狀態" @change="handlePayStateChange(row)">
+									<el-option label="未支付" value="未支付"></el-option>
+									<el-option label="成功" value="成功"></el-option>
+									<el-option label="失敗" value="失敗"></el-option>
+								</el-select>
+							</template>
+						</el-table-column>
+						<el-table-column
+						prop="ship_state"
+						label="運送狀態"
+						width="120">
+							<template #default="{ row }">
+								<el-select v-model="row.ship_state" placeholder="請選擇運送狀態" @change="handleShipStateChange(row)">
+									<el-option label="未出貨" value="未出貨"></el-option>
+									<el-option label="已出貨" value="已出貨"></el-option>
+								</el-select>
+							</template>
+						</el-table-column>
 
 							<el-table-column
 							prop="order_state"
@@ -189,21 +214,6 @@ const handleCurrentChange = (page) => {
 								disable-transitions>
 								{{ row.order_state }}</el-tag>
 							</template>
-							
-							</el-table-column>
-
-							<el-table-column
-							prop="pay_state"
-							label="交易狀態"
-							width="100">
-							<template #default="{ row }">
-								<el-tag
-								round
-								:type="row.pay_state === '成功' ? 'success' : 'danger'"
-								disable-transitions>
-								{{ row.pay_state }}</el-tag>
-							</template>
-							
 							</el-table-column>
 
 							<el-table-column fixed="right" label="操作" width="150" class="edit">
@@ -222,7 +232,7 @@ const handleCurrentChange = (page) => {
 								link
 								size="small"
 								type="success"
-								@click="handleSuccess(row.Order_ID)">完成</el-button>
+								@click="handleSuccess(row)">完成</el-button>
 							</template>
 							</el-table-column>
 							
@@ -281,19 +291,6 @@ const handleCurrentChange = (page) => {
 							<el-table-column prop="payee" label="會員名字"  width="100" />
 							<el-table-column prop="account" label="帳號" />
 							<el-table-column prop="total_price" label="總金額"  width="100" />
-							<el-table-column
-							prop="order_state"
-							label="訂單狀態"
-							width="100">
-							<template #default="{ row }">
-								<el-tag
-								round
-								:type="row.order_state === '已處理' ? 'success' : 'danger'"
-								disable-transitions>
-								{{ row.order_state }}</el-tag>
-							</template>
-							
-							</el-table-column>
 
 							<el-table-column
 							prop="pay_state"
@@ -306,7 +303,32 @@ const handleCurrentChange = (page) => {
 								disable-transitions>
 								{{ row.pay_state }}</el-tag>
 							</template>
-							
+							</el-table-column>
+
+							<el-table-column
+							prop="ship_state"
+							label="運送狀態"
+							width="100">
+							<template #default="{ row }">
+								<el-tag
+								round
+								:type="row.ship_state === '已出貨' ? 'success' : 'danger'"
+								disable-transitions>
+								{{ row.ship_state }}</el-tag>
+							</template>
+							</el-table-column>
+
+							<el-table-column
+							prop="order_state"
+							label="訂單狀態"
+							width="100">
+							<template #default="{ row }">
+								<el-tag
+								round
+								:type="row.order_state === '已處理' ? 'success' : 'danger'"
+								disable-transitions>
+								{{ row.order_state }}</el-tag>
+							</template>
 							</el-table-column>
 
 							<el-table-column fixed="right" label="操作" width="180" class="edit">
@@ -325,7 +347,7 @@ const handleCurrentChange = (page) => {
 								link
 								size="small"
 								type="info"
-								@click="handleCancel(row.Order_ID)">取消完成</el-button>
+								@click="handleCancel(row)">取消完成</el-button>
 							</template>
 							</el-table-column>
 

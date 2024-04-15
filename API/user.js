@@ -140,7 +140,7 @@ router.post('/create-order', (req, res) => {
 router.post('/user-order/:Member_ID', (req, res) => {
 	const Member_ID = req.params.Member_ID;
 	const query = `
-		SELECT Order_ID, Member_ID, DATE_FORMAT(create_time, '%Y-%m-%d %H:%i:%s') as create_time, account, payee, payee_phone, payment_address, total_price, pay, ship, order_state, pay_state, items
+		SELECT Order_ID, Member_ID, DATE_FORMAT(create_time, '%Y-%m-%d %H:%i:%s') as create_time, account, payee, payee_phone, payment_address, total_price, pay, ship, order_state, pay_state, ship_state, items
 		FROM orders
 		WHERE Member_ID = ${Member_ID}
 	`;

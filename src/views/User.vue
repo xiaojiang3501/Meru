@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, computed, reactive } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 // ===============Router===================================
 import { useRouter } from "vue-router";
 const router = useRouter()
@@ -33,8 +34,15 @@ onMounted(() => {
 
 //更新資料
 const updateUser = () => {
-    axios.put(apiUrl + '/edit-user', updateData)
-
+    axios.put(apiUrl + '/edit-user', updateData);
+    ElMessage({
+        type: 'success',
+        message: '更改成功',
+    });
+    userData.value.user.password = updateData.password
+    userData.value.user.name = updateData.name
+    userData.value.user.phone = updateData.phone
+    userData.value.user.address = updateData.address
 }
 
 // 重置 updateData 為原始數據
@@ -67,6 +75,10 @@ const handleCheck = (row) => {
     console.log(form.items)
 
 }
+
+//密碼
+const passwordType = ref(false)
+
 
 // 提問新訊息--------------
 const question = () => {
@@ -122,10 +134,6 @@ const replyMessage = reactive({
 
 });
 
-const reply = () => {
-
-
-}
 
 
 // 登出
@@ -149,7 +157,20 @@ const Logout = () => {
                     <el-input :disabled="true" v-model="updateData.account" style="width: 350px;"/>
                 </el-form-item>
                 <el-form-item label="密碼">
-                    <el-input required v-model="updateData.password" type="password" style="width: 350px;" />
+                    <el-input 
+                    required 
+                    v-model="updateData.password" 
+                    :type="passwordType ? 'text' : 'password'" 
+                    style="width: 350px;">
+                        <template #suffix >
+                            <div @click="passwordType = !passwordType" style="cursor: pointer;">
+                                <el-icon v-if="passwordType" ><View /></el-icon>
+                                <el-icon v-else><Hide /></el-icon>
+                            </div>
+
+                        </template>
+                    </el-input>
+
                 </el-form-item>
                 <el-form-item label="姓名">
                     <el-input required v-model="updateData.name" style="width: 350px;"/>
@@ -226,7 +247,7 @@ const Logout = () => {
         </el-tab-pane>
 
     
-        <el-tab-pane label="信息" name="3" >
+        <!-- <el-tab-pane label="信息" name="3" >
             <template #label >
                 <el-badge 
                 :value="userData.length" 
@@ -246,7 +267,6 @@ const Logout = () => {
                     
                 </div>
 
-                <!-- 提問彈窗 -->
                 <el-dialog 
                 v-model="showAnswer" >
                     <div class="message-answer">
@@ -286,7 +306,7 @@ const Logout = () => {
             </div>
 
             
-        </el-tab-pane>
+        </el-tab-pane> -->
 
         <el-tab-pane label="登出"  name="4">
             <template #label >
@@ -354,5 +374,6 @@ const Logout = () => {
         margin-left: 50px;
     }
 }
+
 
 </style>

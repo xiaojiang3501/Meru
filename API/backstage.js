@@ -20,16 +20,21 @@ const storage = multer.diskStorage({
     destination: 'public/products',
     filename: function (req, file, cb) {
         const fileFormat = (file.originalname).split('.')
+        // connection.query('SELECT COUNT(Product_ID) AS productCount FROM product', function (error, results, fields) {
+        //     if (error) throw error;
 
-        connection.query('SELECT COUNT(Product_ID) AS productCount FROM product', function (error, results, fields) {
-            if (error) throw error;
+        //     const productCount = results[0].productCount;
+        //     const newProductID = productCount + 1;
 
-            const productCount = results[0].productCount;
-            const newProductID = productCount + 1;
+        //     // 文件的命名为： ProductID + 点 + 文件的后缀名
+        //     cb(null, newProductID + "." + fileFormat[fileFormat.length-1]);
+        // });
 
-            // 文件的命名为： ProductID + 点 + 文件的后缀名
-            cb(null, newProductID + "." + fileFormat[fileFormat.length-1]);
-        });
+        // 获取时间戳
+        const filename = new Date().getTime()
+        // 文件的命名为：时间戳 + 点 + 文件的后缀名
+        cb(null, filename + "." + fileFormat[fileFormat.length-1])
+
     },
 });
 
@@ -188,51 +193,77 @@ router.post('/create-product', upload.single('file'), (req, res) => {
 	const { newProductID, product_name, price, inventory, ingredient, allergen } = req.body;
 	const image = req.file.filename;
 
-	// connection.query('SELECT MAX(Product_ID) AS maxProductID FROM product', (err, results) => {
-	// 	if (err) {
-	// 		console.error(err);
-	// 		res.json({ success: false, message: 'Error retrieving max Product_ID' });
-	// 		return;
-	// 	}
-
-		// const currentMaxProductID = results[0].maxProductID || 0;
-		// const newProductID = currentMaxProductID + 1;
-
     const query = `INSERT INTO product (Product_ID, image, product_name, price, inventory, ingredient, allergen, product_suspend) VALUES (?, ?, ?, ?, ?, ?, ?, 1)`;
 
-    const values = [newProductID, image, product_name, price, inventory, ingredient, allergen];
 
-    connection.query(query, values, (err, results, fields) => {
+    connection.query(query, [newProductID, image, product_name, price, inventory, ingredient, allergen], (err, results, fields) => {
         if (err) {
             console.error(err);
-            res.json({ success: false, message: values });
+            res.json({ success: false, message: '新增失敗' });
             return;
         }
 
-        res.json({ success: true, msg: '上传成功', newProductID });
+        res.json({ success: true, msg: '新增成功', newProductID });
     });
-	// });
+
 });
-router.put('/edit-product/:Product_ID', (req, res) => {
-	const Product_ID = req.params.Product_ID;
-	const {  } = req.body;
-    const query = `
-        UPDATE product
-        SET image = ?, product_name = ?, price = ?, inventory = ?, ingredient = ?, product_name = ?
+router.put('/edit-product/:Product_ID', upload.single('file'), (req, res) => {
+    const Product_ID = req.params.Product_ID;
+    const { product_name, price, inventory, ingredient, allergen } = req.body;
+
+    const image = req.file.filename;
+    console.log(image)
+    console.log(req.file)
+
+    // 查询数据库获取产品图像文件名
+    const imageQuery = `
+        SELECT image FROM product
         WHERE Product_ID = ${Product_ID}
     `;
-
-    connection.query(query,  [image, product_name, price, allergen, price, phone, allergen], (err, results, fields) => {
-		if (err) {
+    connection.query(imageQuery, (err, results, fields) => {
+        if (err) {
             console.error(err);
-            res.json({ success: false, message: results });
+            res.json({ success: false, message: '商品圖片查詢錯誤' });
             return;
         }
 
-        res.json({ success: true, message: results });
+        if (results.length === 0) {
+            res.json({ success: false, message: '找不到要編輯的商品' });
+            return;
+        }
 
+        const imageFileName = results[0].image;
+
+        // 构建图像路径
+        const imagePath = path.join(__dirname, '../public/products', imageFileName);
+
+        // 删除图像文件
+        fs.unlink(imagePath, (err) => {
+            if (err) {
+                console.error(err);
+                res.json({ success: false, message: '商品圖片刪除錯誤' });
+                return;
+            }
+
+            // 更新数据库记录
+            const updateQuery = `
+                UPDATE product
+                SET image = ?, product_name = ?, price = ?, inventory = ?, ingredient = ?, allergen = ?
+                WHERE Product_ID = ${Product_ID}
+            `;
+            connection.query(updateQuery, [image, product_name, price, inventory, ingredient, allergen], (err, results, fields) => {
+                if (err) {
+                    console.error(err);
+                    res.json({ success: false, message: '編輯失敗' });
+                    return;
+                }
+
+                res.json({ success: true, message: '編輯成功' });
+            });
+        });
     });
 });
+
 router.put('/toggle-product/:Product_ID', (req, res) => {
     const Product_ID = req.params.Product_ID;
     let product_suspend = req.body.product_suspend;
@@ -255,22 +286,56 @@ router.put('/toggle-product/:Product_ID', (req, res) => {
 });
 router.delete('/delete-product/:Product_ID', (req, res) => {
     const Product_ID = req.params.Product_ID;
-    const query = `
-        DELETE FROM product
+    
+    // 查询数据库获取产品图像文件名
+    const imageQuery = `
+        SELECT image FROM product
         WHERE Product_ID = ${Product_ID}
     `;
-
-    connection.query(query, (err, results, fields) => {
+    connection.query(imageQuery, (err, results, fields) => {
         if (err) {
             console.error(err);
-            res.json({ success: false, message: '商品刪除錯誤' });
+            res.json({ success: false, message: '商品圖片查詢錯誤' });
             return;
         }
-        if (results.affectedRows > 0) {
-            res.json({ success: true, message: '商品刪除成功' });
-        } else {
+
+        if (results.length === 0) {
             res.json({ success: false, message: '找不到要刪除的商品' });
+            return;
         }
+
+        const imageFileName = results[0].image;
+
+        // 构建图像路径
+        const imagePath = path.join(__dirname, '../public/products', imageFileName);
+
+        // 删除图像文件
+        fs.unlink(imagePath, (err) => {
+            if (err) {
+                console.error(err);
+                res.json({ success: false, message: '商品圖片刪除錯誤' });
+                return;
+            }
+
+            // 删除产品记录
+            const deleteQuery = `
+                DELETE FROM product
+                WHERE Product_ID = ${Product_ID}
+            `;
+            connection.query(deleteQuery, (err, results, fields) => {
+                if (err) {
+                    console.error(err);
+                    res.json({ success: false, message: '商品刪除錯誤' });
+                    return;
+                }
+
+                if (results.affectedRows > 0) {
+                    res.json({ success: true, message: '商品刪除成功' });
+                } else {
+                    res.json({ success: false, message: '找不到要刪除的商品' });
+                }
+            });
+        });
     });
 });
 
@@ -391,70 +456,8 @@ router.delete('/delete-member/:Member_ID', (req, res) => {
 });
 
 
-// router.post('/order', (req, res) => {
-// 	res.json(order)
-// });
-
-const order = [
-	{
-		Order_ID: '1',
-        Member_ID: '3',
-		create_time: '2023-09-21 14:00',
-        account: "111@gmail.com",
-		payee: "陸小醬",
-        payee_phone:"0958354069",
-		payment_address: "桃園市龜山區文化一路537號8樓之10",
-        total_price: "100",
-        pay: "取貨付款",
-        ship:"全家",
-		order_state: '已處理',
-		pay_state: '未支付',
-		items: [
-			{
-                product_image: "1", 
-                image:"1.png",
-				product_name: "香草",
-				quantity: 2, 
-				price: 60       
-			},
-			{
-                product_image: "2",
-                image:"1.png",
-				product_name: "草莓",
-				quantity: 1,
-				price:  60 
-			}
-		]
-	},
-	{
-		Order_ID: '2',
-		create_time: '2023-09-21 15:00',
-		Member_ID: '3',
-		payee: "白白",
-		account: "123@gmail.com",
-        payee_phone:"0958354069",
-        ship:"宅配",
-		pay: "取貨付款",
-		payment_address: "台北市",
-		total_price: "180",
-		order_state: '待處理',
-		pay_state: '未支付',
-		items: [
-			{
-                product_id: "1", 
-                image:"1.png",
-                product_name: "巧克力",
-                quantity: 3, 
-                price: 60       
-			},
-		]
-	},
-
-]
-
-
 router.post('/order', (req, res) => {
-	const query = "SELECT Order_ID, Member_ID, DATE_FORMAT(create_time, '%Y-%m-%d %H:%i:%s') as create_time, account, payee, payee_phone, payment_address, total_price, pay, ship, order_state, pay_state, items FROM orders";
+	const query = "SELECT Order_ID, Member_ID, DATE_FORMAT(create_time, '%Y-%m-%d %H:%i:%s') as create_time, account, payee, payee_phone, payment_address, total_price, pay, ship, order_state, pay_state, ship_state, items FROM orders";
     connection.query(query, (err, results, fields) => {
 		if (err) {
 			console.error(err);
@@ -464,7 +467,6 @@ router.post('/order', (req, res) => {
        results.forEach(order => {
             order.items = JSON.parse(order.items);
         });
-        console.log(results);
 		
 		res.json({ success: true, data: results });
 	}); 
@@ -472,7 +474,6 @@ router.post('/order', (req, res) => {
 router.put('/toggle-order/:Order_ID', (req, res) => {
     const Order_ID = req.params.Order_ID;
     const order_state = req.body.order_state;
-    console.log(order_state);
 	const query = `
 		UPDATE orders
 		SET order_state = '${order_state}'

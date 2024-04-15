@@ -2,24 +2,30 @@
 import { ref, onMounted, computed, watch } from "vue";
 
 // ===============Router===================================
-import { useRouter } from "vue-router";
-const router = useRouter()
+import { useRoute } from "vue-router";
+
+const route = useRoute();
 const activeIndex = ref('');
 
-watch(() => router.path, () => {
-  switch (router.path) {
-    case '/member':
-      activeIndex.value = 'member';
-      break;
-    case '/order':
-      activeIndex.value = 'order';
-      break;
-    case '/commodity':
-      activeIndex.value = 'commodity';
-      break;
-    default:
-      activeIndex.value = 'home';
-  }
+
+onMounted(() => {
+  activeIndex.value = route.path === '/home' ? 'home' : route.path.slice(1);
+});
+
+watch(() => route.path, () => {
+	switch (route.path) {
+		case '/member':
+			activeIndex.value = 'member';
+			break;
+		case '/order':
+			activeIndex.value = 'order';
+			break;
+		case '/commodity':
+			activeIndex.value = 'commodity';
+			break;
+		default:
+			activeIndex.value = 'home';
+	}
 })
 
 </script>

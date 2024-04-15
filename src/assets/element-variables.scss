@@ -5,11 +5,17 @@ button.el-message-box__headerbtn:focus {
 button.el-dialog__headerbtn:focus {
 	outline: none;
 }
+//chekbox----------------
 
+.el-checkbox__input.is-checked .el-checkbox__inner {
+    background-color: gray;
+    border-color: gray;
+}
+//圖片上傳----------------
 .upLoadShow .el-upload {
 	margin: 0 20px 20px;
 }
-.el-upload-list--picture-card .el-upload-list__item{
+.el-upload-list--picture-card .el-upload-list__item {
 	margin: 0 20px 20px;
 }
 /* 当upLoadHide为true时，启用如下样式，即上传框的样式，若为false则不启用该样式 */

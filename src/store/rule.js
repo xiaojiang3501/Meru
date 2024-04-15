@@ -43,7 +43,8 @@ export const useRule = defineStore('Rule', () => {
         //價格
         price:[
             {required:true,message:'请输入價格',trigger:'blur'},
-            {min:1,max:6,message:'請輸入1-6位數字',trigger:'blur'}
+            {min:1,max:6,message:'請輸入1-6位數字',trigger:'blur'},
+            
         ],
         //庫存
         inventory:[

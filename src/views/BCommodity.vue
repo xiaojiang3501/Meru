@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, reactive, nextTick } from 'vue'
+import { ref, onMounted, computed, reactive, nextTick, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { markRaw } from 'vue'
 import { Delete, Search } from '@element-plus/icons-vue'
@@ -20,6 +20,7 @@ const showEdit = ref(false);
 const FormRef = ref();
 const uploadRef = ref(null);
 const newProduct = reactive({
+	Product_ID:'',
     image:'',
     product_name: '', 
     ingredient: '',
@@ -30,6 +31,7 @@ const newProduct = reactive({
 });
 
 const editProduct = reactive({
+	Product_ID:'',
     image:'',
     product_name: '', 
     ingredient: '',
@@ -42,7 +44,12 @@ const editProduct = reactive({
 
 const dialogVisible = ref(false);
 const fileList = ref([]);
+const fileList2 = ref([]);
 const objClass = ref({
+	upLoadShow: true,
+	upLoadHide: false,
+});
+const objClass2 = ref({
 	upLoadShow: true,
 	upLoadHide: false,
 });
@@ -52,6 +59,88 @@ onMounted(() => {
     fetchData()
 })
 
+// 關閉新增彈窗時清除上傳狀態
+watch(showAdd, (newValue) => {
+    if (!newValue) {
+        nextTick(() => {
+            uploadRef.value.clearFiles();
+            clearUpload();
+        });
+    }
+});
+
+// 關閉编辑彈窗時清除上傳狀態
+watch(showEdit, (newValue) => {
+    if (!newValue) {
+        nextTick(() => {
+            uploadRef.value.clearFiles();
+            clearUpload2();
+        });
+    }
+});
+
+// 通用的清除上傳狀態的函数
+const clearUploadState = (classObj) => {
+    classObj.value.upLoadHide = false;
+    classObj.value.upLoadShow = true;
+};
+
+// 清除上傳狀態的函数1
+const clearUpload = () => {
+    clearUploadState(objClass);
+};
+
+// 清除上傳狀態的函数2
+const clearUpload2 = () => {
+    clearUploadState(objClass2);
+};
+
+// 通用的處理上傳變化的函数
+const handleUploadChange = (classObj) => {
+    classObj.value.upLoadHide = true;
+    classObj.value.upLoadShow = false;
+};
+
+// 處理新增上傳變化的函数
+const handleAddChange = (file, fileList) => {
+    handleUploadChange(objClass);
+};
+
+// 處理删除新增圖片後的函数
+const handleRemove = (file, fileList) => {
+    clearUploadState(objClass);
+};
+
+// 處理编辑上傳變化的函数
+const handleEditChange = (file, fileList) => {
+    handleUploadChange(objClass2);
+};
+
+// 處理刪除编辑圖片後的函数
+const handleRemove2 = (file, fileList) => {
+    clearUploadState(objClass2);
+};
+
+
+// // 点击预览图的放大按钮后会触发handlePictureCardPreview
+// const handlePictureCardPreview = (file) => {
+// 	newProduct.image = file.url;
+//   	dialogVisible.value = true;
+// };
+
+const beforeAvatarUpload = (rawFile) => {
+	if (rawFile.type !== 'image/jpeg') {
+		ElMessage.error('Avatar picture must be JPG format!');
+		return false;
+	} else if (rawFile.size / 1024 / 1024 > 2) {
+		ElMessage.error('Avatar picture size cannot exceed 2MB!');
+		return false;
+	}
+	return true;
+}
+
+
+
 //抓資料
 const fetchData = async () => {
 	const response = await axios.post(apiUrl + '/product');
@@ -60,7 +149,6 @@ const fetchData = async () => {
 
 //快速搜尋篩選
 const filteredTableData = computed(() => {
-
 	return products.value.filter((item) =>
 		!search_info.value ||
 		item.product_name.toLowerCase().includes(search_info.value.toLowerCase())
@@ -74,8 +162,11 @@ const showAddForm = () => {
 	showAdd.value = true;
 	nextTick(() => {
         FormRef.value.clearValidate();
+		// uploadRef.value.clearFiles(); // 清空 el-upload 的文件列表
     });
-
+	// fileList.value = [];
+	console.log(newProduct.image)
+	// newProduct.image = '';
     newProduct.product_name = '';
     newProduct.ingredient = '';
     newProduct.allergen = '';
@@ -114,37 +205,51 @@ const addCommodity = async (file) => {
   	});
 }
 
-
 //編輯
 const showEditForm = (row) => {
     showEdit.value = true;
     nextTick(() => {
         FormRef.value.clearValidate();
     });
+	editProduct.Product_ID = row.Product_ID;
     editProduct.image = row.image;
     editProduct.product_name = row.product_name;
     editProduct.ingredient = row.ingredient;
     editProduct.allergen = row.allergen;
     editProduct.price = row.price;
     editProduct.inventory = row.inventory;
+	editProduct.product_suspend = row.product_suspend;
 };
 
-const editCommodity = (file) => {
-	console.log(file)
-	console.log(editProduct.value)
-	// FormRef.value.validate( (valid) => {
-	// 	if (valid) {
-	// 		const Product_ID = products.value.Product_ID;
-	// 		const index = products.value.findIndex((product) => product.id === Product_ID);
-	// 		if (index !== -1) {
-	// 			products.value[index] = response.data;
-	// 		}
+const editCommodity = async (file) => {
+	FormRef.value.validate(async (valid) => {
+		if (valid) {
 
-	// 		const response =  axios.put(`${apiUrl}/edit-product/${Product_ID}`, editProduct );
-	// 		//關窗口
-	// 		showEdit.value = false;
-	// 	}
-	// });
+			const formData = new FormData();
+			formData.append('file', file.file);
+			formData.append('Product_ID', editProduct.Product_ID);
+			formData.append('product_name', editProduct.product_name);
+			formData.append('ingredient', editProduct.ingredient);
+			formData.append('allergen', editProduct.allergen);
+			formData.append('price', editProduct.price);
+			formData.append('inventory', editProduct.inventory);
+			formData.append('product_suspend', editProduct.product_suspend);
+			console.log(formData);
+
+			const response = await axios.put(`${apiUrl}/edit-product/${editProduct.Product_ID}`, formData);
+
+			await fetchData();
+
+
+			ElMessage({
+				type: 'success',
+				message: '商品已更新',
+			});
+			// 關窗口
+			showEdit.value = false;
+		}
+  	});
+
 };
 
 //停權
@@ -161,7 +266,6 @@ const toggleSuspendStatus = async (row) => {
 };
 
 
-
 //刪除
 const handleDelete = async (Product_ID) => {
 
@@ -172,7 +276,9 @@ const handleDelete = async (Product_ID) => {
     });
 
     await axios.delete(`${apiUrl}/delete-product/${Product_ID}`);
-    products.value = products.value.filter((product) => product.Product_ID !== Product_ID);
+    // products.value = products.value.filter((product) => product.Product_ID !== Product_ID);
+
+	await fetchData();
     ElMessage.success('删除成功');
 
 }
@@ -185,33 +291,6 @@ const handleCurrentChange = (page) => {
 }
 
 
-//圖片
-const handleChange = (file, fileList) => {
-  objClass.value.upLoadHide = true; // 上传图片后置upLoadHide为真，隐藏上传框
-  objClass.value.upLoadShow = false;
-};
-
-const handleRemove = (file, fileList) => {
-  objClass.value.upLoadShow = true; // 删除图片后显示上传框
-  objClass.value.upLoadHide = false;
-};
-
-// 点击预览图的放大按钮后会触发handlePictureCardPreview
-const handlePictureCardPreview = (file) => {
-	newProduct.value.image = file.url;
-  	dialogVisible.value = true;
-};
-
-const beforeAvatarUpload = (rawFile) => {
-	if (rawFile.type !== 'image/jpeg') {
-		ElMessage.error('Avatar picture must be JPG format!');
-		return false;
-	} else if (rawFile.size / 1024 / 1024 > 2) {
-		ElMessage.error('Avatar picture size cannot exceed 2MB!');
-		return false;
-	}
-	return true;
-}
 
 
 </script>
@@ -308,9 +387,8 @@ const beforeAvatarUpload = (rawFile) => {
 					:limit="1"
 					:show-file-list="true"
 					:http-request="addCommodity"
-					:on-preview="handlePictureCardPreview"
 					:on-remove="handleRemove" 
-					:on-change="handleChange" 
+					:on-change="handleAddChange"
 					:before-upload="beforeAvatarUpload">
 					<img v-if="newProduct.image" :src="newProduct.image" class="avatar" />
 					<el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
@@ -371,22 +449,21 @@ const beforeAvatarUpload = (rawFile) => {
 				<el-form 
 				ref="FormRef"
 				label-width="70px"
-				:rules="rule"
+
 				:model="editProduct"
 				@submit.prevent="editCommodity">
 					<el-upload
 					ref="uploadRef"
 					action="#"
 					list-type="picture-card"
-					:class="objClass"
+					:class="objClass2"
 					:auto-upload="false"
-					:file-list="fileList"
+					:file-list="fileList2"
 					:limit="1"
 					:show-file-list="true"
 					:http-request="editCommodity"
-					:on-preview="handlePictureCardPreview"
-					:on-remove="handleRemove" 
-					:on-change="handleChange" 
+					:on-remove="handleRemove2" 
+					:on-change="handleEditChange" 
 					:before-upload="beforeAvatarUpload">
 
 					<img :src="`../public/products/${editProduct.image}`"  class="avatar" />

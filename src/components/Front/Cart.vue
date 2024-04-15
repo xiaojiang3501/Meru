@@ -10,31 +10,17 @@ import { useCart } from '@/store/cart.js'
 const { cartData, total_price, pay, ship } = storeToRefs(useCart());
 
 const options1 = [
-    {
-    value: 'ATM轉帳',
-    label: 'ATM轉帳',
-    },
-    {
-    value: '超商取貨付款',
-    label: '超商取貨付款',
-    }
+    { value: 'ATM轉帳', label: 'ATM轉帳', },
 ]
 const options2 = [
-    {
-    value: '全家',
-    label: '全家',
-    },
-    {
-    value: '7-11',
-    label: '7-11',
-    },
-    {
-    value: '宅配',
-    label: '宅配',
-    },
+    { value: '宅配', label: '宅配',},
 ]
 
-
+onMounted(() => {
+    pay.value = '';
+    ship.value = '';
+    total_price.value = 0;
+});
 
 //小計
 const subtotal = ref(0);
@@ -52,7 +38,10 @@ const handleSubtotal = (items) => {
 //運費
 const freight = ref(0);
 watch(ship, (newOption, oldOption) => {
-    if (newOption === 'Option1' || newOption === 'Option2') {
+    if (!newOption) {
+    // 如果 ship 的新值是空字符串， freight 等於 0
+    freight.value = 0;
+    } else if (newOption === 'Option1' || newOption === 'Option2') {
         freight.value = 60;
     } else {
         freight.value = 80;
@@ -189,8 +178,7 @@ const next = () => {
                             v-for="item in options1"
                             :key="item.pay"
                             :label="item.label"
-                            :value="item.value"
-                            />
+                            :value="item.value"/>
                         </el-select>
 
                     </div>
@@ -202,9 +190,7 @@ const next = () => {
                             v-for="item in options2"
                             :key="item.ship"
                             :label="item.label"
-                            :value="item.value"
-                            
-                            />
+                            :value="item.value"/>
                         </el-select>
 
                     </div>
