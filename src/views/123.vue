@@ -5,10 +5,10 @@
 	type="date"
 	placeholder="選擇開始時間"
 	format="YYYY-MM-DD"
-	value-format="YYYY-MM-DD"
+	value-format="YYYYMMDD"
 	style="width: 160px;"/>
 
-	<el-button @click="addItem" type="primary">新增</el-button>
+	<el-button @click="addHoliday" type="primary">新增</el-button>
 
 	<el-calendar>
 		<template #date-cell="{data}">
@@ -27,7 +27,8 @@
 					style="color: gray;">X</el-button>
 				</span>
 			</div>
-			
+			 
+			 
 		</div>
 		</template>
 	</el-calendar>
@@ -41,40 +42,36 @@ import { ref, reactive } from 'vue';
 const inputContent = ref('');
 const selectedDate = ref('');
 const resDate = reactive([
-    { date: '2024-04-30', content: '放假' },
-    { date: '2024-04-01', content: '放假' },
+    { date: '20240430', content: '放假' },
+    { date: '20240401', content: '放假' },
 ]);
 
-
-
-
 const dealMyDate = (v) => {
-	let res = [];
-	for (let index = 0; index < resDate.length; index++) {
-		if (resDate[index].date === v) {
-			res.push(resDate[index].content);
-		}
-	}
-	return res;
-}
+    let res = [];
+    for (let index = 0; index < resDate.length; index++) {
+        if (resDate[index].date === v) {
+            res.push(resDate[index].content);
+        }
+    }
+    return res;
+};
 
-const addItem = () => {
-	if (inputContent.value && selectedDate.value) {
-		console.log(inputContent.value)
-		console.log(selectedDate.value)
-		resDate.push({ date: selectedDate.value, content: inputContent.value });
-		inputContent.value = '';
-		selectedDate.value = '';
-	}
-}
+// 增加行事曆行程
+const addHoliday = () => {
+    if (calendarContent.value && calendarDate.value) {
+        resDate.push({ date: calendarDate.value.replace(/-/g, ''), content: calendarContent.value });
+        calendarContent.value = '';
+        calendarDate.value = '';
+    }
+};
 
-const deleteItem = (date) => {
-	const index = resDate.findIndex(item => item.date === date);
-	if (index !== -1) {
-		resDate.splice(index, 1);
-	}
-}
-
+// 刪除行事曆行程
+const deleteHoliday = (date) => {
+    const index = resDate.findIndex((item) => item.date === date);
+    if (index !== -1) {
+        resDate.splice(index, 1);
+    }
+};
 </script>
 
 <style lang="scss" scoped>

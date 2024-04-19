@@ -32,7 +32,7 @@ const userLink = () => {
                     class="item" 
                     type="danger" >
                         <el-icon size="35px">
-                            <ShoppingCart color="#EF7C8E" />
+                            <ShoppingCart color="#6c6b6c" />
                         </el-icon>
                     </el-badge>
                 </router-link>
@@ -40,7 +40,7 @@ const userLink = () => {
             <li>            
                 <router-link :to="userLink()">
                     <el-icon size="35px">
-                        <UserFilled color="#EF7C8E" />
+                        <UserFilled color="#6c6b6c" />
                     </el-icon>
                 </router-link>
             </li>
@@ -59,13 +59,27 @@ const userLink = () => {
     display: flex;
     justify-content: space-between;
     text-align: center;
+    background-color: white;
+    position: relative;
+}
 
+.header-container::after {
+    content: '';
+    position: absolute;
+    bottom: -20px; /* 調整波浪的高度 */
+    left: 0;
+    width: 100%;
+    height: 40px; /* 調整波浪的高度 */
+    background-image: radial-gradient(circle at 0 100%, transparent 20px, white 21px);
+    mask: 
+        radial-gradient(13.45px at 50% calc(100% - 19px), #000 99%, transparent 101%) calc(50% - 20px) 0/40px 100%,
+        radial-gradient(13.45px at 50% calc(100% + 9px), transparent 99%, #000 101%) 50% calc(100% - 10px)/40px 100% repeat-x;
 }
 .header-left{
     margin: 1%;
     // border: 1px solid red;
     img{
-        width: 60px;
+        width: 45px;
     }
 }
 .header-right{
@@ -76,7 +90,7 @@ const userLink = () => {
         line-height: 40px;
         font-size: 24px;
         a{
-            color: #EF7C8E;
+            color: #6c6b6c;
         }
         // border: 1px solid red;
     }

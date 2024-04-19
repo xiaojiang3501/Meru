@@ -5,28 +5,31 @@
 
 <template>
     <el-row class="home-top">
-        <el-col>
-            <div class="home-benner">
-                <div>
-                    <img src="../assets/macaron.png" alt="" class="home-benner-image">
-                </div>
+        <el-col :xs="24" :sm="20" :md="20" :lg="20" class="home-benner">
+            <div>
+                <img src="../assets/macaron.png" alt="" class="home-benner-image">
             </div>
 
         </el-col>
+
 
     </el-row>
     <el-row class="home-center">
         <el-col>
-            <div class="home-about">
-                <div>
-                    <img src="" alt="" class="home-about-image">
-                </div>
-
-            </div>
 
         </el-col>
+        <el-col :xs="24" :sm="20" :md="20" :lg="20" class="home-cook">
+
+        </el-col>
+        <div  class="home-cook-image">
+            <img src="../assets/chef.png" alt="" class="home-cook-image">
+        </div>
+
 
     </el-row>
+
+
+
     <el-row class="home-bottom">
         <el-col :span="8">
             <div class="home-card">
@@ -58,8 +61,7 @@
 .home-top{
     // border: 1px solid blueviolet;
     .home-benner{
-        width: 70%;
-        margin: 0 auto;
+        margin: 5% auto;
         .home-benner-image{
             width: 400px;
         }
@@ -68,12 +70,19 @@
 
 .home-center{
     // border: 1px solid green;
-    .home-about{
-        width: 60%;
+    background-color: #fffbef;
+    height: 350px;
+    position: relative;
+    .home-cook{
         margin: 0 auto;
-        .home-about-image{
-            width: 50%;
-        }
+    }
+    .home-cook-image{
+        z-index: 2;
+        position: absolute;
+        right: 5%;
+        bottom: 0;
+        // border: 1px solid black;
+
     }
 }
 .home-bottom{

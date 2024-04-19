@@ -6,7 +6,7 @@ import CommonFooter from '@/components/Front/Footer.vue';
 
 <template>
     
-    <el-container style="height: 100%;">
+    <el-container style="height: 100%; background-color: #f5e3e6;">
 
             <!-- header -->
             <el-header>
@@ -28,10 +28,11 @@ import CommonFooter from '@/components/Front/Footer.vue';
 
 <style lang="scss">
 .el-header {
-    height: 100px;
+    height: 80px;
     padding: 0;
     display: flex;
-    
+
+
 }
 .el-main{
     padding: 0;
@@ -42,7 +43,7 @@ import CommonFooter from '@/components/Front/Footer.vue';
     padding: 0;
     width: 100%;
     height: 150px;
-    background-color: #D8A7B1;
+    background-color: #EF7C8E;
 
 }
 
