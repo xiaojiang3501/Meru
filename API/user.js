@@ -39,6 +39,7 @@ router.post('/login', (req, res) => {
 					password: user.password,
 					phone: user.phone,
 					address: user.address,
+					email: user.email,
 					Auth_token: user.Auth_token
                 },
             });
@@ -52,7 +53,7 @@ router.post('/login', (req, res) => {
 
 //註冊
 router.post('/register', (req, res) => {
-    const { account, password, name } = req.body;
+    const { account, password, name, email } = req.body;
 	const registerDate = new Date().toISOString().split('T')[0];
 
 
@@ -74,7 +75,7 @@ router.post('/register', (req, res) => {
 
 
 			// 如果帳號不存在，插入新用戶
-			connection.query('INSERT INTO member (Member_ID, register_date, updated_time, name, account, password, address, phone, user_suspend, Auth_token, Authority) VALUES (?, STR_TO_DATE(?, "%Y-%m-%d"), NOW(), ?, ?, ?, NULL, NULL, 1, ?, "user")', [newMemberID, registerDate, name, account, password, token], (error, results) => {
+			connection.query('INSERT INTO member (Member_ID, register_date, updated_time, name, account, password, email, address, phone, user_suspend, Auth_token, Authority) VALUES (?, STR_TO_DATE(?, "%Y-%m-%d"), NOW(), ?, ?, ?, ?, NULL, NULL, 1, ?, "user")', [newMemberID, registerDate, name, account, password, email, token], (error, results) => {
 				if (error) {
 					return res.json({ success: false, message: '註冊失敗' });
 				}
@@ -87,21 +88,26 @@ router.post('/register', (req, res) => {
     });
 });
 
+//忘記密碼
+router.post('/forgot-password', (req, res) => {
+
+
+
+});
+
 //會員中心
 router.put('/edit-user', (req, res) => {
     const Member_ID = req.body.Member_ID;
-    const { name, password, address, phone } = req.body;
+    const { name, password, address, phone, email } = req.body;
 
     const query = `
-        UPDATE member
-        SET name = ?,  password = ?, address = ?, phone = ?
-        WHERE Member_ID = ?
+        UPDATE member SET name = ?, password = ?, address = ?, phone = ?, email = ?WHERE Member_ID = ?
     `;
 
-    connection.query(query, [name, password, address, phone, Member_ID], (err, results, fields) => {
+    connection.query(query, [name, password, address, phone, email, Member_ID], (err, results, fields) => {
 		if (err) {
             console.error(err);
-            res.json({ success: false, message: '數據庫更新錯誤' });
+            res.json({ success: false, message: '更新錯誤' });
             return;
         }
 

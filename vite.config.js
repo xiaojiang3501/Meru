@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import { viteMockServe } from 'vite-plugin-mock'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
-
+import { qrcode } from 'vite-plugin-qrcode'
 
 
 
@@ -19,6 +19,8 @@ export default defineConfig({
       mockPath: './src/mock',
       supportTs: false
     }),
-  ]
+    qrcode() 
+  ],
+
 
 })

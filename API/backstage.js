@@ -199,11 +199,11 @@ router.post('/create-product', upload.single('file'), (req, res) => {
     connection.query(query, [newProductID, image, product_name, price, inventory, ingredient, allergen], (err, results, fields) => {
         if (err) {
             console.error(err);
-            res.json({ success: false, message: '新增失敗' });
+            res.json({ success: false, message: '商品新增失敗' });
             return;
         }
 
-        res.json({ success: true, msg: '新增成功', newProductID });
+        res.json({ success: true, message: '商品新增成功' });
     });
 
 });
@@ -254,16 +254,15 @@ router.put('/edit-product/:Product_ID', upload.single('file'), (req, res) => {
             connection.query(updateQuery, [image, product_name, price, inventory, ingredient, allergen], (err, results, fields) => {
                 if (err) {
                     console.error(err);
-                    res.json({ success: false, message: '編輯失敗' });
+                    res.json({ success: false, message: '商品編輯失敗' });
                     return;
                 }
 
-                res.json({ success: true, message: '編輯成功' });
+                res.json({ success: true, message: '商品編輯成功' });
             });
         });
     });
 });
-
 router.put('/toggle-product/:Product_ID', (req, res) => {
     const Product_ID = req.params.Product_ID;
     let product_suspend = req.body.product_suspend;
@@ -278,10 +277,10 @@ router.put('/toggle-product/:Product_ID', (req, res) => {
 	connection.query(query, (err, results, fields) => {
         if (err) {
             console.error(err);
-            res.json({ success: false, message: '會員更新錯誤' });
+            res.json({ success: false, message: '商品更新錯誤' });
             return;
         }
-        res.json({ success: true, message: '會員更新' });
+        res.json({ success: true, message: '商品更新成功' });
     });
 });
 router.delete('/delete-product/:Product_ID', (req, res) => {
@@ -363,7 +362,7 @@ router.post('/member', (req, res) => {
 	});
 });
 router.post('/create-member', (req, res) => {
-    const { name, account, password, address, phone } = req.body;
+    const { name, account, password, email, address, phone } = req.body;
 	const registerDate = new Date().toISOString().split('T')[0];
 
 	connection.query('SELECT MAX(Member_ID) AS maxMemberID FROM member', (err, results) => {
@@ -384,13 +383,13 @@ router.post('/create-member', (req, res) => {
 
 
 			// 如果帳號不存在，插入新用戶
-			connection.query('INSERT INTO member (Member_ID, register_date, updated_time, name, account, password, address, phone, user_suspend, Auth_token, Authority) VALUES (?, STR_TO_DATE(?, "%Y-%m-%d"), NOW(), ?, ?, ?, ?, ?, 1, ?, "user")', [newMemberID, registerDate, name, account, password,address, phone, token], (error, results) => {
+			connection.query('INSERT INTO member (Member_ID, register_date, updated_time, name, account, password, email, address, phone, user_suspend, Auth_token, Authority) VALUES (?, STR_TO_DATE(?, "%Y-%m-%d"), NOW(), ?, ?, ?, ?, ?, ?, 1, ?, "user")', [newMemberID, registerDate, name, account, password, email, address, phone, token], (error, results) => {
 				if (error) {
-					return res.json({ success: false, message: error.message });
+					return res.json({ success: false, message: '新增會員失敗' });
 				}
 
 				// 註冊成功，返回成功的JSON響應
-				res.json({ success: true, message: results });
+				res.json({ success: true, message: '新增會員成功' });
 			});
 
 		})
@@ -431,7 +430,7 @@ router.put('/toggle-member/:Member_ID', (req, res) => {
             res.json({ success: false, message: '會員更新錯誤' });
             return;
         }
-        res.json({ success: true, message: '會員更新' });
+        res.json({ success: true, message: '會員更新成功' });
     });
 });
 router.delete('/delete-member/:Member_ID', (req, res) => {
@@ -483,10 +482,10 @@ router.put('/toggle-order/:Order_ID', (req, res) => {
 	connection.query(query, (err, results, fields) => {
         if (err) {
             console.error(err);
-            res.json({ success: false, message: query });
+            res.json({ success: false, message: '訂單更新失敗' });
             return;
         }
-        res.json({ success: true, message: query });
+        res.json({ success: true, message: '訂單更新成功' });
     });
 });
 router.delete('/delete-order/:Order_ID', (req, res) => {
