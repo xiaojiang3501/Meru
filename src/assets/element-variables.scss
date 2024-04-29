@@ -1,3 +1,4 @@
+//按鈕----------------
 button.el-message-box__headerbtn:focus {
 	outline: none;
 }
@@ -5,12 +6,70 @@ button.el-message-box__headerbtn:focus {
 button.el-dialog__headerbtn:focus {
 	outline: none;
 }
+button:focus, button:focus-visible {
+    outline: none;
+}
+button:hover {
+    border-color: transparent; 
+}
+//tab----------------
+.el-tabs__item.is-active{
+    color: #ef7d8d;
+}
+.el-tabs__active-bar.is-left{
+	background: #ef7d8d;
+}
+.el-tabs__item:hover{
+    color: #ef7d8d;
+}
+//數量選擇----------------
+.el-input{
+	--el-input-focus-border-color: #e9c8ce;
+}
+//選擇----------------
+.el-select{
+	--el-select-input-focus-border-color: #e9c8ce;
+}
+//步驟條----------------
+.el-step__title.is-success{
+	color:#ef7d8d;
+}
+.el-step__head.is-success {
+	border-color:#ef7d8d;
+}
+.el-step__icon.is-text{
+    color: #ef7d8d;
+}
 //chekbox----------------
-
 .el-checkbox__input.is-checked .el-checkbox__inner {
     background-color: gray;
     border-color: gray;
 }
+.el-checkbox__inner:hover{
+	border-color: gray;
+}
+.el-checkbox__input.is-checked+.el-checkbox__label {
+    color: #ef7d8d;
+}
+//手風琴----------------
+.el-collapse{
+	--el-collapse-header-font-size: 16px;
+	--el-collapse-header-bg-color: grey;
+	--el-collapse-header-text-color:  white;
+	--el-collapse-border-color: none;
+	// --el-collapse-content-bg-color: #FEF4E2;
+	.el-collapse-item{
+		margin-bottom: 1%;
+	}
+	.el-collapse-item__header{
+		border-radius: 0px;
+		padding: 10px;
+	}
+	// .el-collapse-item__header:hover{
+	// 	color: #FEF4E2;
+	// }
+}
+
 //圖片上傳----------------
 .upLoadShow .el-upload {
 	margin: 0 20px 20px;

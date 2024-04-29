@@ -12,7 +12,7 @@ export const useCart = defineStore('cartData', () => {
     const payment_address = ref('')
 
     return { cartData, total_price, pay, ship, payee, payee_phone, payment_address}
-},
+    },
 
     {
         persist: {

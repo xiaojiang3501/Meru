@@ -102,7 +102,7 @@ const next = () => {
 
 <template>
     <el-row>
-        <div class="cart-container">
+        <el-col :xs="24" :sm="22" :md="18" :lg="16" class="cart-container">
             <!-- 步驟條 -->
             <el-steps 
             :active="active" 
@@ -117,7 +117,7 @@ const next = () => {
             <el-table 
             class="cart-table"
             :default-sort="{ prop: 'date',order: 'descending' }"
-            :header-cell-style="{background:'#EF7C8E',color:'white',textAlign: 'center'}"
+            :header-cell-style="{background:'#e9c8ce',color:'white',textAlign: 'center'}"
             :cell-style="{ textAlign: 'center' }"
             :data="cartData" 
             @selection-change="handleSubtotal">
@@ -125,7 +125,7 @@ const next = () => {
                 <el-table-column type="selection" width="55" >
                 </el-table-column>
 
-                <el-table-column prop="image" label="商品圖片" width="150" >
+                <el-table-column prop="image" label="商品圖片" width="100" >
 					<!-- !-- 使用插槽自定义列的内容 -->
 					<template #default="{ row }">
 						<img :src="`../public/products/${row.image}`" alt="商品圖片" style="max-width: 60px; max-height: 60px;" />
@@ -139,7 +139,6 @@ const next = () => {
                         <el-input-number 
                         v-model="row.quantity"  
                         :min="1" 
-                        :max="row.inventory"
                         @change="handleQuantityChange(row)" />
                     </template>
                 </el-table-column> 
@@ -156,7 +155,7 @@ const next = () => {
                     </template>
                 </el-table-column> 
 
-                <el-table-column fixed="right" label="操作" width="150" class="edit">
+                <el-table-column fixed="right" label="操作" width="80" class="edit">
                 <template  #default="{ row }">
                     <el-button
                     link
@@ -167,6 +166,7 @@ const next = () => {
                 </el-table-column>
                     
             </el-table>
+
             <div class="cart-center">
                 <div class="cart-info">
                     <div class="cart-header">選擇付款及運送方式</div>
@@ -230,14 +230,13 @@ const next = () => {
 
             </div>
 
-
             <div class="cart-buttom">
                 <div class="cart-next">
-                    <el-button @click="next">下一步</el-button>
+                    <el-button  @click="next">下一步</el-button>
                 </div>
             </div>
 
-        </div>
+        </el-col>
     </el-row>
 
 </template>
@@ -245,47 +244,95 @@ const next = () => {
 
 <style lang="scss" scoped>
 .cart-container{
-    width: 70%;
     margin: 5% auto;
 }
 
-    .cart-step{
-        margin: 5% auto;
+.cart-step{
+    margin: 5% auto;
+}
+.cart-center{
+    display: flex;
+    justify-content: space-between;
+    margin: 2% 0;
+    font-size: 1rem;
+    color: #606266;
+}
+.cart-header{
+    width: 100%;
+    height: 35px;
+    background-color: #e9c8ce;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    line-height: 35px;
+}
+.cart-info{
+    background-color: white;
+    width: 49%;
+
+    .cart-select{
+        margin: 25px 40px;
+        span{
+            margin-right: 15px;
+        }
+    }
+}
+.cart-price{
+    background-color: white;
+    width: 49%;
+    .cart-sum{
+        margin: 20px 40px;
+        .price{
+            display: flex;
+            justify-content: space-between;
+        }
+        span{
+            margin: 1% 0;
+        }
+    }
+}
+.cart-line{
+    border: 1px solid #ebeef5;
+    margin: 2% 0;
+}
+.cart-buttom{
+    display: flex;
+    justify-content: flex-end;
+    margin: 3% auto;
+}
+.el-button{
+    color: #ef7d8d;
+    --el-button-hover-border-color:#ef7d8d;
+    --el-button-hover-bg-color:#fcf0f2;
+    --el-button-active-border-color:#ef7d8d;
+}
+
+@media screen and (max-width: 767px) {
+    .el-table-column[label="商品圖片"] {
+        width: 60px;
+    }
+    .cart-container{
+        margin: 0;
+        padding: 5%;
     }
     .cart-center{
-        display: flex;
-        justify-content: space-between;
-        margin: 2% 0;
-        font-size: 18px;
-        color: #606266;
-    }
-    .cart-header{
-        width: 100%;
-        height: 35px;
-        background-color: #EF7D8D;
-        color: white;
-        font-weight: bold;
-        text-align: center;
-        line-height: 35px;
+        display: block;
+        margin: 5% 0;
     }
     .cart-info{
-        background-color: white;
-        border: 1px solid #ebeef5;
-        width: 49%;
-
+        width: 100%;
+        height: 250px;
+        margin: 5% 0;
         .cart-select{
             margin: 25px 40px;
             span{
                 margin-right: 15px;
             }
         }
-
-
     }
     .cart-price{
-        background-color: white;
-        border: 1px solid #ebeef5;
-        width: 49%;
+        width: 100%;
+        height: 200px;
         .cart-sum{
             margin: 20px 40px;
             .price{
@@ -295,19 +342,14 @@ const next = () => {
             span{
                 margin: 1% 0;
             }
-
         }
-
-    }
-    .cart-line{
-        border: 1px solid #ebeef5;
-        margin: 2% 0;
     }
     .cart-buttom{
-        display: flex;
-        justify-content: flex-end;
-        margin: 3% auto;
-
+        justify-content: center;
     }
+
+}
+
+
 </style>
   

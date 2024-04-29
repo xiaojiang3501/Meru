@@ -52,29 +52,30 @@ const addCart = () => {
 </script>
 
 <template>
-    <el-row class="detail-wrapper">
-
-        <div class="detail-image">
+    <el-row  class="detail-wrapper">
+        <el-col :xs="24" :sm="24" :md="24" :lg="10" class="detail-image">
             <img :src="`../public/products/${selectedProduct.image}`" alt="">
-        </div>
+        </el-col>
 
-        <div class="detail-contect" >
+        <el-col :xs="24" :sm="24" :md="24" :lg="14" class="detail-contect" >
             <h4 >馬卡龍-{{ selectedProduct.product_name }}</h4>
             <h5>成分</h5>
             <p>{{ selectedProduct.ingredient }}</p>
             <br/>
             <h5>過敏成分</h5>
-            <p>{{ selectedProduct.allergen }}</p>
-            <span class="detail-price">價錢:{{ selectedProduct.price }}
-            </span>            
-            <el-input-number 
-            v-model="num" 
-            :min="1"
-            :max="selectedProduct.inventory"
-            @change="handleChange" 
-            class="detail-num"/>
+            <p>{{ selectedProduct.allergen }}</p>   
+            <div style="display: flex;">            
+                <span class="detail-price">NTD {{ selectedProduct.price }}
+                </span>  
+                <el-input-number 
+                v-model="num" 
+                :min="1"
+                :max="selectedProduct.inventory"
+                @change="handleChange" 
+                class="detail-num" />
+            </div>        
             <button class="detail-button" @click="addCart">加入購物車</button>
-        </div>
+        </el-col>
 
     </el-row>
     
@@ -82,31 +83,35 @@ const addCart = () => {
 
 <style lang="scss" scoped>
 .detail-wrapper {
-    width: 80%;
     margin: 5% auto;
+    width: 70%;
     .detail-image{
-        width: 50%;
         img{
             display: block;
-            width: 350px;
-            // border: 1px solid green;
+            width: 80%;
             margin: 0 auto;
         }
     }
     .detail-contect{
-        padding: 20px;
+        padding: 5%;
         display: flex;
         flex-direction: column;
+        h4{
+            color: #EF7C8E;
+        }
         h5{
             margin: 1% 0;
+            color: #6c6b6c;
         }
         p{
-            width: 450px;
+            color: gray;
+            font-weight: bold;
         }
         .detail-price{
-            margin: 8% 0 3%;
-            font-size: 20px;
-            color: red;
+            margin: 5% 5% 5% 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: orange;
         }
         .detail-num{
             margin: 5% 0;
@@ -115,7 +120,7 @@ const addCart = () => {
         }
         .detail-button{
             width: 150px;
-            background-color: pink;
+            background-color: #e9c8ce;
             color: white;
             border: 0;
         }
@@ -124,7 +129,23 @@ const addCart = () => {
             background-color: #EF7C8E;
         }
     }
-
 }
+@media screen and (max-width: 1025px) {
+    .detail-wrapper {
+        width: 70%;
+        .detail-image{
+            img{
+                width: 45%;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .detail-wrapper {
+        width: 100%;
+    }
+}
+
 
 </style>

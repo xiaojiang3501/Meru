@@ -9,7 +9,7 @@ import { useCart } from '@/store/cart.js'
 import { useUser } from '@/store/user.js'
 import { useRule } from '@/store/rule.js'
 const { userData } = storeToRefs(useUser());
-const { payee, payee_phone, payment_address } = storeToRefs(useCart());
+const { payee, payee_phone, payment_address, total_price } = storeToRefs(useCart());
 const { rule } = storeToRefs(useRule());
 
 const FormRef = ref(null);
@@ -124,7 +124,7 @@ const prev = () => {
 
             <div class="form-buttom">
                 <div class="form-sum">
-                    合計：<span class="sum">{{sum}}</span>
+                    合計：<span class="sum">{{total_price}}</span>
                 </div>
                 <div class="form-next">
                     <el-button @click="prev">上一步</el-button>
@@ -164,7 +164,7 @@ const prev = () => {
 
         }
         .form-title{
-            margin-bottom: 5%;
+            margin: 5% 0;
         }
     }
 
@@ -173,8 +173,9 @@ const prev = () => {
         justify-content: flex-end;
         margin: 3% auto;
         .form-sum{
-        margin: 0 3%;
-        font-size: 20px;
+            margin: 0 3%;
+            font-size: 1.5rem;
+            font-weight: bold;
         }
         .sum{
             color: red;
@@ -190,5 +191,35 @@ const prev = () => {
     position: absolute;
     top: 10px;
 }
+
+.el-button{
+    color: #ef7d8d;
+    --el-button-hover-border-color:#ef7d8d;
+    --el-button-hover-bg-color:#fcf0f2;
+    --el-button-active-border-color:#ef7d8d;
+}
+
+@media screen and (max-width: 767px) {
+    .form-container{
+        width: 90%;
+        .form-table{
+            display: block;
+            .form1, .form2{
+                width: 80%;
+            }
+            .form-title{
+                margin: 15% 0 5%;
+            }
+        }
+        .form-buttom{
+            justify-content: center;
+            .form-sum{
+                font-size: 1.2rem;
+            }
+        }
+    }
+}
+
+
 </style>
   

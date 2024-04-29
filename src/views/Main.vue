@@ -6,15 +6,15 @@ import CommonFooter from '@/components/Front/Footer.vue';
 
 <template>
     
-    <el-container style="height: 100%; background-color: #f5e3e6;">
-
+    <el-container>
+        
             <!-- header -->
             <el-header>
                 <CommonHeader />
             </el-header>
 
             <!-- main -->
-            <el-main style="width: 100%;">
+            <el-main>
                 <router-view />
             </el-main>
 
@@ -27,25 +27,40 @@ import CommonFooter from '@/components/Front/Footer.vue';
 </template>
 
 <style lang="scss">
+#app{
+    min-width: 100%;
+}
+.el-container{
+    height: 100%; 
+    background-color: #dbe6e9;
+    // background-color: #e9c8ce;
+}
+
 .el-header {
-    height: 80px;
+    height: 100px;
     padding: 0;
     display: flex;
-
-
 }
 .el-main{
     padding: 0;
+    width: 100%;
 }
-
-
 .el-footer{
     padding: 0;
-    width: 100%;
-    height: 150px;
-    background-color: #EF7C8E;
 
 }
+@media screen and (max-width: 767px) {
+    .el-main{
+        min-height: 400px;
+    }
+}
 
-
+@media screen and (max-width: 1025px) {
+    .el-header {
+        height: 80px;
+    }
+    .el-main{
+        min-height: 1100px;
+    }
+}
 </style>

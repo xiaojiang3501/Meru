@@ -18,18 +18,29 @@ const search_info = ref('');
 const showAdd = ref(false);
 const showEdit = ref(false);
 const FormRef = ref(null); 
+
 const newMember = reactive({
     Member_ID:'',
     register_date:'',
     name: '', 
     account: '',
     password: '',
+    email: '',
     address: '',
     phone: '',
     user_suspend: ''
-
 });
-const editedMember = ref(null);  
+const editMember = reactive({
+    Member_ID:'',
+    register_date:'',
+    name: '', 
+    account: '',
+    password: '',
+    email: '',
+    address: '',
+    phone: '',
+    user_suspend: ''
+});
 
 
 onMounted(() => {
@@ -40,7 +51,7 @@ onMounted(() => {
 const fetchData = async () => {
     const response = await axios.post(apiUrl + '/member');
     members.value = response.data.data;
-
+    console.log(members.value)
     
 };
 
@@ -51,7 +62,8 @@ const filteredTableData = computed(() => {
         !search_info.value ||
         item.name.toLowerCase().includes(search_info.value.toLowerCase()) ||
         item.account.toLowerCase().includes(search_info.value.toLowerCase()) ||
-        item.phone.toLowerCase().includes(search_info.value.toLowerCase()) 
+        item.phone.toLowerCase().includes(search_info.value.toLowerCase()) ||
+        item.email.toLowerCase().includes(search_info.value.toLowerCase()) 
     );
 });
 
@@ -71,16 +83,22 @@ const showAddForm = () => {
     newMember.register_date = `${year}/${month}/${day}`;
 
 };
-
 const addMember = async () => {
     FormRef.value.validate(async (valid) => {
         if (valid) {
             const response = await axios.post(apiUrl + '/create-member', newMember);
             members.value.push(newMember);
-            ElMessage({
-                type: 'success',
-                message: '會員已新增',
-            });
+            if(response.data.success){
+                ElMessage({
+                    type: 'success',
+                    message: response.data.message,
+                });
+            }else{
+                ElMessage({
+                    type: 'error',
+                    message: response.data.message,
+                });
+            }
             // 關窗口
             showAdd.value = false;
         }
@@ -93,29 +111,41 @@ const showEditForm = (row) => {
     nextTick(() => {
         FormRef.value.clearValidate();
     });
-    // console.log(row);
+    console.log(row);
     // 設置編輯模式，將信息填充到表單中
     editedMember.value = row;
-    newMember.Member_ID = row.Member_ID;
-    newMember.register_date = row.register_date;
-    newMember.name = row.name;
-    newMember.account = row.account;
-    newMember.password = row.password;
-    newMember.address = row.address;
-    newMember.phone = row.phone;
-    newMember.user_suspend = row.user_suspend;
+    editMember.Member_ID = row.Member_ID;
+    editMember.register_date = row.register_date;
+    editMember.name = row.name;
+    editMember.account = row.account;
+    editMember.password = row.password;
+    editMember.email = row.email;
+    editMember.address = row.address;
+    editMember.phone = row.phone;
+    editMember.user_suspend = row.user_suspend;
 
 };
-
-const editMember =  () => {
-    FormRef.value.validate((valid) => {
+const editedMember = async () => {
+    FormRef.value.validate(async(valid) => {
         if (valid){
             const Member_ID = editedMember.value.Member_ID;
             const index =  members.value.findIndex((item) => item.Member_ID === Member_ID);
             if (index !== -1) {
                 members.value[index] = newMember;
             }
-            const response = axios.put(`${apiUrl}/edit-member/${Member_ID}`, newMember);
+            const response = await axios.put(`${apiUrl}/edit-member/${Member_ID}`, newMember);
+
+            if(response.data.success){
+                ElMessage({
+                    type: 'success',
+                    message: response.data.message,
+                });
+            }else{
+                ElMessage({
+                    type: 'error',
+                    message: response.data.message,
+                });
+            }
             // 關窗口
             showEdit.value = false;
         
@@ -126,12 +156,11 @@ const editMember =  () => {
 
 
 //停權
-const toggleSuspendStatus = async (Member_ID) => {
+const toggleSuspendStatus = async (row) => {
+    const Member_ID = row.Member_ID;
     const newStatus = row.user_suspend;
 
-	await axios.put(`${apiUrl}/toggle-member/${Member_ID}`, {
-		user_suspend: newStatus,
-	});
+	await axios.put(`${apiUrl}/toggle-member/${Member_ID}`, {user_suspend: newStatus});
 
     // 只在成功更新后，將新的狀態赋值给 suspend 属性
     row.user_suspend = newStatus;
@@ -146,9 +175,21 @@ const handleDelete = async (Member_ID) => {
         icon: markRaw(Delete)
     });
 
-    await axios.delete(`${apiUrl}/delete-member/${Member_ID}`);
-    members.value = members.value.filter((member) => member.Member_ID !== Member_ID);
-    ElMessage.success('删除成功');
+    const response = await axios.delete(`${apiUrl}/delete-member/${Member_ID}`);
+
+	await fetchData();
+
+    if(response.data.success){
+        ElMessage({
+            type: 'success',
+            message: response.data.message,
+        });
+    }else{
+        ElMessage({
+            type: 'error',
+            message: response.data.message,
+        });
+    }
     
 };
 
@@ -173,8 +214,7 @@ const handleCurrentChange = (page) => {
                     <el-input
                     v-model="search_info"
                     placeholder="搜尋"
-                    :suffix-icon="Search"
-                    />
+                    :suffix-icon="Search"/>
                 </div>
 
                 <el-button
@@ -194,11 +234,12 @@ const handleCurrentChange = (page) => {
                 <el-table-column prop="name" label="姓名" width="100" />
                 <el-table-column prop="account" label="帳號"  />
                 <el-table-column prop="password" label="密碼"  />
+                <el-table-column prop="email" label="信箱"  width="180" />
                 <el-table-column prop="phone" label="電話" width="120" />
                 <el-table-column prop="address" label="地址"  />
                 <el-table-column prop="user_suspend" label="啟用狀態" width="80">
                     <template #default="{ row }">
-                        <el-switch v-model="row.user_suspend" @change="toggleSuspendStatus(row.Member_ID)"/> <!-- 使用 row.suspend 绑定每行的停權狀態 -->
+                        <el-switch v-model="row.user_suspend" @change="toggleSuspendStatus(row)"/> <!-- 使用 row.suspend 绑定每行的停權狀態 -->
                     </template>
                 </el-table-column>
 
@@ -251,6 +292,9 @@ const handleCurrentChange = (page) => {
                 <el-form-item label="密碼" prop="password"> 
                     <el-input v-model="newMember.password" style="width: 200px;" />
                 </el-form-item>
+                <el-form-item label="信箱" prop="email"> 
+                    <el-input v-model="newMember.email" style="width: 200px;" />
+                </el-form-item>
                 <el-form-item label="電話" prop="phone"> 
                     <el-input v-model="newMember.phone"  style="width: 200px;" />
                 </el-form-item>
@@ -279,23 +323,26 @@ const handleCurrentChange = (page) => {
                 ref="FormRef"
                 label-width="70px"
                 :rules="rule"
-                :model="newMember"
-                @submit.prevent="editMember">
+                :model="editMember"
+                @submit.prevent="editedMember">
 
                 <el-form-item label="姓名" prop="name" >
-                    <el-input v-model="newMember.name" style="width: 200px;" />
+                    <el-input v-model="editMember.name" style="width: 200px;" />
                 </el-form-item>
                 <el-form-item label="帳號" prop="account"> 
-                    <el-input v-model="newMember.account" style="width: 200px;" />
+                    <el-input v-model="editMember.account" style="width: 200px;" />
                 </el-form-item>
                 <el-form-item label="密碼" prop="password"> 
-                    <el-input v-model="newMember.password" style="width: 200px;" />
+                    <el-input v-model="editMember.password" style="width: 200px;" />
+                </el-form-item>
+                <el-form-item label="信箱" prop="email"> 
+                    <el-input v-model="editMember.email" style="width: 200px;" />
                 </el-form-item>
                 <el-form-item label="電話" prop="phone"> 
-                    <el-input v-model="newMember.phone"  style="width: 200px;" />
+                    <el-input v-model="editMember.phone"  style="width: 200px;" />
                 </el-form-item>
                 <el-form-item label="地址" prop="address">
-                    <el-input v-model="newMember.address" style="width: 350px;" />
+                    <el-input v-model="editMember.address" style="width: 350px;" />
                 </el-form-item>
 
                 </el-form>
@@ -303,7 +350,7 @@ const handleCurrentChange = (page) => {
                     <span class="dialog-footer">
                         <el-button 
                         type="primary" 
-                        @click="editMember">保存</el-button>
+                        @click="editedMember">保存</el-button>
                     </span>
                 </template>
             </el-dialog>

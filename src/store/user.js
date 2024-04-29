@@ -9,4 +9,11 @@ export const useUser = defineStore('userData', () => {
     return { userData}
     },
 
+    {
+        persist: {
+            key: 'User',
+            storage: localStorage
+        }
+    }
+
 )

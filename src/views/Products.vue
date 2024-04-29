@@ -42,9 +42,7 @@ const goDetail = (Product_ID) => {
 
 <template>
     <el-row>
-        <div class="products-benner"></div>
-        <div class="products-wrapper">
-            
+        <el-col :xs="24" :sm="20" :md="20" :lg="20" class="products-wrapper">
             <div 
             v-for="item in filteredProducts" 
             :key="item.Product_ID" 
@@ -53,28 +51,20 @@ const goDetail = (Product_ID) => {
                 <img :src="`../public/products/${item.image}`" alt="">
                 <h5>{{ item.product_name }}</h5>
             </div>
-
-        </div>
+        </el-col>
         
     </el-row>
     
 </template>
 
 <style lang="scss" scoped>
-.products-benner{
-    width: 100%;
-    height: 50px;
-    background-color: palevioletred;
-}
 .products-wrapper{
     display: flex;
     flex-wrap: wrap;
     margin: 5% auto;
-    width: 80%;
-    // border: 1px solid black;
     .item{
-        width: 180px;
-        margin: 20px;
+        width: 20%;
+        margin: 3% 0;
         text-align: center;
         cursor: pointer;
         // border: 1px solid red;
@@ -90,6 +80,31 @@ const goDetail = (Product_ID) => {
     .item:hover{
         transform: scale(1.1);
         color: gray;
+    }
+}
+
+@media screen and (max-width: 1025px) {
+    .products-wrapper{
+        flex-wrap: wrap;
+        margin: 5% auto;
+        .item{
+            width: 25%;
+            img{
+                width: 120px;
+                height: 120px;
+
+            }
+
+        }
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .products-wrapper{
+        .item{
+            width: 50%;
+
+        }
     }
 }
 

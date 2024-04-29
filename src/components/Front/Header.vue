@@ -16,12 +16,12 @@ const userLink = () => {
 </script>
 <template>
     <el-row class="header-container">
-        <el-col :span="4" class="header-left">
+        <el-col :xs="4" :sm="4" :md="4" :lg="4" class="header-left">
                 <router-link to="/" >
                     <img src="../../assets/logo.png">
                 </router-link>
         </el-col>
-        <el-col :span="8" class="header-right">
+        <el-col :xs="19" :sm="12" :md="10" :lg="10" class="header-right">
             <li><router-link to="/products" >Prouducts</router-link></li>
             <li><router-link to="/FAQ" >FAQ</router-link></li> 
             <li>
@@ -32,7 +32,7 @@ const userLink = () => {
                     class="item" 
                     type="danger" >
                         <el-icon size="35px">
-                            <ShoppingCart color="#6c6b6c" />
+                            <ShoppingCart class="header-icon" />
                         </el-icon>
                     </el-badge>
                 </router-link>
@@ -40,14 +40,12 @@ const userLink = () => {
             <li>            
                 <router-link :to="userLink()">
                     <el-icon size="35px">
-                        <UserFilled color="#6c6b6c" />
+                        <UserFilled class="header-icon" />
                     </el-icon>
                 </router-link>
             </li>
 
         </el-col>
-
-
 
     </el-row>
   </template>
@@ -61,20 +59,12 @@ const userLink = () => {
     text-align: center;
     background-color: white;
     position: relative;
-}
-
-.header-container::after {
-    content: '';
-    position: absolute;
-    bottom: -20px; /* 調整波浪的高度 */
-    left: 0;
-    width: 100%;
-    height: 40px; /* 調整波浪的高度 */
-    background-image: radial-gradient(circle at 0 100%, transparent 20px, white 21px);
+    overflow: hidden;
     mask: 
         radial-gradient(13.45px at 50% calc(100% - 19px), #000 99%, transparent 101%) calc(50% - 20px) 0/40px 100%,
         radial-gradient(13.45px at 50% calc(100% + 9px), transparent 99%, #000 101%) 50% calc(100% - 10px)/40px 100% repeat-x;
 }
+
 .header-left{
     margin: 1%;
     // border: 1px solid red;
@@ -88,11 +78,31 @@ const userLink = () => {
     li{
         margin: 5%;
         line-height: 40px;
-        font-size: 24px;
-        a{
+        font-size: 1.5rem;
+        a,.header-icon{
             color: #6c6b6c;
         }
+        a:hover,.header-icon:hover{
+            color: #e9c8ce;
+        }
         // border: 1px solid red;
+        
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .header-container{
+        padding: 10px;
+    }
+    .header-left{
+        margin: 0;
+    }
+    .header-right{
+        li{
+            margin: 2%;
+            line-height: 30px;
+            
+        }
     }
 }
 

@@ -93,14 +93,14 @@ const completed = () => {
                 :data="cartData"
                 class="cart-table"
                 >
-                <el-table-column prop="image" label="商品圖片" width="150" >
+                <el-table-column prop="image" label="商品圖片" width="100" >
 					<!-- !-- 使用插槽自定义列的内容 -->
 					<template #default="{ row }">
 						<img :src="`../public/products/${row.image}`" alt="商品圖片" style="max-width: 60px; max-height: 60px;" />
 					</template>
 				</el-table-column>
                 <el-table-column prop="product_name" label="商品名稱" />
-                <el-table-column prop="quantity" label="數量"  width="180" />
+                <el-table-column prop="quantity" label="數量"  width="100" />
 
                 </el-table>
                 <h6>配送方式<span >{{ship}}</span></h6>
@@ -147,6 +147,7 @@ const completed = () => {
 
     }
     .form-detail{
+        background-color: white;
         border: 1px solid #ebeef5;
         border-radius: 10px;
         margin: 5% auto;
@@ -164,6 +165,41 @@ const completed = () => {
 .el-message-box__headerbtn{
     border: 1px solid  red;
 }
+.el-button{
+    color: #ef7d8d;
+    --el-button-hover-border-color:#ef7d8d;
+    --el-button-hover-bg-color:#fcf0f2;
+    --el-button-active-border-color:#ef7d8d;
+}
 
+@media screen and (max-width: 767px) {
+
+    .form{
+        width: 90%;
+        margin: 5% auto;
+        .form-step{
+            margin: 3% auto;
+
+        }
+        .form-buttom{
+            justify-content: center;
+            margin: 3% auto;
+            .form-next{
+                margin-left: 10px;
+            }
+
+        }
+        .form-detail{
+            margin: 5% auto;
+            padding: 5%;
+            h6{
+                margin: 3% 0;
+            }
+            span{
+                margin-left: 3%;
+            }
+        }
+    }
+}
 </style>
   

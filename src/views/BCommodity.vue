@@ -191,14 +191,20 @@ const addCommodity = async (file) => {
 			formData.append('product_suspend', newProduct.product_suspend);
 
 			const response = await axios.post(apiUrl + '/create-product', formData);
-
 			await fetchData();
 
+            if(response.data.success){
+                ElMessage({
+                    type: 'success',
+                    message: response.data.message,
+                });
+            }else{
+                ElMessage({
+                    type: 'error',
+                    message: response.data.message,
+                });
+            }
 
-			ElMessage({
-				type: 'success',
-				message: '商品已新增',
-			});
 			// 關窗口
 			showAdd.value = false;
 		}
@@ -237,14 +243,21 @@ const editCommodity = async (file) => {
 			console.log(formData);
 
 			const response = await axios.put(`${apiUrl}/edit-product/${editProduct.Product_ID}`, formData);
-
 			await fetchData();
 
+			if(response.data.success){
+                ElMessage({
+                    type: 'success',
+                    message: response.data.message,
+                });
+            }else{
+                ElMessage({
+                    type: 'error',
+                    message: response.data.message,
+                });
+            }
 
-			ElMessage({
-				type: 'success',
-				message: '商品已更新',
-			});
+
 			// 關窗口
 			showEdit.value = false;
 		}
@@ -257,9 +270,7 @@ const toggleSuspendStatus = async (row) => {
 	const Product_ID = row.Product_ID;
     const newStatus = row.product_suspend;
 
-	await axios.put(`${apiUrl}/toggle-product/${Product_ID}`, {
-		product_suspend: newStatus,
-	});
+	await axios.put(`${apiUrl}/toggle-product/${Product_ID}`, {product_suspend: newStatus});
 
     // 只在成功更新后，將新的狀態赋值给 suspend 属性
     row.product_suspend = newStatus;
@@ -275,11 +286,21 @@ const handleDelete = async (Product_ID) => {
         icon: markRaw(Delete)
     });
 
-    await axios.delete(`${apiUrl}/delete-product/${Product_ID}`);
-    // products.value = products.value.filter((product) => product.Product_ID !== Product_ID);
+    const response = await axios.delete(`${apiUrl}/delete-product/${Product_ID}`);
 
 	await fetchData();
-    ElMessage.success('删除成功');
+
+    if(response.data.success){
+        ElMessage({
+            type: 'success',
+            message: response.data.message,
+        });
+    }else{
+        ElMessage({
+            type: 'error',
+            message: response.data.message,
+        });
+    }
 
 }
 
@@ -449,7 +470,7 @@ const handleCurrentChange = (page) => {
 				<el-form 
 				ref="FormRef"
 				label-width="70px"
-
+				:rules="rule"
 				:model="editProduct"
 				@submit.prevent="editCommodity">
 					<el-upload

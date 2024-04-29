@@ -7,8 +7,9 @@ const router = useRouter()
 // ===============Pinia===================================
 import { storeToRefs } from 'pinia'
 import { useUser } from '@/store/user.js'
+import { useRule } from '@/store/rule.js'
 const { userData } = storeToRefs(useUser());
-
+const { rule } = storeToRefs(useRule());
 // ===============FontAwesome===================================
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faFacebook, faInstagram, faLine } from '@fortawesome/free-brands-svg-icons'
@@ -21,8 +22,10 @@ const apiUrl = 'http://localhost:4000/user';
 const account = ref('')
 const password = ref('')
 const name = ref('')
+const email = ref('')
 const newaccount = ref('')
 const newpassword = ref('')
+const FormRef = ref(null); 
 
 //登入
 const Login = () => {
@@ -67,12 +70,13 @@ const Register = () => {
         return
     }
 
-    
     const register_data = {
         name: name.value,
+        email: email.value,
         account: newaccount.value,
-        password: newpassword.value,
+        password: newpassword.value
     }
+
     axios.post(apiUrl + '/register',register_data)
     .then(response => {
         if(response.data.success){
@@ -81,6 +85,7 @@ const Register = () => {
                 message: '成功註冊,請進行登入',
             });
             name.value = '';
+            email.value = '';
             newaccount.value = '';
             newpassword.value = '';
 
@@ -90,9 +95,11 @@ const Register = () => {
                 message: '帳號已存在',
             });
         }
-     })
+    })
 
 }
+
+
 
 //動畫
 const signUp = () => {
@@ -111,51 +118,41 @@ const signIn = () => {
 
             <!-- 註冊 -->
             <div class="form-container sign-up-container">
-                <el-form  @submit.prevent="Register">
+                <el-form 
+                ref="FormRef"
+                :rules="rule"
+                @submit.prevent="Register">
                     <h1>註冊</h1>
-                    <div class="social-container">
-                        <a href="#" class="social">
-                            <font-awesome-icon class="icon" :icon="['fab', 'line']" size="2xl" />
-                        </a>
-                        <a href="#" class="social">
-                            <font-awesome-icon class="icon" :icon="['fab', 'line']" size="2xl" />
-                        </a>
-                    </div>
-                    <span>或者其他方式註冊</span>
-                    <el-input 
-                    v-model="name" 
-                    placeholder="姓名" />
-                    <el-input 
-                    v-model="newaccount" 
-                    placeholder="帳號" />
-                    <el-input 
-                    v-model="newpassword" 
-                    placeholder="密碼" />
+                    <el-form-item prop="name" >
+                        <el-input v-model="name"  placeholder="姓名"  style="width: 250px;" />
+                    </el-form-item>
+                    <el-form-item prop="email" >
+                        <el-input v-model="email"  placeholder="信箱"  style="width: 250px;" />
+                    </el-form-item>
+                    <el-form-item prop="account" >
+                        <el-input v-model="newaccount"  placeholder="6-20 位數帳號"  style="width: 250px;" />
+                    </el-form-item>
+                    <el-form-item prop="password" >
+                        <el-input v-model="newpassword"  placeholder="6-20 位數密碼"  style="width: 250px;" />
+                    </el-form-item>
 
-                    <el-button  class="login-btn" @click="Register()">註冊</el-button >
+                    <el-button  
+                    class="login-btn" 
+                    @click="Register()">註冊</el-button >
 
                 </el-form>
             </div>
 
             <!-- 登入 -->
             <div class="form-container sign-in-container">
-                <el-form  >
+                <el-form >
                     <h1>登入</h1>
-                    <div class="social-container">
-                        <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
-                    </div>
-                    <span>或者其他方式登入</span>
-                    <el-input 
-                    type="account" 
-                    v-model="account"  
-                    placeholder="Account" 
-                    />
-                    <el-input 
-                    type="password" 
-                    v-model="password"  
-                    placeholder="Password"
-                    />
+                    <el-form-item >
+                        <el-input v-model="account"  placeholder="帳號"  style="width: 250px;" />
+                    </el-form-item>
+                    <el-form-item >
+                        <el-input v-model="password"  type="password" placeholder="密碼"  style="width: 250px;" />
+                    </el-form-item>
                     <a href="#" class="login-forget">忘記密碼</a>
                     <el-button class="login-btn" @click="Login()">登入</el-button>
                 </el-form>
@@ -207,19 +204,17 @@ const signIn = () => {
             justify-content: center;
             align-items: center;
             text-align: center;
+            h1{
+                margin-bottom: 10%;
+                color: gray;
+            }
 
         }
-        .el-input{
-            border: none;
-            padding: 0 15px;
-            margin: 8px 0;
-            width: 100%;
-        }
         .login-forget{
-            color: #333;
+            color: gray;
             font-size: 14px;
             text-decoration: none;
-            margin: 15px 0;
+            margin: 5px 0;
         }
 
         .social-container {
@@ -243,65 +238,65 @@ const signIn = () => {
 
 }
 .sign-in-container {
-        left: 0;
-        width: 50%;
-        z-index: 2;
+    left: 0;
+    width: 50%;
+    z-index: 2;
 }
 .sign-up-container {
-        left: 0;
-        width: 50%;
-        z-index: 1;
-        opacity: 0;
+    left: 0;
+    width: 50%;
+    z-index: 1;
+    opacity: 0;
 }
 .overlay-container {
-        position: absolute;
-        top: 0;
-        left: 50%;
-        width: 50%;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+    transition: transform .6s ease-in-out;
+    z-index: 100;
+    .overlay {
+        background: linear-gradient(to right, #e9c8ce, #e9c8ce) no-repeat 0 0 / cover;
+        background-image: url("../assets/p4.jpg");
+        color: #fff;
+        position: relative;
+        left: -100%;
         height: 100%;
-        overflow: hidden;
+        width: 200%;
+        transform: translateX(0);
         transition: transform .6s ease-in-out;
-        z-index: 100;
-        .overlay {
-            background: #ff416c;
-            background: linear-gradient(to right, #ff4b2b, #ff416c) no-repeat 0 0 / cover;
-            color: #fff;
-            position: relative;
-            left: -100%;
+        .overlay-panel {
+            position: absolute;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             height: 100%;
-            width: 200%;
+            width: 50%;
+            text-align: center;
             transform: translateX(0);
             transition: transform .6s ease-in-out;
-            .overlay-panel {
-                position: absolute;
-                top: 0;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                height: 100%;
-                width: 50%;
-                text-align: center;
-                transform: translateX(0);
-                transition: transform .6s ease-in-out;
-            }
-            .overlay-right {
-                right: 0;
-                transform: translateX(0);
-            }
-            .overlay-left {
-                transform: translateX(-20%);
-            }
-
         }
+        .overlay-right {
+            right: 0;
+            transform: translateX(0);
+        }
+        .overlay-left {
+            transform: translateX(-20%);
+        }
+
+    }
 }
 
 .login-btn{
     width: 120px;
     height: 40px;
     border-radius: 30px;
-    border: 1px solid #ff4b2b;
-    background: #ff445c;
+    border: 1px solid #e9c8ce;
+    background: #e9c8ce;
     color: #fff;
     margin-top: 20px;
     font-size: 18px;
