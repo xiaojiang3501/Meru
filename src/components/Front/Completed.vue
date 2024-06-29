@@ -47,6 +47,7 @@ const completed = () => {
     if (active.value++ > 2) active.value = 2
 
     axios.post(apiUrl + '/create-order', newOrder)
+    console.log(newOrder)
     
     ElMessageBox.alert('將跳回首頁', '訂單已成功送出', { //內容,標題
         showConfirmButton: false,
@@ -173,7 +174,6 @@ const completed = () => {
 }
 
 @media screen and (max-width: 767px) {
-
     .form{
         width: 90%;
         margin: 5% auto;

@@ -172,6 +172,50 @@ const signIn = () => {
 
         </div>
     </el-row>
+
+    <el-row>
+        <el-tabs type="border-card" class="login-app" stretch>
+            <el-tab-pane label="登入">
+                <el-form >
+                    <h3>登入</h3>
+                    <el-form-item >
+                        <el-input v-model="account"  placeholder="帳號"  style="width: 200px;" />
+                    </el-form-item>
+                    <el-form-item >
+                        <el-input v-model="password"  type="password" placeholder="密碼"  style="width: 200px;" />
+                    </el-form-item>
+                    <a href="#" class="login-forget">忘記密碼</a>
+                    <el-button class="login-btn" @click="Login()">登入</el-button>
+                </el-form>
+            </el-tab-pane>
+
+            <el-tab-pane label="註冊">
+                <el-form 
+                ref="FormRef"
+                :rules="rule"
+                @submit.prevent="Register">
+                    <h3>註冊</h3>
+                    <el-form-item prop="name" >
+                        <el-input v-model="name"  placeholder="姓名"  style="width: 200px;" />
+                    </el-form-item>
+                    <el-form-item prop="email" >
+                        <el-input v-model="email"  placeholder="信箱"  style="width: 200px;" />
+                    </el-form-item>
+                    <el-form-item prop="account" >
+                        <el-input v-model="newaccount"  placeholder="6-20 位數帳號"  style="width: 200px;" />
+                    </el-form-item>
+                    <el-form-item prop="password" >
+                        <el-input v-model="newpassword"  placeholder="6-20 位數密碼"  style="width: 200px;" />
+                    </el-form-item>
+
+                    <el-button  
+                    class="login-btn" 
+                    @click="Register()">註冊</el-button >
+
+                </el-form>
+            </el-tab-pane>
+        </el-tabs>
+    </el-row>
 </template>
 
 <style lang="scss" scoped>
@@ -179,17 +223,19 @@ const signIn = () => {
 .login-wrpper{
     width: 50%;
     margin: 2% auto 5%;
-    // border: 1px solid red;
 }
-
+.login-app{
+    display: none;
+}
 .container {
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 14px 28px rgba(0, 0, 0, .2), 0 10px 10px rgba(0, 0, 0, .2);
     position: relative;
     overflow: hidden;
-    width: 750px;
+    width: 100%;
     height: 500px;
+    margin: 3%;
     .form-container{
         position: absolute;
         top: 0;
@@ -210,32 +256,28 @@ const signIn = () => {
             }
 
         }
-        .login-forget{
-            color: gray;
-            font-size: 14px;
-            text-decoration: none;
-            margin: 5px 0;
-        }
 
-        .social-container {
-            margin: 20px 0;
-            a{
-                border: 1px solid #ddd;
-                border-radius: 50%;
-                display: inline-flex;
-                justify-content: center;
-                align-items: center;
-                margin: 0 5px;
-                height: 40px;
-                width: 40px;
-            }
-            .icon{
-                width: 20px;
-                color: #ddd;
-            }
-        }
     }
 
+}
+.login-forget{
+    color: gray;
+    font-size: 14px;
+    text-decoration: none;
+    margin: 5px 0;
+}
+.login-btn{
+    width: 120px;
+    height: 40px;
+    border-radius: 30px;
+    border: 1px solid #e9c8ce;
+    background: #e9c8ce;
+    color: #fff;
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: transform 80ms ease-in;
 }
 .sign-in-container {
     left: 0;
@@ -291,19 +333,6 @@ const signIn = () => {
     }
 }
 
-.login-btn{
-    width: 120px;
-    height: 40px;
-    border-radius: 30px;
-    border: 1px solid #e9c8ce;
-    background: #e9c8ce;
-    color: #fff;
-    margin-top: 20px;
-    font-size: 18px;
-    font-weight: bold;
-    text-transform: uppercase;
-    transition: transform 80ms ease-in;
-}
 .login-btn2{
     background: transparent;
     border: 1px solid #fff;
@@ -317,7 +346,6 @@ const signIn = () => {
 .login-btn:focus,.login-btn2:focus {
     outline: none;
 }
-
 
 /* Move signin to right */
 .container.right-panel-active .sign-in-container {
@@ -351,5 +379,41 @@ const signIn = () => {
     transform: translateX(20%);
 }
 
+
+@media screen and (max-width: 1025px) {
+    .login-wrpper{
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .login-wrpper{
+        display: none;
+    }
+    .login-app{
+        display: block;
+        width: 100%;
+        margin: 3%;
+        box-shadow: 0 14px 28px rgba(0, 0, 0, .2), 0 10px 10px rgba(0, 0, 0, .2);
+        text-align: center;
+        .el-form {
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            padding: 5% 5% 10%;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            h3{
+                color: gray;
+                margin-bottom: 5%;
+            }
+
+        }
+    }
+
+
+}
 
 </style>

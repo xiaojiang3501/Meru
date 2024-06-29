@@ -22,6 +22,9 @@ button:hover {
 .el-tabs__item:hover{
     color: #ef7d8d;
 }
+.el-tabs--border-card>.el-tabs__header .el-tabs__item:not(.is-disabled):hover{
+	color: #ef7d8d;
+}
 //數量選擇----------------
 .el-input{
 	--el-input-focus-border-color: #e9c8ce;
@@ -81,5 +84,8 @@ button:hover {
 .upLoadHide .el-upload {
 	display: none;
 }
+
+
+
 
 @import "/node_modules/element-plus/theme-chalk/index.css";

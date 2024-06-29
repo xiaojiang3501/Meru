@@ -117,7 +117,7 @@ router.put('/edit-user', (req, res) => {
 
 //創建訂單
 router.post('/create-order', (req, res) => {
-	const { Member_ID, account, payee, payee_phone, payment_address, pay, ship, total_price, order_state, pay_state, items } = req.body;
+	const { Member_ID, account, payee, payee_phone, payment_address, pay, ship, total_price, order_state, pay_state, ship_state, items } = req.body;
 
 
 	const Order_ID = new Date().getTime().toString();
@@ -125,9 +125,9 @@ router.post('/create-order', (req, res) => {
 	const create_time = new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().slice(0, 19).replace('T', ' '); 
 	const itemsJSON = JSON.stringify(items); // 將對象轉為JSON 
 
-	const query = `INSERT INTO orders (Order_ID, Member_ID, create_time, account, payee, payee_phone, payment_address, total_price, pay, ship, order_state, pay_state, items) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '${itemsJSON}')`;
+	const query = `INSERT INTO orders (Order_ID, Member_ID, create_time, account, payee, payee_phone, payment_address, total_price, pay, ship, order_state, pay_state, ship_state, items) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,'${itemsJSON}')`;
 
-	const values = [Order_ID, Member_ID, create_time, account, payee, payee_phone, payment_address, total_price, pay, ship, order_state, pay_state];
+	const values = [Order_ID, Member_ID, create_time, account, payee, payee_phone, payment_address, total_price, pay, ship, order_state, pay_state, ship_state];
 
 	connection.query(query, values, (err, results, fields) => {
 		if (err) {
@@ -138,7 +138,7 @@ router.post('/create-order', (req, res) => {
 
 		// console.log(results);
 
-		res.json({ success: true, data: '創建訂單成功' });
+		res.json({ success: true, message: '創建訂單成功' });
 	});
 });
 

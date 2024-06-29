@@ -16,7 +16,7 @@ import axios from 'axios'
 
 const apiUrl = 'http://localhost:4000/user';
 const screenWidth = ref(window.innerWidth)
-const tabPosition = ref(screenWidth.value <= 767 ? 'top' : 'left')
+const tabPosition = ref(screenWidth.value <= 1025 ? 'top' : 'left')
 const tabValue = ref("1")  //預設第一個
 const FormRef = ref(null); 
 const passwordType = ref(false)//密碼
@@ -39,6 +39,8 @@ const showAnswer = ref(false);
 onMounted(() => {
     updateOrder()
 })
+
+
 
 //更新資料
 const updateUser = async () => {
@@ -158,15 +160,6 @@ const handleCheck = (row) => {
 
 
 
-// 登出
-const Logout = () => {
-    sessionStorage.removeItem('User')
-    sessionStorage.removeItem('token')
-    router.push({ path: "/" })
-    alert("成功登出")
-}
-
-
 
 </script>
 <template>
@@ -227,17 +220,17 @@ const Logout = () => {
                 :default-sort="{ prop: 'date',order: 'descending' }"
                 :header-cell-style="{color:'#606266',textAlign: 'center'}"
                 :cell-style="{ textAlign: 'center' }"
-                style="width: 90%; margin-left: 50px;">
-                    <el-table-column fixed prop="Order_ID" label="訂單編號" />
-                    <el-table-column fixed prop="create_time" label="訂單日期" width="180"/>
+                class="user-order">
+                    <el-table-column prop="Order_ID" label="訂單編號" width="150"/>
+                    <el-table-column prop="create_time" label="訂單日期" width="180"/>
                     <el-table-column prop="total_price" label="金額"  />
-                    <el-table-column prop="pay_state" label="交易狀態">
+                    <el-table-column prop="pay_state" label="交易狀態" width="100">
                         <template #default="{ row }">
                             <el-tag :type="row.pay_state === '成功' ? 'success' : 'danger'">{{ row.pay_state }}</el-tag>
                         </template>
                     </el-table-column>
 
-                    <el-table-column fixed="right" label="詳情" width="150" class="edit">
+                    <el-table-column fixed="right" label="詳情" width="100" class="edit">
                         <template #default="{ row }">
                             <el-button 
                             size="small" 
@@ -258,7 +251,7 @@ const Logout = () => {
                     :header-cell-style="{background:'#ecf5ff',color:'#606266',textAlign: 'center'}"
                     :cell-style="{ textAlign: 'center' }"
                     :data="form.items"
-                    class="order-details2">
+                    class="user-order-details">
                         <el-table-column fixed prop="image" label="商品圖片" width="200" >
                             <template #default="{ row }">
                                 <img :src="`../public/products/${row.image}`" alt="商品圖片" style="max-width: 60px; max-height: 60px;" />
@@ -336,14 +329,8 @@ const Logout = () => {
                 
             </el-tab-pane> -->
 
-            <el-tab-pane label="登出"  name="4">
-                <template #label >
-                    <el-button  @click="Logout()">登出</el-button>
-                </template>
-            </el-tab-pane>
 
         </el-tabs>
-
     </el-row>
 
 </template>
@@ -366,6 +353,10 @@ const Logout = () => {
         display: flex;
         margin: 10% auto 3%;
 
+    }
+    .user-order{
+        width: 90%; 
+        margin-left: 5%;
     }
     .user-messages{
         margin: 0 3%;
@@ -394,7 +385,6 @@ const Logout = () => {
 
 }
 
-
 .el-form-item{
     margin-bottom: 20px;
 }
@@ -412,45 +402,50 @@ const Logout = () => {
     --el-button-hover-text-color:#ef7d8d;
 }
 
-@media screen and (max-width: 767px) {
-    
+@media screen and (max-width: 1025px) {
     .user-container{
-    width: 70%;
-    margin: 5% auto;
-    padding: 5% 2%;
-    
-    .user-table{
-        width: 50%;
-        margin: 5% auto;
-    }
-    .user-personal-button{
-        width: 160px;
-        display: flex;
-        margin: 10% auto 3%;
-
-    }
-    .user-messages{
-        margin: 0 3%;
-        .user-message{
-            width: 97%;
-            height: 120px;
-            border-radius: 8px;
-            margin: 1% 0 3%;
-            padding: 10px;
+        width: 100%;
+        margin: 5%;
+        padding: 5% 2%;
         
+        .user-table{
+            width: 50%;
+            margin: 5% auto;
         }
-        h6{
-            margin: 1% 0;
-        }
-        .message-top{
+        .user-personal-button{
+            width: 160px;
             display: flex;
+            margin: 10% auto 3%;
         }
-        .el-input{
-            margin-right: 30px;
+
+        .user-order{
+            width: 95%;
+            margin: 0 auto;
+        }
+        .user-order-details{
+            margin: 0;
         }
     }
-
 }
+
+@media screen and (max-width: 767px) {
+    .user-container{
+        width: 100%;
+        margin: 5% auto;
+        padding: 5% 2%;
+        
+        .user-table{
+            width: 50%;
+            margin: 5% auto;
+        }
+        .user-personal-button{
+            width: 160px;
+            display: flex;
+            margin: 10% auto 3%;
+
+        }
+
+    }
 
 }
 

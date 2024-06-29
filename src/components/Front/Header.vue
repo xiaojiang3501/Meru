@@ -7,11 +7,33 @@ import { storeToRefs } from 'pinia'
 import { useCart } from '@/store/cart.js'
 const { cartData } = storeToRefs(useCart());
 
+
+const notLogin = ref(sessionStorage.getItem('token')=== null);
+
+onMounted(() => {
+    notLogin.value = sessionStorage.getItem('token') === null;
+})
+
+watch(notLogin, (newValue) => {
+    console.log('notLogin 的值改變為：', newValue);
+});
+
 const userLink = () => {
     let token = sessionStorage.getItem('token');
     return token ? '/user' : '/login';
-
 }
+
+
+// 登出
+const Logout = () => {
+    notLogin.value = true;
+    sessionStorage.removeItem('User')
+    sessionStorage.removeItem('token')
+    router.push({ path: "/" })
+    alert("成功登出")
+}
+
+
 
 </script>
 <template>
@@ -43,6 +65,9 @@ const userLink = () => {
                         <UserFilled class="header-icon" />
                     </el-icon>
                 </router-link>
+            </li>
+            <li v-if="isLogin">
+                <span @click="Logout()">登出</span>
             </li>
 
         </el-col>
@@ -79,10 +104,12 @@ const userLink = () => {
         margin: 5%;
         line-height: 40px;
         font-size: 1.5rem;
-        a,.header-icon{
+        a,.header-icon,span{
             color: #6c6b6c;
+            font-weight: bold;
+            cursor: pointer;
         }
-        a:hover,.header-icon:hover{
+        a:hover,.header-icon:hover,span:hover{
             color: #e9c8ce;
         }
         // border: 1px solid red;
