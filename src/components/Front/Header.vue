@@ -91,10 +91,8 @@ const Logout = () => {
 }
 
 .header-left{
-    margin: 1%;
-    // border: 1px solid red;
     img{
-        width: 45px;
+        width: 80px;
     }
 }
 .header-right{

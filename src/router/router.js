@@ -126,22 +126,6 @@ const router = createRouter({
 				auth: true //添加字段判斷該頁面是否需要登錄
 			}
           },
-		  {
-            path: '/test',
-            name: 'test',
-            component: () => import('../views/Test.vue'),
-			meta: {
-				auth: true //添加字段判斷該頁面是否需要登錄
-			}
-          },
-		  {
-            path: '/123',
-            name: '123',
-            component: () => import('../views/123.vue'),
-			meta: {
-				auth: true //添加字段判斷該頁面是否需要登錄
-			}
-          },
         ]
       }
     ]
