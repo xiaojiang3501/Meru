@@ -1,4 +1,5 @@
-# 請先安裝Node.js
+# 安裝啟用步驟
+## 請先安裝Node.js
 ## 第一步 安裝
 
 npm install
