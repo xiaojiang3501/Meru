@@ -13,7 +13,7 @@
                 <h1>MERU MACARORS</h1>
                 <p>我們的馬卡龍是由最優質的材料製成，擁有輕盈的質地和令人雀躍的口感，每一口都是一場甜蜜的驚喜。</p>
                 <p>從經典口味到創新組合，我們的馬卡龍系列將為您帶來無盡的美味。</p>
-                
+
             </div>
 
         </el-col>
@@ -115,7 +115,7 @@
 }
 .home-picture{
     // background-color: white;
-    margin-bottom: 10%;
+    margin-bottom: 2%;
     .home-picture-content{
         display: flex;
         justify-content: flex-end;
